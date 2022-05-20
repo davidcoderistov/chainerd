@@ -1,6 +1,10 @@
 import React, { useState } from 'react'
+import { Typography, styled } from '@mui/material'
 import SeedInfo from './SeedInfo'
 
+const Header = styled(Typography)({
+    marginBottom: '15px'
+})
 
 interface CreateWalletStepProps {
     seed: Array<string>
@@ -20,7 +24,13 @@ export default function CreateWalletStep({ seed } : CreateWalletStepProps) {
 
     return (
         <React.Fragment>
+            <Header
+                variant='body1'
+            >
+                Please select each phrase in order to make sure that the secret recovery phrase is correct.
+            </Header>
             <SeedInfo
+                style={{ marginBottom: '30px' }}
                 seed={seedInfo.map(seed => seed.name)}/>
             <SeedInfo
                 seed={seed}

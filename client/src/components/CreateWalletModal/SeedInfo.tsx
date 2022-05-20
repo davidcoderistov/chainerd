@@ -24,9 +24,10 @@ interface SeedInfoProps {
     seed: Array<string>,
     actionable?: boolean,
     onClickWord?: (index: number, shouldBeAdded: boolean) => void,
+    style?: object,
 }
 
-export default function SeedInfo({ seed, actionable, onClickWord }: SeedInfoProps) {
+export default function SeedInfo({ seed, actionable, onClickWord, style = {} }: SeedInfoProps) {
 
     const [indices, setIndices] = useState<{ [key: number]: boolean }>(seed.reduce((indices, word, index) => ({
         ...indices,
@@ -47,7 +48,7 @@ export default function SeedInfo({ seed, actionable, onClickWord }: SeedInfoProp
     return (
         <React.Fragment>
             { actionable ? (
-                <Container elevation={0}>
+                <Container elevation={0} style={style}>
                     { seed.map((word, index) => (
                         <Button
                             key={`actionable-${index}`}
@@ -59,7 +60,7 @@ export default function SeedInfo({ seed, actionable, onClickWord }: SeedInfoProp
                     ))}
                 </Container>
             ) : (
-                <Container variant='outlined'>
+                <Container variant='outlined' style={style}>
                     { seed.map((word, index) => (
                         <Word
                             key={`static-${index}`}
