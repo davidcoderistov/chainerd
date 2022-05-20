@@ -23,23 +23,24 @@ const Word = styled(Paper)({
 interface SeedInfoProps {
     seed: Array<string>,
     actionable?: boolean,
-    onClickWord?: (index: number) => {},
+    onClickWord?: (index: number, shouldBeAdded: boolean) => void,
 }
 
 export default function SeedInfo({ seed, actionable, onClickWord }: SeedInfoProps) {
 
     const [indices, setIndices] = useState<{ [key: number]: boolean }>(seed.reduce((indices, word, index) => ({
         ...indices,
-        [index]: true
+        [index]: false
     }), {}))
 
     const handleOnClick = (index: number) => {
         if (onClickWord) {
+            const shouldBeAdded = !indices[index]
             setIndices({
                 ...indices,
-                [index]: !indices[index]
+                [index]: shouldBeAdded
             })
-            onClickWord(index)
+            onClickWord(index, shouldBeAdded)
         }
     }
 
@@ -50,7 +51,7 @@ export default function SeedInfo({ seed, actionable, onClickWord }: SeedInfoProp
                     { seed.map((word, index) => (
                         <Button
                             key={`actionable-${index}`}
-                            variant={indices[index] ? 'outlined' : 'contained'}
+                            variant={indices[index] ? 'contained' : 'outlined'}
                             onClick={() => handleOnClick(index)}
                         >
                             { word }
