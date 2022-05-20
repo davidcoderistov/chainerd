@@ -2,7 +2,7 @@ import React, { useState } from 'react'
 import { Dialog, DialogTitle, DialogContent, DialogActions } from '@mui/material'
 import { Stepper, Step, StepLabel } from '@mui/material'
 import { Button, Typography, Grid, styled } from '@mui/material'
-import CreateWalletStep from './CreateWalletStep'
+import CreateWallet from './CreateWallet'
 import SeedInfo from "./SeedInfo";
 
 const steps = [
@@ -82,7 +82,7 @@ export default function CreateWalletModal() {
                         )}
 
                         { isThirdActiveStep && (
-                            <CreateWalletStep seed={seed}/>
+                            <CreateWallet seed={seed}/>
                         )}
                     </GridContent>
                 </Grid>

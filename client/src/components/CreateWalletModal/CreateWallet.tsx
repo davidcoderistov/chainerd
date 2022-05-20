@@ -10,7 +10,7 @@ interface CreateWalletStepProps {
     seed: Array<string>
 }
 
-export default function CreateWalletStep({ seed } : CreateWalletStepProps) {
+export default function CreateWallet({ seed } : CreateWalletStepProps) {
 
     const [seedInfo, setSeedInfo] = useState<Array<{ name: string, index: number }>>([])
 
