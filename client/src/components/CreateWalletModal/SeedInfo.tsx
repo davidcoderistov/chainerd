@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useState } from 'react'
 import { Paper, Button, styled } from '@mui/material'
 
 const Container = styled(Paper)(props => ({
@@ -28,6 +28,21 @@ interface SeedInfoProps {
 
 export default function SeedInfo({ seed, actionable, onClickWord }: SeedInfoProps) {
 
+    const [indices, setIndices] = useState<{ [key: number]: boolean }>(seed.reduce((indices, word, index) => ({
+        ...indices,
+        [index]: true
+    }), {}))
+
+    const handleOnClick = (index: number) => {
+        if (onClickWord) {
+            setIndices({
+                ...indices,
+                [index]: !indices[index]
+            })
+            onClickWord(index)
+        }
+    }
+
     return (
         <React.Fragment>
             { actionable ? (
@@ -35,12 +50,8 @@ export default function SeedInfo({ seed, actionable, onClickWord }: SeedInfoProp
                     { seed.map((word, index) => (
                         <Button
                             key={`actionable-${index}`}
-                            variant='contained'
-                            onClick={() => {
-                                if (onClickWord) {
-                                    onClickWord(index)
-                                }
-                            }}
+                            variant={indices[index] ? 'outlined' : 'contained'}
+                            onClick={() => handleOnClick(index)}
                         >
                             { word }
                         </Button>
