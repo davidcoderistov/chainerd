@@ -20,9 +20,14 @@ const Word = styled(Paper)({
     height: '45px'
 })
 
-export default function SeedInfo() {
-    const actionable = true
-    const seed = ['entry', 'pattern', 'luggage', 'exotic', 'tribulations', 'snake', 'around', 'welcome', 'aboard', 'nature', 'something', 'elsewhere']
+interface SeedInfoProps {
+    seed: Array<string>,
+    actionable?: boolean,
+    onClickWord?: (index: number) => {},
+}
+
+export default function SeedInfo({ seed, actionable, onClickWord }: SeedInfoProps) {
+
     return (
         <React.Fragment>
             { actionable ? (
@@ -31,6 +36,11 @@ export default function SeedInfo() {
                         <Button
                             key={`actionable-${index}`}
                             variant='contained'
+                            onClick={() => {
+                                if (onClickWord) {
+                                    onClickWord(index)
+                                }
+                            }}
                         >
                             { word }
                         </Button>
