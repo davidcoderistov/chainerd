@@ -34,5 +34,7 @@ function *watchGenKeystore() {
 }
 
 export {
+    createVault,
+    genKeystore,
     watchGenKeystore
 }
