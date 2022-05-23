@@ -8,7 +8,7 @@ const mockAction = createWallet.generate({
     hdPathString: '',
 })
 
-describe('*genKeystore fulfilled case', () => {
+describe('Test *genKeystore fulfilled case', () => {
     const it = genKeystore(mockAction)
 
     test('*genKeystore should dispatch pending action', () => {
@@ -46,7 +46,7 @@ describe('*genKeystore fulfilled case', () => {
     })
 })
 
-describe('*genKeystore rejected case', () => {
+describe('Test *genKeystore rejected case', () => {
     const it = genKeystore(mockAction)
 
     test('*genKeystore should dispatch pending action', () => {
