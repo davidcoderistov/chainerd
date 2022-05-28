@@ -13,7 +13,7 @@ import Visibility from '@mui/icons-material/Visibility'
 import VisibilityOff from '@mui/icons-material/VisibilityOff'
 
 interface CreatePasswordProps {
-    onCreate: () => void
+    onCreate: (password: string) => void
 }
 
 
@@ -43,6 +43,10 @@ export default function CreatePassword({ onCreate } : CreatePasswordProps) {
 
     const handleMouseDownPassword = (event: React.MouseEvent<HTMLButtonElement>) => {
         event.preventDefault();
+    }
+
+    const handleOnCreate = () => {
+        onCreate(password)
     }
 
     return (
@@ -94,7 +98,7 @@ export default function CreatePassword({ onCreate } : CreatePasswordProps) {
                     label="Confirm Password"
                 />
             </FormControl>
-            <Button variant='contained' sx={{ mt: 5, borderRadius: 8, px: 4 }} onClick={onCreate}>
+            <Button variant='contained' sx={{ mt: 5, borderRadius: 8, px: 4 }} onClick={handleOnCreate}>
                 Create
             </Button>
         </Grid>
