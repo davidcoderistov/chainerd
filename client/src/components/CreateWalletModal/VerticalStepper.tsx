@@ -35,8 +35,11 @@ const steps = [
     'Create Wallet',
 ]
 
-export default function VerticalStepper () {
-    const activeStep = 0
+interface VerticalStepperProps {
+    activeStep: number
+}
+
+export default function VerticalStepper ({ activeStep } : VerticalStepperProps) {
     return (
         <Container>
             { steps.map((step, index) => (
@@ -59,7 +62,9 @@ export default function VerticalStepper () {
                             { step }
                         </Typography>
                     </Column>
-                    <StyledDivider orientation='vertical'/>
+                    { index < 2 ? (
+                        <StyledDivider orientation='vertical'/>
+                    ) : null }
                 </React.Fragment>
             ))}
         </Container>
