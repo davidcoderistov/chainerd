@@ -3,12 +3,12 @@ import { Paper, Button, styled } from '@mui/material'
 
 const Container = styled(Paper)(props => ({
     display: 'grid',
-    gridTemplateRows: 'repeat(3, 45px)',
-    gridTemplateColumns: 'repeat(4, 150px)',
+    gridTemplateRows: 'repeat(4, 45px)',
+    gridTemplateColumns: 'repeat(3, 150px)',
     rowGap: '10px',
     columnGap: '10px',
-    width: props.variant ? '630px' : '670px',
-    height: props.variant ? '155px' : '195px',
+    width: props.variant ? '470px' : '510px',
+    height: props.variant ? '210px' : '250px',
     padding: props.variant && '20px'
 }))
 
