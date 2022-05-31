@@ -1,5 +1,5 @@
 import React, { useCallback } from 'react'
-import TextField  from '../TextField'
+import TextInput  from '../TextInput'
 import { Divider, styled } from '@mui/material'
 import { ArrowDownwardOutlined } from '@mui/icons-material'
 
@@ -44,7 +44,7 @@ export default function RecipientStep ({ fromAddress, onChangeFromAddress, toAdd
 
     return (
         <React.Fragment>
-            <TextField
+            <TextInput
                 value={fromAddress}
                 onChange={handleOnChangeFromAddress}
                 inputLabel='Account to debit'
@@ -58,7 +58,7 @@ export default function RecipientStep ({ fromAddress, onChangeFromAddress, toAdd
                     sx={{ p:1 }}/>
                 <StyledDivider />
             </DividerContainer>
-            <TextField
+            <TextInput
                 value={toAddress}
                 onChange={handleOnChangeToAddress}
                 inputLabel='Recipient address'
