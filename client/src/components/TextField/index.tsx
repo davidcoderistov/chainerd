@@ -10,7 +10,7 @@ export default function TextField (props: TextFieldProps & { inputLabel: string 
                 component='div'
                 variant='subtitle1'
                 gutterBottom
-                sx={{ color: 'rgb(120,153,192)'}}
+                sx={{ color: '#787878'}}
             >
                 { inputLabel }
             </Typography>
