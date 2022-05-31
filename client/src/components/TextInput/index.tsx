@@ -1,8 +1,16 @@
 import React from 'react'
-import { TextField as MUITextField, Typography, TextFieldProps } from '@mui/material'
+import { TextField , TextFieldProps, Typography, styled } from '@mui/material'
 
+const NumberTextField = styled(TextField)({
+    '& input::-webkit-outer-spin-button, & input::-webkit-inner-spin-button': {
+        display: 'none',
+    },
+    '& input[type=number]': {
+        MozAppearance: 'textfield'
+    },
+})
 
-export default function TextField (props: TextFieldProps & { inputLabel?: string }) {
+export default function TextInput (props: TextFieldProps & { inputLabel?: string }) {
     const { inputLabel, ...rest } = props
     return (
         <React.Fragment>
@@ -16,7 +24,11 @@ export default function TextField (props: TextFieldProps & { inputLabel?: string
                     { inputLabel }
                 </Typography>
             )}
-            <MUITextField {...rest} />
+            { props.type === 'number' ? (
+                <NumberTextField {...rest} />
+            ) : (
+                <TextField {...rest} />
+            )}
         </React.Fragment>
     )
 }
