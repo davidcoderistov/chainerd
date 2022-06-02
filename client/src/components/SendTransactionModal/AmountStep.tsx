@@ -1,7 +1,8 @@
 import React, { useState, useCallback } from 'react'
 import TextInput from '../TextInput'
+import Label from '../Label'
 import  { Grid, Slider, Typography, InputAdornment, styled } from '@mui/material'
-import { TypographyProps, SliderProps } from '@mui/material'
+import { SliderProps } from '@mui/material'
 import { ArrowRightAlt } from '@mui/icons-material'
 
 
@@ -24,20 +25,6 @@ const LeftArrow = styled(ArrowRightAlt)({
     transform: 'rotate(180deg)',
     color: '#909090',
 })
-
-const Label = (props: TypographyProps & { value: string }) => {
-    const { variant, value } = props
-    return (
-        <Typography
-            component='div'
-            variant={variant}
-            gutterBottom
-            sx={{ color: '#909090' }}
-        >
-            { value }
-        </Typography>
-    )
-}
 
 interface AmountProps {
     cryptoAmount: string,
@@ -161,14 +148,7 @@ const GasPrice = ({ gasPrice, onChangeGasPrice } : GasPriceProps) => {
         <Grid container spacing={2} sx={{ mt: 1 }}>
             <Grid item xs={12}>
                 <GasPriceContainer>
-                    <Typography
-                        component='div'
-                        variant='subtitle2'
-                        gutterBottom
-                        sx={{ color: '#909090' }}
-                    >
-                        Gas Price
-                    </Typography>
+                    <Label value='Gas Price' />
                     <Typography
                         component='div'
                         variant='subtitle2'
@@ -187,22 +167,8 @@ const GasPrice = ({ gasPrice, onChangeGasPrice } : GasPriceProps) => {
                     max={90}
                 />
                 <GasPriceContainer>
-                    <Typography
-                        component='div'
-                        variant='subtitle2'
-                        gutterBottom
-                        sx={{ color: '#909090' }}
-                    >
-                        Slow
-                    </Typography>
-                    <Typography
-                        component='div'
-                        variant='subtitle2'
-                        gutterBottom
-                        sx={{ color: '#909090' }}
-                    >
-                        Fast
-                    </Typography>
+                    <Label value='Slow' />
+                    <Label value='Fast' />
                 </GasPriceContainer>
             </Grid>
         </Grid>
@@ -212,10 +178,7 @@ const GasPrice = ({ gasPrice, onChangeGasPrice } : GasPriceProps) => {
 const GasLimit = () => (
     <Grid container spacing={2} sx={{ alignItems: 'center', mt: 1 }}>
         <Grid item md xs={12}>
-            <Label
-                value='Gas Limit'
-                variant='subtitle2'
-            />
+            <Label value='Gas Limit' />
         </Grid>
         <Grid item md xs={12}>
             <TextInput
