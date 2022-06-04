@@ -1,5 +1,6 @@
 import React from 'react'
-import { TextField , TextFieldProps, Typography, styled } from '@mui/material'
+import { TextField , TextFieldProps, styled } from '@mui/material'
+import Label from '../Label'
 
 const NumberTextField = styled(TextField)({
     '& input::-webkit-outer-spin-button, & input::-webkit-inner-spin-button': {
@@ -15,14 +16,7 @@ export default function TextInput (props: TextFieldProps & { inputLabel?: string
     return (
         <React.Fragment>
             { inputLabel && (
-                <Typography
-                    component='div'
-                    variant='subtitle1'
-                    gutterBottom
-                    sx={{ color: '#909090' }}
-                >
-                    { inputLabel }
-                </Typography>
+                <Label value={inputLabel} />
             )}
             { props.type === 'number' ? (
                 <NumberTextField {...rest} />
