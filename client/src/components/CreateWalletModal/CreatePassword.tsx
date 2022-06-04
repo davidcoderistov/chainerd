@@ -1,28 +1,37 @@
-import React, { useState } from 'react'
+import React, { useState, useCallback } from 'react'
 import TextInput from '../TextInput'
 import { InputAdornment, IconButton } from '@mui/material'
 import Visibility from '@mui/icons-material/Visibility'
 import VisibilityOff from '@mui/icons-material/VisibilityOff'
 
+interface CreatePasswordProps {
+    password: string,
+    onChangePassword: (password: string) => void,
+    confirmPassword: string,
+    onChangeConfirmPassword: (confirmPassword: string) => void,
+}
 
-export default function CreatePassword () {
+export default function CreatePassword ({ password, onChangePassword, confirmPassword, onChangeConfirmPassword }: CreatePasswordProps) {
 
-    const [password, setPassword] = useState<string>('')
     const [showPassword, setShowPassword] = useState<boolean>(false)
-
-    const [confirmPassword, setConfirmPassword] = useState<string>('')
     const [showConfirmPassword, setShowConfirmPassword] = useState<boolean>(false)
 
-    const handleChangePassword = (event: React.ChangeEvent<HTMLInputElement>) => {
-        setPassword(event.target.value)
-    }
+    const handleChangePassword = useCallback(
+        (event: React.ChangeEvent<HTMLInputElement>) => {
+            onChangePassword(event.target.value)
+        },
+        [onChangePassword]
+    )
+
+    const handleChangeConfirmPassword = useCallback(
+        (event: React.ChangeEvent<HTMLInputElement>) => {
+            onChangeConfirmPassword(event.target.value)
+        },
+        [onChangeConfirmPassword]
+    )
 
     const handleClickShowPassword = () => {
         setShowPassword(!showPassword)
-    }
-
-    const handleChangeConfirmPassword = (event: React.ChangeEvent<HTMLInputElement>) => {
-        setConfirmPassword(event.target.value)
     }
 
     const handleClickShowConfirmPassword = () => {
@@ -30,7 +39,7 @@ export default function CreatePassword () {
     }
 
     const handleMouseDownPassword = (event: React.MouseEvent<HTMLButtonElement>) => {
-        event.preventDefault();
+        event.preventDefault()
     }
 
     return (
