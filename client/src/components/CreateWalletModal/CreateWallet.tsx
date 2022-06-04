@@ -8,10 +8,9 @@ const Header = styled(Typography)({
 
 interface CreateWalletStepProps {
     seed: Array<string>,
-    onConfirm: () => void
 }
 
-export default function CreateWallet({ seed, onConfirm } : CreateWalletStepProps) {
+export default function CreateWallet({ seed } : CreateWalletStepProps) {
 
     const [seedInfo, setSeedInfo] = useState<Array<{ name: string, index: number }>>([])
 
@@ -25,9 +24,6 @@ export default function CreateWallet({ seed, onConfirm } : CreateWalletStepProps
 
     return (
         <React.Fragment>
-            <Typography variant='h4' sx={{ mb: 2 }}>
-                Confirm Secret Recovery Phrase
-            </Typography>
             <Header
                 variant='body1'
             >
@@ -40,9 +36,6 @@ export default function CreateWallet({ seed, onConfirm } : CreateWalletStepProps
                 seed={seed}
                 actionable
                 onClickWord={handleOnClickWord}/>
-            <Button variant='contained' sx={{ borderRadius: 8, px: 4 }} onClick={onConfirm}>
-                Confirm
-            </Button>
         </React.Fragment>
     )
 }
