@@ -1,6 +1,7 @@
-import React, { useState } from 'react'
-import { Typography, styled, Button } from '@mui/material'
+import React, { useState, useMemo } from 'react'
+import { Typography, styled } from '@mui/material'
 import SeedInfo from './SeedInfo'
+import _shuffle from 'lodash/shuffle'
 
 const Header = styled(Typography)({
     marginBottom: '15px'
@@ -16,11 +17,13 @@ export default function CreateWallet({ seed } : CreateWalletStepProps) {
 
     const handleOnClickWord = (index: number, shouldBeAdded: boolean) => {
         if (shouldBeAdded) {
-            setSeedInfo([...seedInfo, { name: seed[index], index, }])
+            setSeedInfo([...seedInfo, { name: randomSeed[index], index, }])
         } else {
             setSeedInfo(seedInfo.filter(seed => seed.index !== index))
         }
     }
+
+    const randomSeed = useMemo(() => _shuffle(seed), [seed])
 
     return (
         <React.Fragment>
@@ -33,7 +36,7 @@ export default function CreateWallet({ seed } : CreateWalletStepProps) {
                 style={{ marginBottom: '30px' }}
                 seed={seedInfo.map(seed => seed.name)}/>
             <SeedInfo
-                seed={seed}
+                seed={randomSeed}
                 actionable
                 onClickWord={handleOnClickWord}/>
         </React.Fragment>
