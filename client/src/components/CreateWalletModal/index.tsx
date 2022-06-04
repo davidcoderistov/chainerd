@@ -1,5 +1,5 @@
 import React, { useState } from 'react'
-import {Dialog, DialogTitle, DialogContent, DialogActions} from '@mui/material'
+import  {Dialog, DialogTitle, DialogContent, DialogActions } from '@mui/material'
 import { Stepper, Step, StepLabel } from '@mui/material'
 import { Grid, styled, IconButton, Button } from '@mui/material'
 import CreatePassword from './CreatePassword'
@@ -33,6 +33,12 @@ export default function CreateWalletModal({ open, seed, onCreatePassword, onCrea
 
     const [password, setPassword] = useState<string>('')
     const [confirmPassword, setConfirmPassword] = useState<string>('')
+
+    const [seedInfo, setSeedInfo] = useState<Array<{ name: string, index: number }>>([])
+
+    const onClickWord = (seedInfo: Array<{ name: string, index: number }>) => {
+        setSeedInfo(seedInfo)
+    }
 
     const handleOnContinue = () => {
         setActiveStep(activeStep + 1)
@@ -77,7 +83,10 @@ export default function CreateWalletModal({ open, seed, onCreatePassword, onCrea
                                 )}
 
                                 { activeStep > 1 && (
-                                    <CreateWallet seed={seed} />
+                                    <CreateWallet
+                                        seed={seed}
+                                        seedInfo={seedInfo}
+                                        onClickWord={onClickWord} />
                                 )}
                             </Grid>
                         </Grid>

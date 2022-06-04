@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react'
+import React, { useState, useMemo, useCallback } from 'react'
 import { Typography, styled } from '@mui/material'
 import SeedInfo from './SeedInfo'
 import _shuffle from 'lodash/shuffle'
@@ -9,17 +9,17 @@ const Header = styled(Typography)({
 
 interface CreateWalletStepProps {
     seed: Array<string>,
+    seedInfo: Array<{ name: string, index: number }>,
+    onClickWord: (seedInfo: Array<{ name: string, index: number }>) => void,
 }
 
-export default function CreateWallet({ seed } : CreateWalletStepProps) {
-
-    const [seedInfo, setSeedInfo] = useState<Array<{ name: string, index: number }>>([])
+export default function CreateWallet({ seed, seedInfo, onClickWord } : CreateWalletStepProps) {
 
     const handleOnClickWord = (index: number, shouldBeAdded: boolean) => {
         if (shouldBeAdded) {
-            setSeedInfo([...seedInfo, { name: randomSeed[index], index, }])
+            onClickWord([...seedInfo, { name: randomSeed[index], index, }])
         } else {
-            setSeedInfo(seedInfo.filter(seed => seed.index !== index))
+            onClickWord(seedInfo.filter(seed => seed.index !== index))
         }
     }
 
