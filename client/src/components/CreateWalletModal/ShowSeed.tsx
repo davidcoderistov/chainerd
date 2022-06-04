@@ -1,18 +1,14 @@
 import React from 'react'
-import {Typography, Button} from '@mui/material'
+import {Typography } from '@mui/material'
 import SeedInfo from './SeedInfo'
 
 interface ShowSeedProps {
-    seed: string[],
-    onNext: () => void,
+    seed: string[]
 }
 
-export default function ShowSeed ({ seed, onNext }: ShowSeedProps) {
+export default function ShowSeed ({ seed }: ShowSeedProps) {
     return (
         <React.Fragment>
-            <Typography variant='h4' sx={{ mb: 2 }}>
-                Secret Recovery Phrase
-            </Typography>
             <Typography variant='body1' sx={{ mb: 2 }}>
                 Your Secret Recovery Phrase makes it easy to back up and restore your account.
             </Typography>
@@ -25,9 +21,6 @@ export default function ShowSeed ({ seed, onNext }: ShowSeedProps) {
                 forever.
             </Typography>
             <SeedInfo seed={seed}/>
-            <Button variant='contained' sx={{ mt: 2, borderRadius: 8, px: 4 }} onClick={onNext}>
-                Next
-            </Button>
         </React.Fragment>
     )
 }
