@@ -1,9 +1,24 @@
 import React, { useState } from 'react'
-import { Dialog, DialogTitle, DialogContent, Grid } from '@mui/material'
-import VerticalStepper from './VerticalStepper'
+import {Dialog, DialogTitle, DialogContent, DialogActions} from '@mui/material'
+import { Stepper, Step, StepLabel } from '@mui/material'
+import { Grid, styled, IconButton, Button } from '@mui/material'
 import CreatePassword from './CreatePassword'
 import ShowSeed from './ShowSeed'
 import CreateWallet from './CreateWallet'
+import { Close } from '@mui/icons-material'
+
+const steps = [
+    'Create Password',
+    'Seed Info',
+    'Create Wallet',
+]
+
+
+const DialogTitleStyled = styled(DialogTitle)({
+    display: 'flex',
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+})
 
 interface CreateWalletModalProps {
     open: boolean,
@@ -16,55 +31,65 @@ export default function CreateWalletModal({ open, seed, onCreatePassword, onCrea
 
     const [activeStep, setActiveStep] = useState<number>(0)
 
-    const goNext = () => {
+    const [password, setPassword] = useState<string>('')
+    const [confirmPassword, setConfirmPassword] = useState<string>('')
+
+    const handleOnContinue = () => {
         setActiveStep(activeStep + 1)
     }
 
-    const handleOnCreatePassword = (password: string) => {
-        goNext()
-        onCreatePassword(password)
-    }
-
-    const handleShowSeedOnNext = () => {
-        goNext()
-    }
-
-    const handleOnConfirmCreateWallet = () => {
-        goNext()
-        onCreateWallet()
-    }
-
     return (
-        <Dialog
-            open={open}
-            fullWidth={true}
-            maxWidth='md'
-            scroll='paper'>
-                <DialogTitle sx={{ backgroundColor: 'primary.main', color: 'white' }}>
-                    Create Wallet
-                </DialogTitle>
+        <Dialog open={open} fullWidth={true} maxWidth='sm' scroll='paper'>
+            <DialogTitleStyled>
+                <div/>
+                <div>Create Wallet</div>
+                <IconButton
+                    aria-label='close'
+                    sx={{
+                        color: (theme) => theme.palette.grey[500],
+                    }}
+                >
+                    <Close />
+                </IconButton>
+            </DialogTitleStyled>
                 <DialogContent dividers={true}>
-                    <Grid
-                        container
-                        spacing={2}
-                        minHeight={500}>
-                            <Grid item xs='auto'>
-                                <VerticalStepper activeStep={activeStep}/>
+                    <div style={{ height: '400px' }}>
+                        <Grid container spacing={2}>
+                            <Grid item xs={12}>
+                                <Stepper activeStep={activeStep} alternativeLabel>
+                                    {steps.map((label) => (
+                                        <Step key={label}>
+                                            <StepLabel>{ label }</StepLabel>
+                                        </Step>
+                                    ))}
+                                </Stepper>
                             </Grid>
-                            <Grid item xs sx={{ mx: 4 }}>
+                            <Grid item xs={12} sx={{ mt: 1, mx: 1 }}>
                                 { activeStep === 0 && (
-                                    <CreatePassword onCreate={handleOnCreatePassword}/>
+                                    <CreatePassword
+                                        password={password}
+                                        onChangePassword={setPassword}
+                                        confirmPassword={confirmPassword}
+                                        onChangeConfirmPassword={setConfirmPassword} />
                                 )}
                                 { activeStep === 1 && (
-                                    <ShowSeed seed={seed} onNext={handleShowSeedOnNext}/>
+                                    <ShowSeed seed={seed} />
                                 )}
 
                                 { activeStep > 1 && (
-                                    <CreateWallet seed={seed} onConfirm={handleOnConfirmCreateWallet}/>
+                                    <CreateWallet seed={seed} />
                                 )}
                             </Grid>
-                    </Grid>
+                        </Grid>
+                    </div>
                 </DialogContent>
+                <DialogActions>
+                    <Button
+                        sx={{ mr:1 }}
+                        onClick={handleOnContinue}>
+                        { activeStep < 2 ? 'Continue' : 'Confirm' }
+                    </Button>
+                </DialogActions>
         </Dialog>
     )
 }
