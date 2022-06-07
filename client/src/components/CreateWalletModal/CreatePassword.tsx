@@ -3,15 +3,42 @@ import TextInput from '../TextInput'
 import { InputAdornment, IconButton } from '@mui/material'
 import Visibility from '@mui/icons-material/Visibility'
 import VisibilityOff from '@mui/icons-material/VisibilityOff'
+import { ErrorType } from '../../hooks'
+
+
+export const passwordRules = [
+    ([value]: string[]) => value.trim().length < 1 && 'Required',
+    ([value]: string[]) => value.trim().length < 8 && 'Password must be at least 8 characters long',
+]
+
+export const confirmPasswordRules = [
+    ([value]: string[]) => value.trim().length < 1 && 'Required',
+    ([value, other]: string[]) => value.trim() !== other.trim() && 'Passwords do not match',
+]
+
 
 interface CreatePasswordProps {
     password: string,
     onChangePassword: (password: string) => void,
+    onBlurPassword: () => void,
+    errorPassword: ErrorType,
     confirmPassword: string,
     onChangeConfirmPassword: (confirmPassword: string) => void,
+    onBlurConfirmPassword: () => void,
+    errorConfirmPassword: ErrorType,
 }
 
-export default function CreatePassword ({ password, onChangePassword, confirmPassword, onChangeConfirmPassword }: CreatePasswordProps) {
+export default function CreatePassword (props: CreatePasswordProps) {
+    const {
+        password,
+        onChangePassword,
+        onBlurPassword,
+        errorPassword,
+        confirmPassword,
+        onChangeConfirmPassword,
+        onBlurConfirmPassword,
+        errorConfirmPassword,
+    } = props
 
     const [showPassword, setShowPassword] = useState<boolean>(false)
     const [showConfirmPassword, setShowConfirmPassword] = useState<boolean>(false)
@@ -51,6 +78,9 @@ export default function CreatePassword ({ password, onChangePassword, confirmPas
                 type={showPassword ? 'text' : 'password'}
                 value={password}
                 onChange={handleChangePassword}
+                onBlur={onBlurPassword}
+                error={errorPassword.has}
+                helperText={errorPassword.message}
                 InputProps={{
                     endAdornment: (
                         <InputAdornment position="end">
@@ -73,6 +103,9 @@ export default function CreatePassword ({ password, onChangePassword, confirmPas
                 type={showConfirmPassword ? 'text' : 'password'}
                 value={confirmPassword}
                 onChange={handleChangeConfirmPassword}
+                onBlur={onBlurConfirmPassword}
+                error={errorConfirmPassword.has}
+                helperText={errorConfirmPassword.message}
                 InputProps={{
                     endAdornment: (
                         <InputAdornment position="end">
