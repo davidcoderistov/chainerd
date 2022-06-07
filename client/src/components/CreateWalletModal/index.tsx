@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useState, useMemo } from 'react'
 import  {Dialog, DialogTitle, DialogContent, DialogActions } from '@mui/material'
 import { Stepper, Step, StepLabel } from '@mui/material'
 import { Grid, styled, IconButton, Button } from '@mui/material'
@@ -8,6 +8,7 @@ import CreateWallet from './CreateWallet'
 import { Close } from '@mui/icons-material'
 import { passwordRules, confirmPasswordRules } from './CreatePassword'
 import { useFormInputValidator } from '../../hooks'
+import { keystore } from 'eth-lightwallet'
 
 const steps = [
     'Create Password',
@@ -24,12 +25,11 @@ const DialogTitleStyled = styled(DialogTitle)({
 
 interface CreateWalletModalProps {
     open: boolean,
-    seed: string[],
     onCreatePassword: (password: string) => void,
     onCreateWallet: () => void,
 }
 
-export default function CreateWalletModal({ open, seed, onCreatePassword, onCreateWallet } : CreateWalletModalProps) {
+export default function CreateWalletModal({ open, onCreatePassword, onCreateWallet } : CreateWalletModalProps) {
 
     const [activeStep, setActiveStep] = useState<number>(0)
 
@@ -48,6 +48,11 @@ export default function CreateWalletModal({ open, seed, onCreatePassword, onCrea
     const handleOnContinue = () => {
         setActiveStep(activeStep + 1)
     }
+
+    const seed = useMemo(() => {
+        const seed = keystore.generateRandomSeed()
+        return seed.split(' ')
+    }, [])
 
     const buttonDisabled = activeStep === 0 ? !isPasswordDirty || errorPassword.has || !isConfirmPasswordDirty || errorConfirmPassword.has : false
 
