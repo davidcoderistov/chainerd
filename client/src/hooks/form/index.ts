@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { useDidMountEffect } from '../misc'
 
 
 export interface ErrorType {
@@ -27,4 +28,29 @@ export const useValidator = (rules: Array<(value: string[]) => false | string>):
     }
 
     return [error, validate]
+}
+
+export const useFormInputValidator = (rules: Array<(value: string[]) => false | string>, values: string[], deps: any[]): [
+    boolean,
+    ErrorType,
+    () => void,
+] => {
+    const [isDirty, setIsDirty] = useState(false)
+    const [error, validate] = useValidator(rules)
+
+    const onBlur = () => {
+        if (!isDirty) {
+            setIsDirty(true)
+        }
+        validate(values)
+    }
+
+    useDidMountEffect(() => {
+        if (!isDirty) {
+            setIsDirty(true)
+        }
+        validate(values)
+    }, deps)
+
+    return [isDirty, error, onBlur]
 }
