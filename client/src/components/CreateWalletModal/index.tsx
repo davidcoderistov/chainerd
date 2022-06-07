@@ -6,6 +6,8 @@ import CreatePassword from './CreatePassword'
 import ShowSeed from './ShowSeed'
 import CreateWallet from './CreateWallet'
 import { Close } from '@mui/icons-material'
+import { passwordRules, confirmPasswordRules } from './CreatePassword'
+import { useFormInputValidator } from '../../hooks'
 
 const steps = [
     'Create Password',
@@ -34,6 +36,9 @@ export default function CreateWalletModal({ open, seed, onCreatePassword, onCrea
     const [password, setPassword] = useState<string>('')
     const [confirmPassword, setConfirmPassword] = useState<string>('')
 
+    const [isPasswordDirty, errorPassword, handleBlurPassword] = useFormInputValidator(passwordRules, [password], [password])
+    const [isConfirmPasswordDirty, errorConfirmPassword, handleBlurConfirmPassword] = useFormInputValidator(confirmPasswordRules, [confirmPassword, password], [confirmPassword])
+
     const [seedInfo, setSeedInfo] = useState<Array<{ name: string, index: number }>>([])
 
     const onClickWord = (seedInfo: Array<{ name: string, index: number }>) => {
@@ -43,6 +48,8 @@ export default function CreateWalletModal({ open, seed, onCreatePassword, onCrea
     const handleOnContinue = () => {
         setActiveStep(activeStep + 1)
     }
+
+    const buttonDisabled = activeStep === 0 ? !isPasswordDirty || errorPassword.has || !isConfirmPasswordDirty || errorConfirmPassword.has : false
 
     return (
         <Dialog open={open} fullWidth={true} maxWidth='sm' scroll='paper'>
@@ -75,8 +82,12 @@ export default function CreateWalletModal({ open, seed, onCreatePassword, onCrea
                                     <CreatePassword
                                         password={password}
                                         onChangePassword={setPassword}
+                                        onBlurPassword={handleBlurPassword}
+                                        errorPassword={errorPassword}
                                         confirmPassword={confirmPassword}
-                                        onChangeConfirmPassword={setConfirmPassword} />
+                                        onChangeConfirmPassword={setConfirmPassword}
+                                        onBlurConfirmPassword={handleBlurConfirmPassword}
+                                        errorConfirmPassword={errorConfirmPassword} />
                                 )}
                                 { activeStep === 1 && (
                                     <ShowSeed seed={seed} />
@@ -95,6 +106,7 @@ export default function CreateWalletModal({ open, seed, onCreatePassword, onCrea
                 <DialogActions>
                     <Button
                         sx={{ mr:1 }}
+                        disabled={buttonDisabled}
                         onClick={handleOnContinue}>
                         { activeStep < 2 ? 'Continue' : 'Confirm' }
                     </Button>
