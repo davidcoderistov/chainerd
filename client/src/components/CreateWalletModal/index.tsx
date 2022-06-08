@@ -9,6 +9,7 @@ import { Close } from '@mui/icons-material'
 import { passwordRules, confirmPasswordRules } from './CreatePassword'
 import { useFormInputValidator } from '../../hooks'
 import { keystore } from 'eth-lightwallet'
+import _isEqual from 'lodash/isEqual'
 
 const steps = [
     'Create Password',
@@ -54,7 +55,19 @@ export default function CreateWalletModal({ open, onCreatePassword, onCreateWall
         return seed.split(' ')
     }, [])
 
-    const buttonDisabled = activeStep === 0 ? !isPasswordDirty || errorPassword.has || !isConfirmPasswordDirty || errorConfirmPassword.has : false
+    const equalSeeds = useMemo(() => {
+        if (seed.length !== seedInfo.length) {
+            return false
+        }
+        return _isEqual(
+            seed,
+            seedInfo.map(seed => seed.name)
+        )
+    }, [seed, seedInfo])
+
+    const buttonDisabled = activeStep === 0 ?
+        !isPasswordDirty || errorPassword.has || !isConfirmPasswordDirty || errorConfirmPassword.has : activeStep === 2 ?
+            !equalSeeds : false
 
     return (
         <Dialog open={open} fullWidth={true} maxWidth='sm' scroll='paper'>
