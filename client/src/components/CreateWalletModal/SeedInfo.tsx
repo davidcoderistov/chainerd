@@ -1,5 +1,5 @@
-import React, { useState } from 'react'
-import { Paper, Button, styled } from '@mui/material'
+import React, { useState, useCallback } from 'react'
+import { Paper, Button, TextField, InputAdornment, Typography, styled } from '@mui/material'
 
 const Container = styled(Paper)(props => ({
     display: 'grid',
@@ -22,32 +22,64 @@ const Word = styled(Paper)({
 
 interface SeedInfoProps {
     seed: Array<string>,
+    writable?: boolean,
     actionable?: boolean,
     onClickWord?: (index: number, shouldBeAdded: boolean) => void,
+    onChangeWord?: (index: number, value: string) => void,
     style?: object,
 }
 
-export default function SeedInfo({ seed, actionable, onClickWord, style = {} }: SeedInfoProps) {
+export default function SeedInfo({ seed, writable, actionable, onClickWord, onChangeWord, style = {} }: SeedInfoProps) {
 
     const [indices, setIndices] = useState<{ [key: number]: boolean }>(seed.reduce((indices, word, index) => ({
         ...indices,
         [index]: false
     }), {}))
 
-    const handleOnClick = (index: number) => {
-        if (onClickWord) {
-            const shouldBeAdded = !indices[index]
-            setIndices({
-                ...indices,
-                [index]: shouldBeAdded
-            })
-            onClickWord(index, shouldBeAdded)
-        }
-    }
+    const handleOnClick = useCallback(
+        (index: number) => {
+            if (onClickWord) {
+                const shouldBeAdded = !indices[index]
+                setIndices({
+                    ...indices,
+                    [index]: shouldBeAdded
+                })
+                onClickWord(index, shouldBeAdded)
+            }
+        },
+        [onClickWord])
+
+    const handleOnChange = useCallback(
+        (index: number, event: React.ChangeEvent<HTMLInputElement>) => {
+            if (onChangeWord) {
+                onChangeWord(index, event.target.value)
+            }
+        },
+        [onChangeWord])
 
     return (
         <React.Fragment>
-            { actionable ? (
+            { writable ? (
+                <Container variant='outlined' style={style}>
+                    { seed.map((word, index) => (
+                        <TextField
+                            key={`writable-${index}`}
+                            value={word}
+                            onChange={(event: React.ChangeEvent<HTMLInputElement>) => handleOnChange(index, event)}
+                            variant='standard'
+                            fullWidth
+                            InputProps={{
+                                startAdornment:
+                                    <InputAdornment position="start">
+                                        <Typography
+                                            variant='subtitle2'>
+                                            { index + 1 }.
+                                        </Typography>
+                                    </InputAdornment>
+                            }} />
+                    ))}
+                </Container>
+            ) : actionable ? (
                 <Container elevation={0} style={style}>
                     { seed.map((word, index) => (
                         <Button
