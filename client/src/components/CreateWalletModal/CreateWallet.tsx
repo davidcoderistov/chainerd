@@ -1,6 +1,6 @@
-import React, { useState, useMemo, useCallback } from 'react'
+import React, { useMemo } from 'react'
 import { Typography, styled } from '@mui/material'
-import SeedInfo from './SeedInfo'
+import SeedInfo from '../SeedInfo'
 import _shuffle from 'lodash/shuffle'
 
 const Header = styled(Typography)({
