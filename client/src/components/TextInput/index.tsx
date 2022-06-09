@@ -11,7 +11,9 @@ const NumberTextField = styled(TextField)({
     },
 })
 
-export default function TextInput (props: TextFieldProps & { inputLabel?: string }) {
+export type TextInputProps = TextFieldProps & { inputLabel?: string }
+
+export default function TextInput (props: TextInputProps) {
     const { inputLabel, ...rest } = props
     return (
         <React.Fragment>
