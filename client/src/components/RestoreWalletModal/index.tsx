@@ -5,6 +5,7 @@ import { Close } from '@mui/icons-material'
 import PasswordInput from '../PasswordInput'
 import Label from '../Label'
 import SeedInfo from '../SeedInfo'
+import _range from 'lodash/range'
 
 
 const DialogTitleStyled = styled(DialogTitle)({
@@ -15,7 +16,15 @@ const DialogTitleStyled = styled(DialogTitle)({
 
 export default function RestoreWalletModal () {
 
-    const [seed, setSeed] = useState<string[]>(['entry', 'pattern', 'luggage', 'exotic', 'kick', 'champion', 'crime', 'duck', 'story', 'jump', 'sure', 'impulse'])
+    const [seed, setSeed] = useState<string[]>(_range(12).map(() => ''))
+
+    const handleOnChangeWord = (index: number, value: string) => {
+        if (index < seed.length) {
+            const newSeed = Array.from(seed)
+            newSeed[index] = value
+            setSeed(newSeed)
+        }
+    }
 
     return (
         <Dialog open={true} fullWidth maxWidth='sm' scroll='paper'>
@@ -44,7 +53,8 @@ export default function RestoreWalletModal () {
                             <Label value='Seed Phrase' />
                             <SeedInfo
                                 seed={seed}
-                                writable />
+                                writable
+                                onChangeWord={handleOnChangeWord} />
                         </Grid>
                     </Grid>
                 </div>
