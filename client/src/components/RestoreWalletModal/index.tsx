@@ -5,8 +5,13 @@ import { Close } from '@mui/icons-material'
 import PasswordInput from '../PasswordInput'
 import Label from '../Label'
 import SeedInfo from '../SeedInfo'
+import { useFormInputValidator } from '../../hooks'
 import _range from 'lodash/range'
 
+const passwordRules = [
+    ([value]: string[]) => value.trim().length < 1 && 'Required',
+    ([value]: string[]) => value.trim().length < 8 && 'Password must be at least 8 characters long',
+]
 
 const DialogTitleStyled = styled(DialogTitle)({
     display: 'flex',
@@ -24,6 +29,13 @@ export default function RestoreWalletModal () {
             newSeed[index] = value
             setSeed(newSeed)
         }
+    }
+
+    const [password, setPassword] = useState<string>('')
+    const [isPasswordDirty, errorPassword, handleBlurPassword] = useFormInputValidator(passwordRules, [password], [password])
+
+    const handleChangePassword = (event: React.ChangeEvent<HTMLInputElement>) => {
+        setPassword(event.target.value)
     }
 
     return (
@@ -48,6 +60,11 @@ export default function RestoreWalletModal () {
                                 id='outlined-adornment-password'
                                 inputLabel='Password'
                                 placeholder='Enter password for keystore encryption'
+                                value={password}
+                                onChange={handleChangePassword}
+                                onBlur={handleBlurPassword}
+                                error={errorPassword.has}
+                                helperText={errorPassword.message}
                                 sx={{ mb: 2 }}
                                 fullWidth />
                             <Label value='Seed Phrase' />
@@ -60,7 +77,7 @@ export default function RestoreWalletModal () {
                 </div>
             </DialogContent>
             <DialogActions>
-                <Button sx={{ mr:1 }}>
+                <Button sx={{ mr:1 }} disabled={!isPasswordDirty || errorPassword.has}>
                     Restore
                 </Button>
             </DialogActions>
