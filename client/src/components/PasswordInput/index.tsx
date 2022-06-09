@@ -7,9 +7,6 @@ import VisibilityOff from '@mui/icons-material/VisibilityOff'
 
 
 export default function PasswordInput (props: TextInputProps) {
-
-    const { inputLabel, ...rest } = props
-
     const [showPassword, setShowPassword] = useState<boolean>(false)
 
     const handleClickShowPassword = () => {
@@ -22,7 +19,7 @@ export default function PasswordInput (props: TextInputProps) {
 
     return (
         <TextInput
-            {...rest}
+            {...props}
             type={ showPassword ? 'text' : 'password' }
             InputProps={{
                 endAdornment: (
