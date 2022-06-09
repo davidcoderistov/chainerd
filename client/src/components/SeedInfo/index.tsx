@@ -3,12 +3,11 @@ import { Paper, Button, TextField, InputAdornment, Typography, styled } from '@m
 
 const Container = styled(Paper)(props => ({
     display: 'grid',
-    gridTemplateRows: 'repeat(4, 45px)',
-    gridTemplateColumns: 'repeat(3, 150px)',
-    rowGap: '10px',
-    columnGap: '10px',
-    width: props.variant ? '470px' : '510px',
-    height: props.variant ? '210px' : '250px',
+    gridTemplateRows: '1fr 1fr 1fr 1fr',
+    gridTemplateColumns: '1fr 1fr 1fr',
+    rowGap: '15px',
+    columnGap: '15px',
+    height: props.variant ? '230px' : '270px',
     padding: props.variant && '20px'
 }))
 
@@ -16,7 +15,6 @@ const Word = styled(Paper)({
     display: 'flex',
     justifyContent: 'center',
     alignItems: 'center',
-    width: '150px',
     height: '45px'
 })
 
