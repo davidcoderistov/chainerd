@@ -20,6 +20,7 @@ const initialState: KeystoreState = {
 // Actions
 const createWallet = {
     generate: createAction<VaultOptions>('createWallet/start'),
+    restore: createAction<VaultOptions>('createWallet/restore'),
     pending: createAction('createWallet/pending'),
     fulfilled: createAction<{ keystore: string, password: string }>('createWallet/fulfilled'),
     rejected: createAction<{ error: any }>('createWallet/rejected')
