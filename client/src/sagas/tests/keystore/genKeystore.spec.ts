@@ -57,7 +57,10 @@ describe('Test *genKeystore rejected case', () => {
     })
 
     test('*genKeystore should dispatch rejected action', () => {
-        const error = {}
+        const error = {
+            message: 'random message',
+            errorCode: 1,
+        }
         it.next()
         expect(it.throw(error)).toEqual({
             value: put(createWallet.rejected({ error })),

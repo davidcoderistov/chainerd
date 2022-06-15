@@ -174,7 +174,7 @@ export default function CreateWalletModal({ open, onCreateWallet } : CreateWalle
             </Dialog>
             <Snackbar
                 open={showSnackbar}
-                error={createError}
+                error={!!createError}
                 message={snackbarMessage}
                 onClose={handleCloseSnackbar} />
         </React.Fragment>
