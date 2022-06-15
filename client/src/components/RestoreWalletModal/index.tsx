@@ -28,9 +28,10 @@ const DialogTitleStyled = styled(DialogTitle)({
 interface RestoreWalletModalProps {
     open: boolean,
     onRestoreWallet: () => void,
+    onClose: () => void,
 }
 
-export default function RestoreWalletModal ({ open, onRestoreWallet }: RestoreWalletModalProps) {
+export default function RestoreWalletModal ({ open, onRestoreWallet, onClose }: RestoreWalletModalProps) {
 
     const dispatch = useDispatch()
 
@@ -96,6 +97,7 @@ export default function RestoreWalletModal ({ open, onRestoreWallet }: RestoreWa
                     <div>Restore Wallet</div>
                     <IconButton
                         aria-label='close'
+                        onClick={onClose}
                         sx={{
                             color: (theme) => theme.palette.grey[500],
                         }}

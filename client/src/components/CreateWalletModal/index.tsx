@@ -32,9 +32,10 @@ const DialogTitleStyled = styled(DialogTitle)({
 interface CreateWalletModalProps {
     open: boolean,
     onCreateWallet: () => void,
+    onClose: () => void,
 }
 
-export default function CreateWalletModal({ open, onCreateWallet } : CreateWalletModalProps) {
+export default function CreateWalletModal({ open, onCreateWallet, onClose } : CreateWalletModalProps) {
 
     const dispatch = useDispatch()
 
@@ -117,6 +118,7 @@ export default function CreateWalletModal({ open, onCreateWallet } : CreateWalle
                     <div>Create Wallet</div>
                     <IconButton
                         aria-label='close'
+                        onClick={onClose}
                         sx={{
                             color: (theme) => theme.palette.grey[500],
                         }}
