@@ -27,7 +27,8 @@ function *genKeystore({ payload }: ReturnType<typeof createWallet.generate>) {
             password: payload.password
         }))
     } catch (error: any) {
-        yield put(createWallet.rejected({ error }))
+        const errorMessage = (error && error.message) ? error.message : 'Something went wrong while initializing the wallet'
+        yield put(createWallet.rejected({ error: errorMessage }))
     }
 }
 
