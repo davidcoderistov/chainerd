@@ -1,15 +1,20 @@
-import React, { useState, useMemo } from 'react'
-import  {Dialog, DialogTitle, DialogContent, DialogActions } from '@mui/material'
+import React, { useState, useEffect, useMemo } from 'react'
+import { useDispatch, useSelector } from 'react-redux'
+import { createWallet } from '../../slices/keystore'
+import  { Dialog, DialogTitle, DialogContent, DialogActions } from '@mui/material'
 import { Stepper, Step, StepLabel } from '@mui/material'
-import { Grid, styled, IconButton, Button } from '@mui/material'
+import { Grid, styled, IconButton } from '@mui/material'
+import { LoadingButton } from '@mui/lab'
 import CreatePassword from './CreatePassword'
 import ShowSeed from './ShowSeed'
 import CreateWallet from './CreateWallet'
+import Snackbar from '../Snackbar'
 import { Close } from '@mui/icons-material'
 import { passwordRules, confirmPasswordRules } from './CreatePassword'
 import { useFormInputValidator } from '../../hooks'
 import { keystore } from 'eth-lightwallet'
 import _isEqual from 'lodash/isEqual'
+import { getKeystore, getError, getLoading } from '../../selectors/keystore'
 
 const steps = [
     'Create Password',
@@ -26,11 +31,12 @@ const DialogTitleStyled = styled(DialogTitle)({
 
 interface CreateWalletModalProps {
     open: boolean,
-    onCreatePassword: (password: string) => void,
     onCreateWallet: () => void,
 }
 
-export default function CreateWalletModal({ open, onCreatePassword, onCreateWallet } : CreateWalletModalProps) {
+export default function CreateWalletModal({ open, onCreateWallet } : CreateWalletModalProps) {
+
+    const dispatch = useDispatch()
 
     const [activeStep, setActiveStep] = useState<number>(0)
 
@@ -42,13 +48,47 @@ export default function CreateWalletModal({ open, onCreatePassword, onCreateWall
 
     const [seedInfo, setSeedInfo] = useState<Array<{ name: string, index: number }>>([])
 
+    const [showSnackbar, setShowSnackbar] = useState<boolean>(false)
+    const [snackbarMessage, setSnackbarMessage] = useState<string>('')
+
+    const createKeystore = useSelector(getKeystore)
+    const createError = useSelector(getError)
+    const createLoading = useSelector(getLoading)
+
     const onClickWord = (seedInfo: Array<{ name: string, index: number }>) => {
         setSeedInfo(seedInfo)
     }
 
     const handleOnContinue = () => {
-        setActiveStep(activeStep + 1)
+        if (activeStep < 2) {
+            setActiveStep(activeStep + 1)
+        } else {
+            dispatch(createWallet.generate({
+                password,
+                seedPhrase: seed.join(' '),
+                hdPathString: 'm/44\'/60\'/0\'/0',
+            }))
+        }
     }
+
+    const handleCloseSnackbar = () => {
+        setShowSnackbar(false)
+    }
+
+    useEffect(() => {
+        if (createKeystore && !createError) {
+            setShowSnackbar(true)
+            setSnackbarMessage('Wallet successfully initialized')
+            onCreateWallet()
+        }
+    }, [createKeystore, createError, onCreateWallet])
+
+    useEffect(() => {
+        if (createError) {
+            setShowSnackbar(true)
+            setSnackbarMessage(createError)
+        }
+    }, [createError])
 
     const seed = useMemo(() => {
         const seed = keystore.generateRandomSeed()
@@ -70,19 +110,20 @@ export default function CreateWalletModal({ open, onCreatePassword, onCreateWall
             !equalSeeds : false
 
     return (
-        <Dialog open={open} fullWidth={true} maxWidth='sm' scroll='paper'>
-            <DialogTitleStyled>
-                <div/>
-                <div>Create Wallet</div>
-                <IconButton
-                    aria-label='close'
-                    sx={{
-                        color: (theme) => theme.palette.grey[500],
-                    }}
-                >
-                    <Close />
-                </IconButton>
-            </DialogTitleStyled>
+        <React.Fragment>
+            <Dialog open={open} fullWidth={true} maxWidth='sm' scroll='paper'>
+                <DialogTitleStyled>
+                    <div/>
+                    <div>Create Wallet</div>
+                    <IconButton
+                        aria-label='close'
+                        sx={{
+                            color: (theme) => theme.palette.grey[500],
+                        }}
+                    >
+                        <Close />
+                    </IconButton>
+                </DialogTitleStyled>
                 <DialogContent dividers={true}>
                     <div style={{ height: '400px' }}>
                         <Grid container spacing={2}>
@@ -122,13 +163,20 @@ export default function CreateWalletModal({ open, onCreatePassword, onCreateWall
                     </div>
                 </DialogContent>
                 <DialogActions>
-                    <Button
+                    <LoadingButton
                         sx={{ mr:1 }}
                         disabled={buttonDisabled}
+                        loading={createLoading}
                         onClick={handleOnContinue}>
                         { activeStep < 2 ? 'Continue' : 'Confirm' }
-                    </Button>
+                    </LoadingButton>
                 </DialogActions>
-        </Dialog>
+            </Dialog>
+            <Snackbar
+                open={showSnackbar}
+                error={createError}
+                message={snackbarMessage}
+                onClose={handleCloseSnackbar} />
+        </React.Fragment>
     )
 }
