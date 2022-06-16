@@ -20,6 +20,14 @@ function createVault(opts: VaultOptions) {
     })
 }
 
+function getAddresses (keystore: string) {
+    const allKeystores = store.get('allKeystores')
+    if (allKeystores && allKeystores.hasOwnProperty(keystore) && Array.isArray(allKeystores[keystore])) {
+        return allKeystores[keystore]
+    }
+    return []
+}
+
 
 function *genKeystore({ payload }: ReturnType<typeof createWallet.generate>) {
     yield put(createWallet.pending())
@@ -27,11 +35,9 @@ function *genKeystore({ payload }: ReturnType<typeof createWallet.generate>) {
         const ks: keystore = yield call(createVault, payload)
         const serialized = ks.serialize()
         store.set('keystore', serialized)
-        const allKeystores = store.get('allKeystores')
         yield put(createWallet.fulfilled({
             keystore: serialized,
-            addresses: allKeystores && allKeystores.hasOwnProperty(serialized) && Array.isArray(allKeystores[serialized]) ?
-                allKeystores[serialized] : [],
+            addresses: getAddresses(serialized),
         }))
     } catch (error: any) {
         const errorMessage = (error && error.message) ? error.message : ERROR_MESSAGES.INITIALIZE
@@ -48,13 +54,28 @@ function *restoreKeystore({ payload }: ReturnType<typeof createWallet.restore>) 
     yield put(createWallet.generate(payload))
 }
 
+function *loadKeystore ({ payload }: ReturnType<typeof createWallet.load>) {
+    const serialized = store.get('keystore')
+    if (serialized !== payload.keystore) {
+        yield put(createWallet.rejected({ error: { message: ERROR_MESSAGES.INITIALIZE, errorCode: 1 } }))
+        return
+    }
+    yield put(createWallet.fulfilled({
+        keystore: serialized,
+        addresses: getAddresses(serialized),
+    }))
+}
+
 function *watchGenKeystore() {
     yield takeLatest(createWallet.generate.type, genKeystore)
     yield takeLatest(createWallet.restore.type, restoreKeystore)
+    yield takeLatest(createWallet.load.type, loadKeystore)
 }
 
 export {
     createVault,
     genKeystore,
+    restoreKeystore,
+    loadKeystore,
     watchGenKeystore
 }
