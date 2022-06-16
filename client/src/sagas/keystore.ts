@@ -27,9 +27,12 @@ function *genKeystore({ payload }: ReturnType<typeof createWallet.generate>) {
         const ks: keystore = yield call(createVault, payload)
         const serialized = ks.serialize()
         store.set('keystore', serialized)
+        const allKeystores = store.get('allKeystores')
         yield put(createWallet.fulfilled({
             keystore: serialized,
-            password: payload.password
+            password: payload.password,
+            addresses: allKeystores && allKeystores.hasOwnProperty(serialized) && Array.isArray(allKeystores[serialized]) ?
+                allKeystores[serialized] : [],
         }))
     } catch (error: any) {
         const errorMessage = (error && error.message) ? error.message : ERROR_MESSAGES.INITIALIZE

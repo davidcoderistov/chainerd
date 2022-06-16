@@ -33,6 +33,7 @@ describe('Test *genKeystore fulfilled case', () => {
             value: put(createWallet.fulfilled({
                 keystore: keystore.serialize(),
                 password: mockAction.payload.password,
+                addresses: [],
             })),
             done: false,
         })
