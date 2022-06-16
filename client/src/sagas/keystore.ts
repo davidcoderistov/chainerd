@@ -30,7 +30,6 @@ function *genKeystore({ payload }: ReturnType<typeof createWallet.generate>) {
         const allKeystores = store.get('allKeystores')
         yield put(createWallet.fulfilled({
             keystore: serialized,
-            password: payload.password,
             addresses: allKeystores && allKeystores.hasOwnProperty(serialized) && Array.isArray(allKeystores[serialized]) ?
                 allKeystores[serialized] : [],
         }))

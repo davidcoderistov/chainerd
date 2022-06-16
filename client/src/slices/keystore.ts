@@ -5,7 +5,6 @@ import { VaultOptions } from 'eth-lightwallet'
 // Initial state
 interface KeystoreState {
     keystore: string | null,
-    password: string | null,
     addresses: string[],
     loading: boolean,
     error: string | null,
@@ -14,7 +13,6 @@ interface KeystoreState {
 
 const initialState: KeystoreState = {
     keystore: null,
-    password: null,
     addresses: [],
     loading: false,
     error: null,
@@ -25,8 +23,9 @@ const initialState: KeystoreState = {
 const createWallet = {
     generate: createAction<VaultOptions>('createWallet/start'),
     restore: createAction<VaultOptions>('createWallet/restore'),
+    load: createAction<{ keystore: string }>('createWallet/load'),
     pending: createAction('createWallet/pending'),
-    fulfilled: createAction<{ keystore: string, password: string, addresses: string[] }>('createWallet/fulfilled'),
+    fulfilled: createAction<{ keystore: string, addresses: string[] }>('createWallet/fulfilled'),
     rejected: createAction<{ error: { message: string, errorCode: number } }>('createWallet/rejected')
 }
 
@@ -51,7 +50,6 @@ const keystoreSlice = createSlice({
                     loading: false,
                     error: null,
                     keystore: action.payload.keystore,
-                    password: action.payload.password,
                     addresses: action.payload.addresses,
                     errorCode: null,
                 }
