@@ -34,7 +34,7 @@ export default function CloseWalletModal ({ open, onCloseModal, onCloseWallet }:
             <Dialog open={open} fullWidth={true} maxWidth='xs' scroll='paper'>
                 <DialogTitleStyled>
                     <div/>
-                    <div>Create Wallet</div>
+                    <div>Close Wallet</div>
                     <IconButton
                         aria-label='close'
                         onClick={onCloseModal}
