@@ -49,6 +49,7 @@ export default function RestoreWalletModal ({ open, onRestoreWallet, onClose }: 
     const [isPasswordDirty, errorPassword, handleBlurPassword] = useFormInputValidator(passwordRules, [password], [password])
 
     const [showSnackbar, setShowSnackbar] = useState<boolean>(false)
+    const [shouldShowSnackbar, setShouldShowSnackbar] = useState<boolean>(false)
     const [snackbarMessage, setSnackbarMessage] = useState<string>('')
 
     const createKeystore = useSelector(getKeystore)
@@ -61,10 +62,12 @@ export default function RestoreWalletModal ({ open, onRestoreWallet, onClose }: 
     }
 
     const handleCloseSnackbar = () => {
+        setShouldShowSnackbar(false)
         setShowSnackbar(false)
     }
 
     const handleOnRestore = () => {
+        setShouldShowSnackbar(true)
         dispatch(createWallet.restore({
             password,
             seedPhrase: seed.join(' '),
@@ -74,18 +77,22 @@ export default function RestoreWalletModal ({ open, onRestoreWallet, onClose }: 
 
     useEffect(() => {
         if (createKeystore && !createError) {
-            setShowSnackbar(true)
-            setSnackbarMessage('Wallet successfully restored')
+            if (shouldShowSnackbar) {
+                setShowSnackbar(true)
+                setSnackbarMessage('Wallet successfully restored')
+            }
             onRestoreWallet()
         }
-    }, [createKeystore, createError, onRestoreWallet])
+    }, [shouldShowSnackbar, createKeystore, createError, onRestoreWallet])
 
     useEffect(() => {
         if (createError) {
-            setShowSnackbar(true)
-            setSnackbarMessage(createError)
+            if (shouldShowSnackbar) {
+                setShowSnackbar(true)
+                setSnackbarMessage(createError)
+            }
         }
-    }, [createError])
+    }, [shouldShowSnackbar, createError])
 
     const restoreDisabled = !isPasswordDirty || errorPassword.has || createErrorCode === 2 || !keystore.isSeedValid(seed.join(' '))
 

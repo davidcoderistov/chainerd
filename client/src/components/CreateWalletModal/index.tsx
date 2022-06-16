@@ -50,6 +50,7 @@ export default function CreateWalletModal({ open, onCreateWallet, onClose } : Cr
     const [seedInfo, setSeedInfo] = useState<Array<{ name: string, index: number }>>([])
 
     const [showSnackbar, setShowSnackbar] = useState<boolean>(false)
+    const [shouldShowSnackbar, setShouldShowSnackbar] = useState<boolean>(false)
     const [snackbarMessage, setSnackbarMessage] = useState<string>('')
 
     const createKeystore = useSelector(getKeystore)
@@ -64,6 +65,7 @@ export default function CreateWalletModal({ open, onCreateWallet, onClose } : Cr
         if (activeStep < 2) {
             setActiveStep(activeStep + 1)
         } else {
+            setShouldShowSnackbar(true)
             dispatch(createWallet.generate({
                 password,
                 seedPhrase: seed.join(' '),
@@ -73,23 +75,28 @@ export default function CreateWalletModal({ open, onCreateWallet, onClose } : Cr
     }
 
     const handleCloseSnackbar = () => {
+        setShouldShowSnackbar(false)
         setShowSnackbar(false)
     }
 
     useEffect(() => {
         if (createKeystore && !createError) {
-            setShowSnackbar(true)
-            setSnackbarMessage('Wallet successfully initialized')
+            if (shouldShowSnackbar) {
+                setShowSnackbar(true)
+                setSnackbarMessage('Wallet successfully initialized')
+            }
             onCreateWallet()
         }
-    }, [createKeystore, createError, onCreateWallet])
+    }, [shouldShowSnackbar, createKeystore, createError, onCreateWallet])
 
     useEffect(() => {
         if (createError) {
-            setShowSnackbar(true)
-            setSnackbarMessage(createError)
+            if (shouldShowSnackbar) {
+                setShowSnackbar(true)
+                setSnackbarMessage(createError)
+            }
         }
-    }, [createError])
+    }, [shouldShowSnackbar, createError])
 
     const seed = useMemo(() => {
         const seed = keystore.generateRandomSeed()
