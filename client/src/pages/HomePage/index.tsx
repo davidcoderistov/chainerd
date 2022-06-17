@@ -28,8 +28,10 @@ export default function HomePage () {
     }, [])
 
     const [isCreateWalletModalOpen, setIsCreateWalletModalOpen] = useState<boolean>(false)
+    const [createWalletModalKey, setCreateWalletModalKey] = useState<number>(1111)
 
     const openCreateWalletModal = () => {
+        setCreateWalletModalKey(createWalletModalKey + 1)
         setIsCreateWalletModalOpen(true)
     }
 
@@ -38,8 +40,10 @@ export default function HomePage () {
     }
 
     const [isRestoreWalletModalOpen, setIsRestoreWalletModalOpen] = useState<boolean>(false)
+    const [restoreWalletModalKey, setRestoreWalletModalKey] = useState<number>(3333)
 
     const openRestoreWalletModal = () => {
+        setRestoreWalletModalKey(restoreWalletModalKey + 1)
         setIsRestoreWalletModalOpen(true)
     }
 
@@ -48,8 +52,10 @@ export default function HomePage () {
     }
 
     const [isSendTransactionModalOpen, setIsSendTransactionModalOpen] = useState<boolean>(false)
+    const [sendTransactionModalKey, setSendTransactionModalKey] = useState<number>(6666)
 
     const openSendTransactionModal = () => {
+        setSendTransactionModalKey(sendTransactionModalKey + 1)
         setIsSendTransactionModalOpen(true)
     }
 
@@ -58,8 +64,10 @@ export default function HomePage () {
     }
 
     const [isCloseWalletModalOpen, setIsCloseWalletModalOpen] = useState<boolean>(false)
+    const [closeWalletModalKey, setCloseWalletModalKey] = useState<number>(9999)
 
     const openCloseWalletModal = () => {
+        setCloseWalletModalKey(closeWalletModalKey + 1)
         setIsCloseWalletModalOpen(true)
     }
 
@@ -81,18 +89,22 @@ export default function HomePage () {
                 onSendTransaction={openSendTransactionModal}
                 onCloseWallet={openCloseWalletModal} />
             <CreateWalletModal
+                key={createWalletModalKey}
                 open={isCreateWalletModalOpen}
                 onCreateWallet={closeCreateWalletModal}
                 onClose={closeCreateWalletModal} />
             <RestoreWalletModal
+                key={restoreWalletModalKey}
                 open={isRestoreWalletModalOpen}
                 onRestoreWallet={closeRestoreWalletModal}
                 onClose={closeRestoreWalletModal} />
             <SendTransactionModal
+                key={sendTransactionModalKey}
                 open={isSendTransactionModalOpen}
                 onClose={closeSendTransactionModal}
                 onConfirm={closeSendTransactionModal} />
             <CloseWalletModal
+                key={closeWalletModalKey}
                 open={isCloseWalletModalOpen}
                 onCloseModal={closeCloseWalletModal}
                 onCloseWallet={handleCloseWallet} />
