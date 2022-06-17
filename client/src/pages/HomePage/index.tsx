@@ -66,6 +66,11 @@ export default function HomePage () {
         setIsCloseWalletModalOpen(false)
     }
 
+    const handleCloseWallet = () => {
+        dispatch(keystoreActions.destroy())
+        closeCloseWalletModal()
+    }
+
     return (
         <Box>
             <AppToolbar
@@ -89,7 +94,7 @@ export default function HomePage () {
             <CloseWalletModal
                 open={isCloseWalletModalOpen}
                 onCloseModal={closeCloseWalletModal}
-                onCloseWallet={closeCloseWalletModal} />
+                onCloseWallet={handleCloseWallet} />
         </Box>
     )
 }
