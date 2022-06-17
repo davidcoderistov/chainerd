@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useMemo } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
-import { createWallet } from '../../slices/keystore'
+import { keystoreActions } from '../../slices/keystore'
 import  { Dialog, DialogTitle, DialogContent, DialogActions } from '@mui/material'
 import { Stepper, Step, StepLabel } from '@mui/material'
 import { Grid, styled, IconButton } from '@mui/material'
@@ -66,7 +66,7 @@ export default function CreateWalletModal({ open, onCreateWallet, onClose } : Cr
             setActiveStep(activeStep + 1)
         } else {
             setShouldShowSnackbar(true)
-            dispatch(createWallet.generate({
+            dispatch(keystoreActions.generate({
                 password,
                 seedPhrase: seed.join(' '),
                 hdPathString: 'm/44\'/60\'/0\'/0',

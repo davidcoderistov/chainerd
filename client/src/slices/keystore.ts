@@ -20,14 +20,14 @@ const initialState: KeystoreState = {
 }
 
 // Actions
-const createWallet = {
-    generate: createAction<VaultOptions>('createWallet/start'),
-    restore: createAction<VaultOptions>('createWallet/restore'),
-    load: createAction<{ keystore: string }>('createWallet/load'),
-    destroy: createAction('createWallet/destroy'),
-    pending: createAction('createWallet/pending'),
-    fulfilled: createAction<{ keystore: string | null, addresses: string[] }>('createWallet/fulfilled'),
-    rejected: createAction<{ error: { message: string, errorCode: number } }>('createWallet/rejected')
+const keystoreActions = {
+    generate: createAction<VaultOptions>('keystore/generate'),
+    restore: createAction<VaultOptions>('keystore/restore'),
+    load: createAction<{ keystore: string }>('keystore/load'),
+    destroy: createAction('keystore/destroy'),
+    pending: createAction('keystore/pending'),
+    fulfilled: createAction<{ keystore: string | null, addresses: string[] }>('keystore/fulfilled'),
+    rejected: createAction<{ error: { message: string, errorCode: number } }>('keystore/rejected')
 }
 
 const keystoreSlice = createSlice({
@@ -36,7 +36,7 @@ const keystoreSlice = createSlice({
     reducers: {},
     extraReducers: builder =>
         builder
-            .addCase(createWallet.pending, state => {
+            .addCase(keystoreActions.pending, state => {
                 return {
                     ...state,
                     loading: true,
@@ -45,7 +45,7 @@ const keystoreSlice = createSlice({
                     addresses: [],
                 }
             })
-            .addCase(createWallet.fulfilled, (state, action) => {
+            .addCase(keystoreActions.fulfilled, (state, action) => {
                 return {
                     ...state,
                     loading: false,
@@ -55,7 +55,7 @@ const keystoreSlice = createSlice({
                     errorCode: null,
                 }
             })
-            .addCase(createWallet.rejected, (state, action) => {
+            .addCase(keystoreActions.rejected, (state, action) => {
                 return {
                     ...state,
                     loading: false,
@@ -67,6 +67,6 @@ const keystoreSlice = createSlice({
             })
 })
 
-export { createWallet }
+export { keystoreActions }
 
 export default keystoreSlice.reducer

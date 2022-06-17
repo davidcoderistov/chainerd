@@ -1,8 +1,8 @@
 import { put, call } from 'redux-saga/effects'
-import { createWallet } from '../../../slices/keystore'
+import { keystoreActions } from '../../../slices/keystore'
 import { genKeystore, createVault } from '../../keystore'
 
-const mockAction = createWallet.generate({
+const mockAction = keystoreActions.generate({
     password: '',
     seedPhrase: '',
     hdPathString: '',
@@ -13,7 +13,7 @@ describe('Test *genKeystore fulfilled case', () => {
 
     test('*genKeystore should dispatch pending action', () => {
         expect(it.next()).toEqual({
-            value: put(createWallet.pending()),
+            value: put(keystoreActions.pending()),
             done: false,
         })
     })
@@ -30,7 +30,7 @@ describe('Test *genKeystore fulfilled case', () => {
             serialize: () => 'random string'
         }
         expect(it.next(keystore)).toEqual({
-            value: put(createWallet.fulfilled({
+            value: put(keystoreActions.fulfilled({
                 keystore: keystore.serialize(),
                 addresses: [],
             })),
@@ -51,7 +51,7 @@ describe('Test *genKeystore rejected case', () => {
 
     test('*genKeystore should dispatch pending action', () => {
         expect(it.next()).toEqual({
-            value: put(createWallet.pending()),
+            value: put(keystoreActions.pending()),
             done: false,
         })
     })
@@ -63,7 +63,7 @@ describe('Test *genKeystore rejected case', () => {
         }
         it.next()
         expect(it.throw(error)).toEqual({
-            value: put(createWallet.rejected({ error })),
+            value: put(keystoreActions.rejected({ error })),
             done: false,
         })
     })

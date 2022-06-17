@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
-import { createWallet } from '../../slices/keystore'
+import { keystoreActions } from '../../slices/keystore'
 import { Dialog, DialogTitle, DialogContent, DialogActions } from '@mui/material'
 import { LoadingButton } from '@mui/lab'
 import { Grid, IconButton, styled } from '@mui/material'
@@ -68,7 +68,7 @@ export default function RestoreWalletModal ({ open, onRestoreWallet, onClose }: 
 
     const handleOnRestore = () => {
         setShouldShowSnackbar(true)
-        dispatch(createWallet.restore({
+        dispatch(keystoreActions.restore({
             password,
             seedPhrase: seed.join(' '),
             hdPathString: 'm/44\'/60\'/0\'/0',

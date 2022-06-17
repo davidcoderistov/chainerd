@@ -1,7 +1,7 @@
 import { keystore, VaultOptions } from 'eth-lightwallet'
 import { call, put, takeLatest } from 'redux-saga/effects'
 import store from 'store'
-import { createWallet } from '../slices/keystore'
+import { keystoreActions } from '../slices/keystore'
 
 const ERROR_MESSAGES = {
     INITIALIZE: 'Something went wrong while initializing the wallet',
@@ -29,38 +29,38 @@ function getAddresses (keystore: string) {
 }
 
 
-function *genKeystore({ payload }: ReturnType<typeof createWallet.generate>) {
-    yield put(createWallet.pending())
+function *genKeystore({ payload }: ReturnType<typeof keystoreActions.generate>) {
+    yield put(keystoreActions.pending())
     try {
         const ks: keystore = yield call(createVault, payload)
         const serialized = ks.serialize()
         store.set('keystore', serialized)
-        yield put(createWallet.fulfilled({
+        yield put(keystoreActions.fulfilled({
             keystore: serialized,
             addresses: getAddresses(serialized),
         }))
     } catch (error: any) {
         const errorMessage = (error && error.message) ? error.message : ERROR_MESSAGES.INITIALIZE
-        yield put(createWallet.rejected({ error: { message: errorMessage, errorCode: 1 } }))
+        yield put(keystoreActions.rejected({ error: { message: errorMessage, errorCode: 1 } }))
     }
 }
 
-function *restoreKeystore({ payload }: ReturnType<typeof createWallet.restore>) {
+function *restoreKeystore({ payload }: ReturnType<typeof keystoreActions.restore>) {
     const serialized = store.get('keystore')
     if (serialized) {
-        yield put(createWallet.rejected({ error: { message: ERROR_MESSAGES.RESTORE, errorCode: 2 } }))
+        yield put(keystoreActions.rejected({ error: { message: ERROR_MESSAGES.RESTORE, errorCode: 2 } }))
         return
     }
-    yield put(createWallet.generate(payload))
+    yield put(keystoreActions.generate(payload))
 }
 
-function *loadKeystore ({ payload }: ReturnType<typeof createWallet.load>) {
+function *loadKeystore ({ payload }: ReturnType<typeof keystoreActions.load>) {
     const serialized = store.get('keystore')
     if (serialized !== payload.keystore) {
-        yield put(createWallet.rejected({ error: { message: ERROR_MESSAGES.INITIALIZE, errorCode: 1 } }))
+        yield put(keystoreActions.rejected({ error: { message: ERROR_MESSAGES.INITIALIZE, errorCode: 1 } }))
         return
     }
-    yield put(createWallet.fulfilled({
+    yield put(keystoreActions.fulfilled({
         keystore: serialized,
         addresses: getAddresses(serialized),
     }))
@@ -68,17 +68,17 @@ function *loadKeystore ({ payload }: ReturnType<typeof createWallet.load>) {
 
 function *destroyKeystore () {
     store.set('keystore', null)
-    yield put(createWallet.fulfilled({
+    yield put(keystoreActions.fulfilled({
         keystore: null,
         addresses: [],
     }))
 }
 
 function *watchGenKeystore() {
-    yield takeLatest(createWallet.generate.type, genKeystore)
-    yield takeLatest(createWallet.restore.type, restoreKeystore)
-    yield takeLatest(createWallet.load.type, loadKeystore)
-    yield takeLatest(createWallet.destroy.type, destroyKeystore)
+    yield takeLatest(keystoreActions.generate.type, genKeystore)
+    yield takeLatest(keystoreActions.restore.type, restoreKeystore)
+    yield takeLatest(keystoreActions.load.type, loadKeystore)
+    yield takeLatest(keystoreActions.destroy.type, destroyKeystore)
 }
 
 export {

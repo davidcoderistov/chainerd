@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
-import { createWallet } from '../../slices/keystore'
+import { keystoreActions } from '../../slices/keystore'
 import { getKeystore } from '../../selectors/keystore'
 import { Box } from '@mui/material'
 import AppToolbar from '../../components/AppToolbar'
@@ -22,7 +22,7 @@ export default function HomePage () {
     useEffect(() => {
         const keystore = store.get('keystore')
         if (keystore) {
-            dispatch(createWallet.load({ keystore }))
+            dispatch(keystoreActions.load({ keystore }))
         }
     }, [])
 

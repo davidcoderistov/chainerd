@@ -1,5 +1,5 @@
 import { takeLatest } from 'redux-saga/effects'
-import { createWallet } from '../../../slices/keystore'
+import { keystoreActions } from '../../../slices/keystore'
 import { genKeystore, watchGenKeystore } from '../../keystore'
 
 describe('Test *watchGenKeystore', () => {
@@ -7,7 +7,7 @@ describe('Test *watchGenKeystore', () => {
 
     test('*watchGenKeystore should yield takeLatest effect', () => {
         expect(it.next()).toEqual({
-            value: takeLatest(createWallet.generate.type, genKeystore),
+            value: takeLatest(keystoreActions.generate.type, genKeystore),
             done: false,
         })
     })
