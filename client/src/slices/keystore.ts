@@ -21,7 +21,7 @@ const initialState: KeystoreState = {
 
 // Actions
 const keystoreActions = {
-    generate: createAction<VaultOptions>('keystore/generate'),
+    generate: createAction<VaultOptions & { addresses?: string[] }>('keystore/generate'),
     restore: createAction<VaultOptions>('keystore/restore'),
     load: createAction<{ keystore: string }>('keystore/load'),
     destroy: createAction('keystore/destroy'),
