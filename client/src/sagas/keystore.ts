@@ -8,6 +8,11 @@ const ERROR_MESSAGES = {
     RESTORE: 'Can\'t restore wallet, already initialized',
 }
 
+export const STORE_KEYS = {
+    KEYSTORE: 'keystore',
+    ALL_KEYSTORES: 'allKeystores',
+}
+
 
 function createVault(opts: VaultOptions) {
     return new Promise((resolve, reject) => {
@@ -21,7 +26,7 @@ function createVault(opts: VaultOptions) {
 }
 
 function getAddresses (keystore: string) {
-    const allKeystores = store.get('allKeystores')
+    const allKeystores = store.get(STORE_KEYS.ALL_KEYSTORES)
     if (allKeystores && allKeystores.hasOwnProperty(keystore) && Array.isArray(allKeystores[keystore])) {
         return allKeystores[keystore]
     }
@@ -34,7 +39,7 @@ function *genKeystore({ payload }: ReturnType<typeof keystoreActions.generate>) 
     try {
         const ks: keystore = yield call(createVault, payload)
         const serialized = ks.serialize()
-        store.set('keystore', serialized)
+        store.set(STORE_KEYS.KEYSTORE, serialized)
         yield put(keystoreActions.fulfilled({
             keystore: serialized,
             addresses: getAddresses(serialized),
@@ -46,7 +51,7 @@ function *genKeystore({ payload }: ReturnType<typeof keystoreActions.generate>) 
 }
 
 function *restoreKeystore({ payload }: ReturnType<typeof keystoreActions.restore>) {
-    const serialized = store.get('keystore')
+    const serialized = store.get(STORE_KEYS.KEYSTORE)
     if (serialized) {
         yield put(keystoreActions.rejected({ error: { message: ERROR_MESSAGES.RESTORE, errorCode: 2 } }))
         return
@@ -55,7 +60,7 @@ function *restoreKeystore({ payload }: ReturnType<typeof keystoreActions.restore
 }
 
 function *loadKeystore ({ payload }: ReturnType<typeof keystoreActions.load>) {
-    const serialized = store.get('keystore')
+    const serialized = store.get(STORE_KEYS.KEYSTORE)
     if (serialized !== payload.keystore) {
         yield put(keystoreActions.rejected({ error: { message: ERROR_MESSAGES.INITIALIZE, errorCode: 1 } }))
         return
@@ -67,7 +72,7 @@ function *loadKeystore ({ payload }: ReturnType<typeof keystoreActions.load>) {
 }
 
 function *destroyKeystore () {
-    store.set('keystore', null)
+    store.set(STORE_KEYS.KEYSTORE, null)
     yield put(keystoreActions.fulfilled({
         keystore: null,
         addresses: [],
