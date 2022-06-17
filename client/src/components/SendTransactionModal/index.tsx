@@ -20,8 +20,13 @@ const DialogTitleStyled = styled(DialogTitle)({
     justifyContent: 'space-between',
 })
 
+interface SendTransactionModalProps {
+    open: boolean,
+    onClose: () => void,
+    onConfirm: () => void,
+}
 
-export default function SendTransactionModal () {
+export default function SendTransactionModal ({ open, onClose, onConfirm } : SendTransactionModalProps) {
 
     const [activeStep, setActiveStep] = useState<number>(0)
 
@@ -36,12 +41,12 @@ export default function SendTransactionModal () {
         if (activeStep < 2) {
             setActiveStep(activeStep + 1)
         } else {
-            // TODO: Handle confirm
+            onConfirm()
         }
     }
 
     return (
-        <Dialog open={true} fullWidth maxWidth='sm' scroll='paper'>
+        <Dialog open={open} fullWidth maxWidth='sm' scroll='paper'>
             <DialogTitleStyled>
                 <div/>
                 <div>Send</div>
@@ -50,6 +55,7 @@ export default function SendTransactionModal () {
                     sx={{
                         color: (theme) => theme.palette.grey[500],
                     }}
+                    onClick={onClose}
                 >
                     <Close />
                 </IconButton>
