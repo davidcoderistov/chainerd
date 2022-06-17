@@ -24,8 +24,9 @@ const createWallet = {
     generate: createAction<VaultOptions>('createWallet/start'),
     restore: createAction<VaultOptions>('createWallet/restore'),
     load: createAction<{ keystore: string }>('createWallet/load'),
+    destroy: createAction('createWallet/destroy'),
     pending: createAction('createWallet/pending'),
-    fulfilled: createAction<{ keystore: string, addresses: string[] }>('createWallet/fulfilled'),
+    fulfilled: createAction<{ keystore: string | null, addresses: string[] }>('createWallet/fulfilled'),
     rejected: createAction<{ error: { message: string, errorCode: number } }>('createWallet/rejected')
 }
 

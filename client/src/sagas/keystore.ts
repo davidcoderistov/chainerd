@@ -66,10 +66,19 @@ function *loadKeystore ({ payload }: ReturnType<typeof createWallet.load>) {
     }))
 }
 
+function *destroyKeystore () {
+    store.set('keystore', null)
+    yield put(createWallet.fulfilled({
+        keystore: null,
+        addresses: [],
+    }))
+}
+
 function *watchGenKeystore() {
     yield takeLatest(createWallet.generate.type, genKeystore)
     yield takeLatest(createWallet.restore.type, restoreKeystore)
     yield takeLatest(createWallet.load.type, loadKeystore)
+    yield takeLatest(createWallet.destroy.type, destroyKeystore)
 }
 
 export {
