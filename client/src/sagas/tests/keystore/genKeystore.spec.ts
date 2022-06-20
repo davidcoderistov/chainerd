@@ -32,7 +32,6 @@ describe('Test *genKeystore fulfilled case', () => {
         expect(it.next(keystore)).toEqual({
             value: put(keystoreActions.fulfilled({
                 keystore: keystore.serialize(),
-                addresses: [],
             })),
             done: false,
         })

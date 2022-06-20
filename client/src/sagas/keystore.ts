@@ -1,5 +1,6 @@
 import { keystore, VaultOptions } from 'eth-lightwallet'
 import { call, put, takeLatest } from 'redux-saga/effects'
+import keccak256 from 'keccak256'
 import store from 'store'
 import { keystoreActions } from '../slices/keystore'
 
@@ -10,10 +11,9 @@ const ERROR_MESSAGES = {
     RESTORE: 'Something went wrong while restoring the wallet',
 }
 
-export const STORE_KEYS = {
+export const BROWSER_STORAGE_KEYS = {
     KEYSTORE: 'keystore',
-    PREV_KEYSTORE: 'prevKeystore',
-    ADDRESSES: 'addresses',
+    ALL: 'all',
 }
 
 function createVault(opts: VaultOptions) {
@@ -27,30 +27,25 @@ function createVault(opts: VaultOptions) {
     })
 }
 
-function keyFromPassword(ks: keystore, password: string) {
-    return new Promise((resolve, reject) => {
-        ks.keyFromPassword(password, (error, pwDerivedKey) => {
-            if (error) {
-                return reject(error)
-            }
-            return resolve(pwDerivedKey)
-        })
-    })
+function getKsHash (password: string, seed: string) {
+    return keccak256(`${password} ${seed}`).toString('hex')
 }
 
 function *genKeystore({ payload }: ReturnType<typeof keystoreActions.generate>) {
     yield put(keystoreActions.pending())
     try {
         const ks: keystore = yield call(createVault, payload)
-        const serialized = ks.serialize()
-        const addresses = Array.isArray(payload.addresses) ? payload.addresses : []
-        store.set(STORE_KEYS.KEYSTORE, serialized)
-        store.set(STORE_KEYS.PREV_KEYSTORE, serialized)
-        store.set(STORE_KEYS.ADDRESSES, addresses)
-        yield put(keystoreActions.fulfilled({
-            keystore: serialized,
-            addresses,
-        }))
+        store.set(BROWSER_STORAGE_KEYS.KEYSTORE, ks)
+        if (!store.get(BROWSER_STORAGE_KEYS.ALL)) {
+            store.set(BROWSER_STORAGE_KEYS.ALL, {})
+        }
+        const ksHash = getKsHash(payload.password, payload.seedPhrase)
+        const all = store.get(BROWSER_STORAGE_KEYS.ALL)
+        store.set(BROWSER_STORAGE_KEYS.ALL, {
+            ...all,
+            [ksHash]: ks,
+        })
+        yield put(keystoreActions.fulfilled({ keystore: ks }))
     } catch (error: any) {
         const errorMessage = (error && error.message) ? error.message : ERROR_MESSAGES.INITIALIZE
         yield put(keystoreActions.rejected({ error: { message: errorMessage, errorCode: 1 } }))
@@ -59,52 +54,33 @@ function *genKeystore({ payload }: ReturnType<typeof keystoreActions.generate>) 
 
 function *restoreKeystore({ payload }: ReturnType<typeof keystoreActions.restore>) {
     yield put(keystoreActions.pending())
-    const serialized = store.get(STORE_KEYS.KEYSTORE)
-    if (serialized) {
+    if (store.get(BROWSER_STORAGE_KEYS.KEYSTORE)) {
         yield put(keystoreActions.rejected({ error: { message: ERROR_MESSAGES.ALREADY_INITIALIZED, errorCode: 2 } }))
         return
     }
-    try {
-        const prevKeystore = store.get(STORE_KEYS.PREV_KEYSTORE)
-        if (!prevKeystore) {
-            yield put(keystoreActions.rejected({ error: { message: ERROR_MESSAGES.WALLET_EXISTS_NOT, errorCode: 3 }}))
-            return
-        }
-        const ks: keystore = keystore.deserialize(prevKeystore)
-        const pwDerivedKey: Uint8Array = yield call(keyFromPassword, ks, payload.password)
-        if (ks.getSeed(pwDerivedKey) === payload.seedPhrase) {
-            yield put(keystoreActions.generate({
-                ...payload,
-                addresses: store.get(STORE_KEYS.ADDRESSES)
-            }))
-        } else {
-            yield put(keystoreActions.rejected({ error: { message: ERROR_MESSAGES.WALLET_EXISTS_NOT, errorCode: 3 }}))
-        }
-    } catch (error: any) {
-        const errorMessage = (error && error.message) ? error.message : ERROR_MESSAGES.RESTORE
-        yield put(keystoreActions.rejected({ error: { message: errorMessage, errorCode: 4 } }))
+    const ksHash = getKsHash(payload.password, payload.seedPhrase)
+    const all = store.get(BROWSER_STORAGE_KEYS.ALL)
+    if (all && all.hasOwnProperty(ksHash)) {
+        const ks = all[ksHash]
+        store.set(BROWSER_STORAGE_KEYS.KEYSTORE, ks)
+        yield put(keystoreActions.fulfilled({ keystore: ks }))
+    } else {
+        yield put(keystoreActions.rejected({ error: { message: ERROR_MESSAGES.WALLET_EXISTS_NOT, errorCode: 3 }}))
     }
 }
 
 function *loadKeystore ({ payload }: ReturnType<typeof keystoreActions.load>) {
-    const serialized = store.get(STORE_KEYS.KEYSTORE)
-    if (serialized !== payload.keystore) {
+    const ks = payload.keystore
+    if (!ks) {
         yield put(keystoreActions.rejected({ error: { message: ERROR_MESSAGES.INITIALIZE, errorCode: 1 } }))
         return
     }
-    const addresses = store.get(STORE_KEYS.ADDRESSES)
-    yield put(keystoreActions.fulfilled({
-        keystore: serialized,
-        addresses,
-    }))
+    yield put(keystoreActions.fulfilled({ keystore: ks }))
 }
 
 function *destroyKeystore () {
-    store.set(STORE_KEYS.KEYSTORE, null)
-    yield put(keystoreActions.fulfilled({
-        keystore: null,
-        addresses: [],
-    }))
+    store.set(BROWSER_STORAGE_KEYS.KEYSTORE, null)
+    yield put(keystoreActions.fulfilled({ keystore: null }))
 }
 
 function *watchGenKeystore() {

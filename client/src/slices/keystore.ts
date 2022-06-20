@@ -1,11 +1,10 @@
 import { createAction, createSlice } from '@reduxjs/toolkit'
-import { VaultOptions } from 'eth-lightwallet'
+import { keystore, VaultOptions } from 'eth-lightwallet'
 
 
 // Initial state
 interface KeystoreState {
-    keystore: string | null,
-    addresses: string[],
+    keystore: keystore | null,
     loading: boolean,
     error: string | null,
     errorCode: number | null
@@ -13,7 +12,6 @@ interface KeystoreState {
 
 const initialState: KeystoreState = {
     keystore: null,
-    addresses: [],
     loading: false,
     error: null,
     errorCode: null
@@ -21,12 +19,12 @@ const initialState: KeystoreState = {
 
 // Actions
 const keystoreActions = {
-    generate: createAction<VaultOptions & { addresses?: string[] }>('keystore/generate'),
+    generate: createAction<VaultOptions>('keystore/generate'),
     restore: createAction<VaultOptions>('keystore/restore'),
-    load: createAction<{ keystore: string }>('keystore/load'),
+    load: createAction<{ keystore: keystore }>('keystore/load'),
     destroy: createAction('keystore/destroy'),
     pending: createAction('keystore/pending'),
-    fulfilled: createAction<{ keystore: string | null, addresses: string[] }>('keystore/fulfilled'),
+    fulfilled: createAction<{ keystore: keystore | null}>('keystore/fulfilled'),
     rejected: createAction<{ error: { message: string, errorCode: number } }>('keystore/rejected')
 }
 
@@ -42,7 +40,6 @@ const keystoreSlice = createSlice({
                     loading: true,
                     error: null,
                     errorCode: null,
-                    addresses: [],
                 }
             })
             .addCase(keystoreActions.fulfilled, (state, action) => {
@@ -51,7 +48,6 @@ const keystoreSlice = createSlice({
                     loading: false,
                     error: null,
                     keystore: action.payload.keystore,
-                    addresses: action.payload.addresses,
                     errorCode: null,
                 }
             })
@@ -62,7 +58,6 @@ const keystoreSlice = createSlice({
                     error: action.payload.error.message,
                     errorCode: action.payload.error.errorCode,
                     keystore: null,
-                    addresses: [],
                 }
             })
 })
