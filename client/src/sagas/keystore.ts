@@ -9,6 +9,7 @@ const ERROR_MESSAGES = {
     ALREADY_INITIALIZED: 'Can\'t restore wallet, there is already one initialized',
     WALLET_EXISTS_NOT: 'Can\'t restore wallet, it does not exist',
     RESTORE: 'Something went wrong while restoring the wallet',
+    GENERATE_ADDRESS: 'Something went wrong while generating address',
 }
 
 export const BROWSER_STORAGE_KEYS = {
@@ -24,6 +25,17 @@ function createVault(opts: VaultOptions) {
                 return reject(error)
             }
             return resolve(ks)
+        })
+    })
+}
+
+function keyFromPassword(ks: keystore, password: string) {
+    return new Promise((resolve, reject) => {
+        ks.keyFromPassword(password, (error, pwDerivedKey) => {
+            if (error) {
+                return reject(error)
+            }
+            return resolve(pwDerivedKey)
         })
     })
 }
@@ -87,11 +99,31 @@ function *destroyKeystore () {
     yield put(keystoreActions.fulfilled({ keystore: null }))
 }
 
+function *generateAddress ({ payload }: ReturnType<typeof keystoreActions.generateAddress>) {
+    const ks: keystore = store.get(BROWSER_STORAGE_KEYS.KEYSTORE)
+    try {
+        const pwDerivedKey: Uint8Array = yield call(keyFromPassword, ks, payload.password)
+        ks.generateNewAddress(pwDerivedKey, 1)
+        store.set(BROWSER_STORAGE_KEYS.KEYSTORE, ks)
+        const ksHash = store.get(BROWSER_STORAGE_KEYS.KEYSTORE_HASH)
+        const all = store.get(BROWSER_STORAGE_KEYS.ALL)
+        store.set(BROWSER_STORAGE_KEYS.ALL, {
+            ...all,
+            [ksHash]: ks,
+        })
+        yield put(keystoreActions.fulfilled({ keystore: ks }))
+    } catch (error: any) {
+        const errorMessage = (error && error.message) ? error.message : ERROR_MESSAGES.GENERATE_ADDRESS
+        yield put(keystoreActions.rejected({ error: { message: errorMessage, errorCode: 5 } }))
+    }
+}
+
 function *watchGenKeystore() {
     yield takeLatest(keystoreActions.generate.type, genKeystore)
     yield takeLatest(keystoreActions.restore.type, restoreKeystore)
     yield takeLatest(keystoreActions.load.type, loadKeystore)
     yield takeLatest(keystoreActions.destroy.type, destroyKeystore)
+    yield takeLatest(keystoreActions.generateAddress.type, generateAddress)
 }
 
 export {

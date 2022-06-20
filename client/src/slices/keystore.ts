@@ -23,6 +23,7 @@ const keystoreActions = {
     restore: createAction<VaultOptions>('keystore/restore'),
     load: createAction<{ keystore: keystore }>('keystore/load'),
     destroy: createAction('keystore/destroy'),
+    generateAddress: createAction<{ password: string }>('keystore/generateAddress'),
     pending: createAction('keystore/pending'),
     fulfilled: createAction<{ keystore: keystore | null}>('keystore/fulfilled'),
     rejected: createAction<{ error: { message: string, errorCode: number } }>('keystore/rejected')
