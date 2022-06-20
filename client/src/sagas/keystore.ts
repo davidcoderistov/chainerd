@@ -13,6 +13,7 @@ const ERROR_MESSAGES = {
 
 export const BROWSER_STORAGE_KEYS = {
     KEYSTORE: 'keystore',
+    KEYSTORE_HASH: 'keystoreHash',
     ALL: 'all',
 }
 
@@ -41,6 +42,7 @@ function *genKeystore({ payload }: ReturnType<typeof keystoreActions.generate>) 
         }
         const ksHash = getKsHash(payload.password, payload.seedPhrase)
         const all = store.get(BROWSER_STORAGE_KEYS.ALL)
+        store.set(BROWSER_STORAGE_KEYS.KEYSTORE_HASH, ksHash)
         store.set(BROWSER_STORAGE_KEYS.ALL, {
             ...all,
             [ksHash]: ks,
@@ -63,6 +65,7 @@ function *restoreKeystore({ payload }: ReturnType<typeof keystoreActions.restore
     if (all && all.hasOwnProperty(ksHash)) {
         const ks = all[ksHash]
         store.set(BROWSER_STORAGE_KEYS.KEYSTORE, ks)
+        store.set(BROWSER_STORAGE_KEYS.KEYSTORE_HASH, ksHash)
         yield put(keystoreActions.fulfilled({ keystore: ks }))
     } else {
         yield put(keystoreActions.rejected({ error: { message: ERROR_MESSAGES.WALLET_EXISTS_NOT, errorCode: 3 }}))
@@ -80,6 +83,7 @@ function *loadKeystore ({ payload }: ReturnType<typeof keystoreActions.load>) {
 
 function *destroyKeystore () {
     store.set(BROWSER_STORAGE_KEYS.KEYSTORE, null)
+    store.set(BROWSER_STORAGE_KEYS.KEYSTORE_HASH, null)
     yield put(keystoreActions.fulfilled({ keystore: null }))
 }
 
