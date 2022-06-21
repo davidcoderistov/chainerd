@@ -23,7 +23,9 @@ export default function TextInput (props: TextInputProps) {
             { props.type === 'number' ? (
                 <NumberTextField {...rest} />
             ) : (
-                <TextField {...rest} />
+                <TextField {...rest} >
+                    { rest.children }
+                </TextField>
             )}
         </React.Fragment>
     )
