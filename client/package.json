@@ -21,6 +21,7 @@
     "@types/react-dom": "^18.0.3",
     "@types/react-redux": "^7.1.24",
     "@types/store": "^2.0.2",
+    "class-transformer": "^0.5.1",
     "eth-lightwallet": "^4.0.0",
     "keccak256": "^1.0.6",
     "lodash": "^4.17.21",

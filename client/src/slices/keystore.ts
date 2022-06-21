@@ -1,10 +1,10 @@
 import { createAction, createSlice } from '@reduxjs/toolkit'
-import { keystore, VaultOptions } from 'eth-lightwallet'
+import { VaultOptions } from 'eth-lightwallet'
 
 
 // Initial state
 interface KeystoreState {
-    keystore: keystore | null,
+    keystore: string | null,
     loading: boolean,
     error: string | null,
     errorCode: number | null
@@ -21,11 +21,11 @@ const initialState: KeystoreState = {
 const keystoreActions = {
     generate: createAction<VaultOptions>('keystore/generate'),
     restore: createAction<VaultOptions>('keystore/restore'),
-    load: createAction<{ keystore: keystore }>('keystore/load'),
+    load: createAction<{ keystore: string }>('keystore/load'),
     destroy: createAction('keystore/destroy'),
     generateAddress: createAction<{ password: string }>('keystore/generateAddress'),
     pending: createAction('keystore/pending'),
-    fulfilled: createAction<{ keystore: keystore | null}>('keystore/fulfilled'),
+    fulfilled: createAction<{ keystore: string | null}>('keystore/fulfilled'),
     rejected: createAction<{ error: { message: string, errorCode: number } }>('keystore/rejected')
 }
 
@@ -58,7 +58,6 @@ const keystoreSlice = createSlice({
                     loading: false,
                     error: action.payload.error.message,
                     errorCode: action.payload.error.errorCode,
-                    keystore: null,
                 }
             })
 })

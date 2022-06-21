@@ -1,5 +1,6 @@
 import { keystore, VaultOptions } from 'eth-lightwallet'
 import { call, put, takeLatest } from 'redux-saga/effects'
+import { plainToInstance, instanceToPlain } from 'class-transformer'
 import keccak256 from 'keccak256'
 import store from 'store'
 import { keystoreActions } from '../slices/keystore'
@@ -18,7 +19,7 @@ export const BROWSER_STORAGE_KEYS = {
     ALL: 'all',
 }
 
-function createVault(opts: VaultOptions) {
+function createVault(opts: VaultOptions): Promise<keystore> {
     return new Promise((resolve, reject) => {
         keystore.createVault(opts, (error, ks) => {
             if (error) {
@@ -29,7 +30,7 @@ function createVault(opts: VaultOptions) {
     })
 }
 
-function keyFromPassword(ks: keystore, password: string) {
+function keyFromPassword(ks: keystore, password: string): Promise<Uint8Array> {
     return new Promise((resolve, reject) => {
         ks.keyFromPassword(password, (error, pwDerivedKey) => {
             if (error) {
@@ -40,6 +41,14 @@ function keyFromPassword(ks: keystore, password: string) {
     })
 }
 
+function serializeKeystore (ks: keystore): string {
+    return JSON.stringify(instanceToPlain(ks))
+}
+
+function deserializeKeystore(ks: string): keystore {
+    return plainToInstance(keystore, JSON.parse(ks))
+}
+
 function getKsHash (password: string, seed: string) {
     return keccak256(`${password} ${seed}`).toString('hex')
 }
@@ -48,7 +57,8 @@ function *genKeystore({ payload }: ReturnType<typeof keystoreActions.generate>) 
     yield put(keystoreActions.pending())
     try {
         const ks: keystore = yield call(createVault, payload)
-        store.set(BROWSER_STORAGE_KEYS.KEYSTORE, ks)
+        const serialized = serializeKeystore(ks)
+        store.set(BROWSER_STORAGE_KEYS.KEYSTORE, serialized)
         if (!store.get(BROWSER_STORAGE_KEYS.ALL)) {
             store.set(BROWSER_STORAGE_KEYS.ALL, {})
         }
@@ -57,9 +67,9 @@ function *genKeystore({ payload }: ReturnType<typeof keystoreActions.generate>) 
         store.set(BROWSER_STORAGE_KEYS.KEYSTORE_HASH, ksHash)
         store.set(BROWSER_STORAGE_KEYS.ALL, {
             ...all,
-            [ksHash]: ks,
+            [ksHash]: serialized,
         })
-        yield put(keystoreActions.fulfilled({ keystore: ks }))
+        yield put(keystoreActions.fulfilled({ keystore: serialized }))
     } catch (error: any) {
         const errorMessage = (error && error.message) ? error.message : ERROR_MESSAGES.INITIALIZE
         yield put(keystoreActions.rejected({ error: { message: errorMessage, errorCode: 1 } }))
@@ -100,18 +110,20 @@ function *destroyKeystore () {
 }
 
 function *generateAddress ({ payload }: ReturnType<typeof keystoreActions.generateAddress>) {
-    const ks: keystore = store.get(BROWSER_STORAGE_KEYS.KEYSTORE)
+    const serialized: string = store.get(BROWSER_STORAGE_KEYS.KEYSTORE)
+    const ks: keystore = deserializeKeystore(serialized)
     try {
         const pwDerivedKey: Uint8Array = yield call(keyFromPassword, ks, payload.password)
         ks.generateNewAddress(pwDerivedKey, 1)
-        store.set(BROWSER_STORAGE_KEYS.KEYSTORE, ks)
+        const serialized = serializeKeystore(ks)
+        store.set(BROWSER_STORAGE_KEYS.KEYSTORE, serialized)
         const ksHash = store.get(BROWSER_STORAGE_KEYS.KEYSTORE_HASH)
         const all = store.get(BROWSER_STORAGE_KEYS.ALL)
         store.set(BROWSER_STORAGE_KEYS.ALL, {
             ...all,
-            [ksHash]: ks,
+            [ksHash]: serialized,
         })
-        yield put(keystoreActions.fulfilled({ keystore: ks }))
+        yield put(keystoreActions.fulfilled({ keystore: serialized }))
     } catch (error: any) {
         const errorMessage = (error && error.message) ? error.message : ERROR_MESSAGES.GENERATE_ADDRESS
         yield put(keystoreActions.rejected({ error: { message: errorMessage, errorCode: 5 } }))
@@ -128,6 +140,9 @@ function *watchGenKeystore() {
 
 export {
     createVault,
+    keyFromPassword,
+    serializeKeystore,
+    deserializeKeystore,
     genKeystore,
     restoreKeystore,
     loadKeystore,
