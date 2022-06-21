@@ -1,6 +1,6 @@
 import React, { useCallback } from 'react'
 import TextInput  from '../TextInput'
-import { Divider, styled } from '@mui/material'
+import { Divider, MenuItem, styled } from '@mui/material'
 import { ArrowDownwardOutlined } from '@mui/icons-material'
 
 const DividerContainer = styled('div')({
@@ -20,13 +20,14 @@ const DownArrowIcon = styled(ArrowDownwardOutlined)({
 })
 
 interface RecipientStepProps {
+    addresses: string[],
     fromAddress: string,
     onChangeFromAddress: (fromAddress: string) => void,
     toAddress: string,
     onChangeToAddress: (toAddress: string) => void,
 }
 
-export default function RecipientStep ({ fromAddress, onChangeFromAddress, toAddress, onChangeToAddress }: RecipientStepProps) {
+export default function RecipientStep ({ addresses, fromAddress, onChangeFromAddress, toAddress, onChangeToAddress }: RecipientStepProps) {
 
     const handleOnChangeFromAddress = useCallback(
         (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -42,14 +43,28 @@ export default function RecipientStep ({ fromAddress, onChangeFromAddress, toAdd
         [onChangeToAddress]
     )
 
+    const emptyText = 'Please generate an address before trying to send a transaction'
+
     return (
         <React.Fragment>
             <TextInput
-                value={fromAddress}
+                value={addresses.length > 0 ? fromAddress : emptyText}
                 onChange={handleOnChangeFromAddress}
                 inputLabel='Account to debit'
                 placeholder='Enter sender address'
-                fullWidth/>
+                select
+                disabled={addresses.length <= 0}
+                fullWidth>
+                { addresses.length > 0 ? addresses.map(address => (
+                    <MenuItem key={address} value={address}>
+                        { address }
+                    </MenuItem>
+                )) : (
+                    <MenuItem value={emptyText}>
+                        { emptyText }
+                    </MenuItem>
+                )}
+            </TextInput>
             <DividerContainer>
                 <StyledDivider />
                 <DownArrowIcon
