@@ -19,7 +19,7 @@ const sortByOptions = [
 export interface AccountsListBarProps {
     searchText: string,
     onChangeSearchText: (searchText: string) => void,
-    onChangeSortBy: (option: string) => void,
+    onChangeSortBy: (index: number) => void,
 }
 
 export default function AccountsListBar ({ searchText, onChangeSearchText, onChangeSortBy } : AccountsListBarProps) {
@@ -44,9 +44,9 @@ export default function AccountsListBar ({ searchText, onChangeSearchText, onCha
     )
 
     const handleOnChangeSortBy = useCallback(
-        (option: string) => {
+        (option: string, index: number) => {
             setSelectedItem(option)
-            onChangeSortBy(option)
+            onChangeSortBy(index)
             handleClose()
         },
         [onChangeSortBy]
@@ -99,7 +99,7 @@ export default function AccountsListBar ({ searchText, onChangeSearchText, onCha
                             }}
                         >
                             { sortByOptions.map((option, index) => (
-                                <MenuItem key={index} onClick={() => handleOnChangeSortBy(option)}>{ option }</MenuItem>
+                                <MenuItem key={index} onClick={() => handleOnChangeSortBy(option, index)}>{ option }</MenuItem>
                             ))}
                         </Menu>
                     </div>
