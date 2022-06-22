@@ -8,7 +8,7 @@ const GridItem = styled(Grid)({
     paddingBottom: '16px'
 })
 
-interface AccountListItemProps {
+export interface AccountListItemProps {
     address: string,
     ethAmount: number,
     fiatAmount: number,

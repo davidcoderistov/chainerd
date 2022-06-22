@@ -16,7 +16,7 @@ const sortByOptions = [
     'Name Z-A',
 ]
 
-interface AccountsListBarProps {
+export interface AccountsListBarProps {
     searchText: string,
     onChangeSearchText: (searchText: string) => void,
     onChangeSortBy: (option: string) => void,
