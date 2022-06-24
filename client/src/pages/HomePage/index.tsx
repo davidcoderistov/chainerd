@@ -3,7 +3,8 @@ import { useDispatch, useSelector } from 'react-redux'
 import { keystoreActions } from '../../slices/keystore'
 import { getKeystore } from '../../selectors/keystore'
 import { Box } from '@mui/material'
-import AppToolbar from '../../components/AppToolbar'
+import Dashboard from '../../components/Dashboard'
+import AccountsPage from '../AccountsPage'
 import CreateWalletModal from '../../components/CreateWalletModal'
 import RestoreWalletModal from '../../components/RestoreWalletModal'
 import SendTransactionModal from '../../components/SendTransactionModal'
@@ -82,12 +83,15 @@ export default function HomePage () {
 
     return (
         <Box>
-            <AppToolbar
+            <Dashboard
                 walletExists={!!keystore}
                 onCreateWallet={openCreateWalletModal}
                 onRestoreWallet={openRestoreWalletModal}
                 onSendTransaction={openSendTransactionModal}
-                onCloseWallet={openCloseWalletModal} />
+                onCloseWallet={openCloseWalletModal}
+            >
+                <AccountsPage />
+            </Dashboard>
             <CreateWalletModal
                 key={createWalletModalKey}
                 open={isCreateWalletModalOpen}
