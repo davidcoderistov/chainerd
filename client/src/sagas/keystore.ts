@@ -19,6 +19,14 @@ export const BROWSER_STORAGE_KEYS = {
     ALL: 'all',
 }
 
+export const SUCCESS_CODES = {
+    GENERATE_KEYSTORE: 1,
+    RESTORE_KEYSTORE: 2,
+    LOAD_KEYSTORE: 3,
+    DESTROY_KEYSTORE: 4,
+    GENERATE_ADDRESS: 5,
+}
+
 function createVault(opts: VaultOptions): Promise<keystore> {
     return new Promise((resolve, reject) => {
         keystore.createVault(opts, (error, ks) => {
@@ -69,7 +77,7 @@ function *genKeystore({ payload }: ReturnType<typeof keystoreActions.generate>) 
             ...all,
             [ksHash]: serialized,
         })
-        yield put(keystoreActions.fulfilled({ keystore: serialized }))
+        yield put(keystoreActions.fulfilled({ keystore: serialized, successCode: SUCCESS_CODES.GENERATE_KEYSTORE }))
     } catch (error: any) {
         const errorMessage = (error && error.message) ? error.message : ERROR_MESSAGES.INITIALIZE
         yield put(keystoreActions.rejected({ error: { message: errorMessage, errorCode: 1 } }))
@@ -88,7 +96,7 @@ function *restoreKeystore({ payload }: ReturnType<typeof keystoreActions.restore
         const ks = all[ksHash]
         store.set(BROWSER_STORAGE_KEYS.KEYSTORE, ks)
         store.set(BROWSER_STORAGE_KEYS.KEYSTORE_HASH, ksHash)
-        yield put(keystoreActions.fulfilled({ keystore: ks }))
+        yield put(keystoreActions.fulfilled({ keystore: ks, successCode: SUCCESS_CODES.RESTORE_KEYSTORE }))
     } else {
         yield put(keystoreActions.rejected({ error: { message: ERROR_MESSAGES.WALLET_EXISTS_NOT, errorCode: 3 }}))
     }
@@ -100,16 +108,17 @@ function *loadKeystore ({ payload }: ReturnType<typeof keystoreActions.load>) {
         yield put(keystoreActions.rejected({ error: { message: ERROR_MESSAGES.INITIALIZE, errorCode: 1 } }))
         return
     }
-    yield put(keystoreActions.fulfilled({ keystore: ks }))
+    yield put(keystoreActions.fulfilled({ keystore: ks, successCode: SUCCESS_CODES.LOAD_KEYSTORE }))
 }
 
 function *destroyKeystore () {
     store.set(BROWSER_STORAGE_KEYS.KEYSTORE, null)
     store.set(BROWSER_STORAGE_KEYS.KEYSTORE_HASH, null)
-    yield put(keystoreActions.fulfilled({ keystore: null }))
+    yield put(keystoreActions.fulfilled({ keystore: null, successCode: SUCCESS_CODES.DESTROY_KEYSTORE }))
 }
 
 function *generateAddress ({ payload }: ReturnType<typeof keystoreActions.generateAddress>) {
+    yield put(keystoreActions.pending())
     const serialized: string = store.get(BROWSER_STORAGE_KEYS.KEYSTORE)
     const ks: keystore = deserializeKeystore(serialized)
     try {
@@ -123,7 +132,7 @@ function *generateAddress ({ payload }: ReturnType<typeof keystoreActions.genera
             ...all,
             [ksHash]: serialized,
         })
-        yield put(keystoreActions.fulfilled({ keystore: serialized }))
+        yield put(keystoreActions.fulfilled({ keystore: serialized, successCode: SUCCESS_CODES.GENERATE_ADDRESS }))
     } catch (error: any) {
         const errorMessage = (error && error.message) ? error.message : ERROR_MESSAGES.GENERATE_ADDRESS
         yield put(keystoreActions.rejected({ error: { message: errorMessage, errorCode: 5 } }))

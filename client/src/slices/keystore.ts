@@ -7,14 +7,16 @@ interface KeystoreState {
     keystore: string | null,
     loading: boolean,
     error: string | null,
-    errorCode: number | null
+    errorCode: number | null,
+    successCode: number | null,
 }
 
 const initialState: KeystoreState = {
     keystore: null,
     loading: false,
     error: null,
-    errorCode: null
+    errorCode: null,
+    successCode: null,
 }
 
 // Actions
@@ -25,8 +27,9 @@ const keystoreActions = {
     destroy: createAction('keystore/destroy'),
     generateAddress: createAction<{ password: string }>('keystore/generateAddress'),
     clearError: createAction('keystore/clearErrors'),
+    clearSuccess: createAction('keystore/clearSuccess'),
     pending: createAction('keystore/pending'),
-    fulfilled: createAction<{ keystore: string | null}>('keystore/fulfilled'),
+    fulfilled: createAction<{ keystore: string | null, successCode: number }>('keystore/fulfilled'),
     rejected: createAction<{ error: { message: string, errorCode: number } }>('keystore/rejected')
 }
 
@@ -42,6 +45,7 @@ const keystoreSlice = createSlice({
                     loading: true,
                     error: null,
                     errorCode: null,
+                    successCode: null,
                 }
             })
             .addCase(keystoreActions.fulfilled, (state, action) => {
@@ -51,6 +55,7 @@ const keystoreSlice = createSlice({
                     error: null,
                     keystore: action.payload.keystore,
                     errorCode: null,
+                    successCode: action.payload.successCode,
                 }
             })
             .addCase(keystoreActions.rejected, (state, action) => {
@@ -59,6 +64,7 @@ const keystoreSlice = createSlice({
                     loading: false,
                     error: action.payload.error.message,
                     errorCode: action.payload.error.errorCode,
+                    successCode: null,
                 }
             })
             .addCase(keystoreActions.clearError, (state) => {
@@ -66,6 +72,12 @@ const keystoreSlice = createSlice({
                     ...state,
                     error: null,
                     errorCode: null,
+                }
+            })
+            .addCase(keystoreActions.clearSuccess, (state) => {
+                return {
+                    ...state,
+                    successCode: null,
                 }
             })
 })

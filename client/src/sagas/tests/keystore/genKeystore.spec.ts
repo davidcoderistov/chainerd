@@ -1,4 +1,5 @@
 import { put, call } from 'redux-saga/effects'
+import { SUCCESS_CODES } from '../../keystore'
 import { keystoreActions } from '../../../slices/keystore'
 import { genKeystore, createVault } from '../../keystore'
 
@@ -32,6 +33,7 @@ describe('Test *genKeystore fulfilled case', () => {
         expect(it.next(keystore)).toEqual({
             value: put(keystoreActions.fulfilled({
                 keystore: keystore.serialize(),
+                successCode: SUCCESS_CODES.GENERATE_KEYSTORE,
             })),
             done: false,
         })

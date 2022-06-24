@@ -23,6 +23,8 @@ const getError = (state: RootState) => state.keystore.error
 
 const getErrorCode = (state: RootState) => state.keystore.errorCode
 
+const getSuccessCode = (state: RootState) => state.keystore.successCode
+
 const getLoading = (state: RootState) => state.keystore.loading
 
 
@@ -31,5 +33,6 @@ export {
     getAddresses,
     getError,
     getErrorCode,
+    getSuccessCode,
     getLoading,
 }
