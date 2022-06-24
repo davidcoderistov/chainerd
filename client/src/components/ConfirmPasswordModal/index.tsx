@@ -1,6 +1,7 @@
 import React, { useState } from 'react'
-import {Dialog, DialogTitle, DialogContent, DialogActions } from '@mui/material'
-import { Grid, Button, IconButton, styled } from '@mui/material'
+import { Dialog, DialogTitle, DialogContent, DialogActions } from '@mui/material'
+import { Grid, IconButton, styled } from '@mui/material'
+import { LoadingButton } from '@mui/lab'
 import PasswordInput from '../PasswordInput'
 import { Close } from '@mui/icons-material'
 
@@ -15,9 +16,10 @@ interface ConfirmPasswordModalProps {
     onClose: () => void,
     onConfirm : (password: string) => void,
     addNewAddress?: boolean,
+    loading?: boolean,
 }
 
-export default function ConfirmPasswordModal ({ open, onClose, onConfirm, addNewAddress } : ConfirmPasswordModalProps) {
+export default function ConfirmPasswordModal ({ open, onClose, onConfirm, addNewAddress, loading } : ConfirmPasswordModalProps) {
 
     const handleOnConfirm = () => {
         onConfirm(password)
@@ -63,9 +65,9 @@ export default function ConfirmPasswordModal ({ open, onClose, onConfirm, addNew
                 </Grid>
             </DialogContent>
             <DialogActions>
-                <Button sx={{ mr: 1 }} onClick={handleOnConfirm}>
+                <LoadingButton sx={{ mr: 1 }} loading={loading} onClick={handleOnConfirm}>
                     Confirm
-                </Button>
+                </LoadingButton>
             </DialogActions>
         </Dialog>
     )
