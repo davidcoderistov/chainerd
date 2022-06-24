@@ -35,18 +35,18 @@ export default function AccountListItem ({ address, ethAmount, fiatAmount, onEdi
     return (
         <Paper elevation={4} sx={{ mb: 4, px: 3 }}>
             <Grid container spacing={2}>
-                <GridItem item xs={4}>
-                    <Typography variant='body1'>
+                <GridItem item xs={5}>
+                    <Typography variant='body2'>
                         { address }
                     </Typography>
                 </GridItem>
                 <GridItem item xs>
-                    <Typography variant='body1'>
+                    <Typography variant='body2'>
                         { ethAmount } ETH
                     </Typography>
                 </GridItem>
                 <GridItem item xs>
-                    <Typography variant='body1'>
+                    <Typography variant='body2'>
                         ${ fiatAmount }
                     </Typography>
                 </GridItem>
