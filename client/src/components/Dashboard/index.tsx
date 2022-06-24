@@ -154,16 +154,17 @@ export default function Dashboard ({ walletExists, onCreateWallet, onRestoreWall
                 <Box
                     component='main'
                     sx={{
-                        backgroundColor: 'rgba(41, 36, 45, 0.95)',
                         flexGrow: 1,
                         height: '100vh',
                         overflow: 'auto',
                     }}
                 >
                     <Toolbar />
-                    <Container maxWidth='lg' sx={{ mt: 4, mb: 4, color: '#FFFFFF' }}>
+                    <Container maxWidth='lg' sx={{ mt: 4, mb: 4 }}>
                         <Grid container>
-                            { children }
+                            <Grid item xs={12}>
+                                { children }
+                            </Grid>
                         </Grid>
                     </Container>
                 </Box>
