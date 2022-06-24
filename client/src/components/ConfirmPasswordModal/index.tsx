@@ -1,4 +1,4 @@
-import React, { useState, useCallback } from 'react'
+import React, { useState } from 'react'
 import {Dialog, DialogTitle, DialogContent, DialogActions } from '@mui/material'
 import { Grid, Button, IconButton, styled } from '@mui/material'
 import PasswordInput from '../PasswordInput'
@@ -19,12 +19,9 @@ interface ConfirmPasswordModalProps {
 
 export default function ConfirmPasswordModal ({ open, onClose, onConfirm, addNewAddress } : ConfirmPasswordModalProps) {
 
-    const handleOnConfirm = useCallback(
-        () => {
-            onConfirm(password)
-        },
-        [onConfirm]
-    )
+    const handleOnConfirm = () => {
+        onConfirm(password)
+    }
 
     const [password, setPassword] = useState<string>('')
 
