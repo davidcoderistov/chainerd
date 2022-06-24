@@ -14,9 +14,8 @@ const ERROR_MESSAGES = {
 }
 
 export const BROWSER_STORAGE_KEYS = {
-    KEYSTORE: 'keystore',
     KEYSTORE_HASH: 'keystoreHash',
-    ALL: 'all',
+    KEYSTORES: 'keystores',
 }
 
 export const SUCCESS_CODES = {
@@ -61,21 +60,39 @@ function getKsHash (password: string, seed: string) {
     return keccak256(`${password} ${seed}`).toString('hex')
 }
 
+function currentKeystoreExists (): boolean {
+    const ksHash = store.get(BROWSER_STORAGE_KEYS.KEYSTORE_HASH)
+    if (ksHash) {
+        const all = store.get(BROWSER_STORAGE_KEYS.KEYSTORES)
+        return !!(all && all.hasOwnProperty(ksHash) && all[ksHash].hasOwnProperty('keystore'))
+    }
+    return false
+}
+
+function getCurrentKeystore (): string {
+    const ksHash = store.get(BROWSER_STORAGE_KEYS.KEYSTORE_HASH)
+    const all = store.get(BROWSER_STORAGE_KEYS.KEYSTORES)
+    return all[ksHash].keystore
+}
+
 function *genKeystore({ payload }: ReturnType<typeof keystoreActions.generate>) {
     yield put(keystoreActions.pending())
     try {
         const ks: keystore = yield call(createVault, payload)
         const serialized = serializeKeystore(ks)
-        store.set(BROWSER_STORAGE_KEYS.KEYSTORE, serialized)
-        if (!store.get(BROWSER_STORAGE_KEYS.ALL)) {
-            store.set(BROWSER_STORAGE_KEYS.ALL, {})
+        if (!store.get(BROWSER_STORAGE_KEYS.KEYSTORES)) {
+            store.set(BROWSER_STORAGE_KEYS.KEYSTORES, {})
         }
         const ksHash = getKsHash(payload.password, payload.seedPhrase)
-        const all = store.get(BROWSER_STORAGE_KEYS.ALL)
+        const all = store.get(BROWSER_STORAGE_KEYS.KEYSTORES)
         store.set(BROWSER_STORAGE_KEYS.KEYSTORE_HASH, ksHash)
-        store.set(BROWSER_STORAGE_KEYS.ALL, {
+        store.set(BROWSER_STORAGE_KEYS.KEYSTORES, {
             ...all,
-            [ksHash]: serialized,
+            [ksHash]: {
+                keystore: serialized,
+                addresses: [],
+                addressAliases: {},
+            }
         })
         yield put(keystoreActions.fulfilled({ keystore: serialized, successCode: SUCCESS_CODES.GENERATE_KEYSTORE }))
     } catch (error: any) {
@@ -86,15 +103,14 @@ function *genKeystore({ payload }: ReturnType<typeof keystoreActions.generate>) 
 
 function *restoreKeystore({ payload }: ReturnType<typeof keystoreActions.restore>) {
     yield put(keystoreActions.pending())
-    if (store.get(BROWSER_STORAGE_KEYS.KEYSTORE)) {
+    if (store.get(BROWSER_STORAGE_KEYS.KEYSTORE_HASH)) {
         yield put(keystoreActions.rejected({ error: { message: ERROR_MESSAGES.ALREADY_INITIALIZED, errorCode: 2 } }))
         return
     }
     const ksHash = getKsHash(payload.password, payload.seedPhrase)
-    const all = store.get(BROWSER_STORAGE_KEYS.ALL)
+    const all = store.get(BROWSER_STORAGE_KEYS.KEYSTORES)
     if (all && all.hasOwnProperty(ksHash)) {
-        const ks = all[ksHash]
-        store.set(BROWSER_STORAGE_KEYS.KEYSTORE, ks)
+        const ks = all[ksHash].keystore
         store.set(BROWSER_STORAGE_KEYS.KEYSTORE_HASH, ksHash)
         yield put(keystoreActions.fulfilled({ keystore: ks, successCode: SUCCESS_CODES.RESTORE_KEYSTORE }))
     } else {
@@ -112,25 +128,27 @@ function *loadKeystore ({ payload }: ReturnType<typeof keystoreActions.load>) {
 }
 
 function *destroyKeystore () {
-    store.set(BROWSER_STORAGE_KEYS.KEYSTORE, null)
     store.set(BROWSER_STORAGE_KEYS.KEYSTORE_HASH, null)
     yield put(keystoreActions.fulfilled({ keystore: null, successCode: SUCCESS_CODES.DESTROY_KEYSTORE }))
 }
 
 function *generateAddress ({ payload }: ReturnType<typeof keystoreActions.generateAddress>) {
     yield put(keystoreActions.pending())
-    const serialized: string = store.get(BROWSER_STORAGE_KEYS.KEYSTORE)
+    const serialized: string = getCurrentKeystore()
     const ks: keystore = deserializeKeystore(serialized)
     try {
         const pwDerivedKey: Uint8Array = yield call(keyFromPassword, ks, payload.password)
         ks.generateNewAddress(pwDerivedKey, 1)
         const serialized = serializeKeystore(ks)
-        store.set(BROWSER_STORAGE_KEYS.KEYSTORE, serialized)
         const ksHash = store.get(BROWSER_STORAGE_KEYS.KEYSTORE_HASH)
-        const all = store.get(BROWSER_STORAGE_KEYS.ALL)
-        store.set(BROWSER_STORAGE_KEYS.ALL, {
+        const all = store.get(BROWSER_STORAGE_KEYS.KEYSTORES)
+        store.set(BROWSER_STORAGE_KEYS.KEYSTORES, {
             ...all,
-            [ksHash]: serialized,
+            [ksHash]: {
+                ...all[ksHash],
+                keystore: serialized,
+                addresses: ks.getAddresses(),
+            },
         })
         yield put(keystoreActions.fulfilled({ keystore: serialized, successCode: SUCCESS_CODES.GENERATE_ADDRESS }))
     } catch (error: any) {
@@ -152,6 +170,8 @@ export {
     keyFromPassword,
     serializeKeystore,
     deserializeKeystore,
+    getCurrentKeystore,
+    currentKeystoreExists,
     genKeystore,
     restoreKeystore,
     loadKeystore,
