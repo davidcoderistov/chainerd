@@ -21,7 +21,7 @@ const ERROR_MESSAGES = {
     GENERATE_ADDRESS: 'Something went wrong while generating address',
 }
 
-export const SUCCESS_CODES = {
+export const STATUS_CODES = {
     GENERATE_KEYSTORE: 1,
     RESTORE_KEYSTORE: 2,
     LOAD_KEYSTORE: 3,
@@ -75,48 +75,48 @@ function *genKeystore({ payload }: ReturnType<typeof keystoreActions.generate>) 
             addresses: [],
             addressAliases: {},
         })
-        yield put(keystoreActions.fulfilled({ keystore: serialized, successCode: SUCCESS_CODES.GENERATE_KEYSTORE }))
+        yield put(keystoreActions.fulfilled({ keystore: serialized, statusCode: STATUS_CODES.GENERATE_KEYSTORE }))
     } catch (error: any) {
         const errorMessage = (error && error.message) ? error.message : ERROR_MESSAGES.INITIALIZE
-        yield put(keystoreActions.rejected({ error: { message: errorMessage, errorCode: 1 } }))
+        yield put(keystoreActions.rejected({ errorMessage, statusCode: STATUS_CODES.GENERATE_KEYSTORE }))
     }
 }
 
 function *restoreKeystore({ payload }: ReturnType<typeof keystoreActions.restore>) {
     yield put(keystoreActions.pending())
     if (keystoreHashExists()) {
-        yield put(keystoreActions.rejected({ error: { message: ERROR_MESSAGES.ALREADY_INITIALIZED, errorCode: 2 } }))
+        yield put(keystoreActions.rejected({ errorMessage: ERROR_MESSAGES.ALREADY_INITIALIZED, statusCode: STATUS_CODES.RESTORE_KEYSTORE }))
         return
     }
     const ksHash = getKsHash(payload.password, payload.seedPhrase)
     const ks = getKeystoreByHash(ksHash)
     if (ks) {
         setKeystoreHash(ksHash)
-        yield put(keystoreActions.fulfilled({ keystore: ks, successCode: SUCCESS_CODES.RESTORE_KEYSTORE }))
+        yield put(keystoreActions.fulfilled({ keystore: ks, statusCode: STATUS_CODES.RESTORE_KEYSTORE }))
     } else {
-        yield put(keystoreActions.rejected({ error: { message: ERROR_MESSAGES.WALLET_EXISTS_NOT, errorCode: 3 }}))
+        yield put(keystoreActions.rejected({ errorMessage: ERROR_MESSAGES.WALLET_EXISTS_NOT, statusCode: STATUS_CODES.RESTORE_KEYSTORE }))
     }
 }
 
 function *loadKeystore ({ payload }: ReturnType<typeof keystoreActions.load>) {
     const ks = payload.keystore
     if (!ks) {
-        yield put(keystoreActions.rejected({ error: { message: ERROR_MESSAGES.INITIALIZE, errorCode: 1 } }))
+        yield put(keystoreActions.rejected({ errorMessage: ERROR_MESSAGES.INITIALIZE, statusCode: STATUS_CODES.LOAD_KEYSTORE }))
         return
     }
-    yield put(keystoreActions.fulfilled({ keystore: ks, successCode: SUCCESS_CODES.LOAD_KEYSTORE }))
+    yield put(keystoreActions.fulfilled({ keystore: ks, statusCode: STATUS_CODES.LOAD_KEYSTORE }))
 }
 
 function *destroyKeystore () {
     setKeystoreHash(null)
-    yield put(keystoreActions.fulfilled({ keystore: null, successCode: SUCCESS_CODES.DESTROY_KEYSTORE }))
+    yield put(keystoreActions.fulfilled({ keystore: null, statusCode: STATUS_CODES.DESTROY_KEYSTORE }))
 }
 
 function *generateAddress ({ payload }: ReturnType<typeof keystoreActions.generateAddress>) {
     yield put(keystoreActions.pending())
     const serialized = getCurrentKeystore()
     if (!serialized) {
-        yield put(keystoreActions.rejected({ error: { message: ERROR_MESSAGES.WALLET_EXISTS_NOT, errorCode: 3 }}))
+        yield put(keystoreActions.rejected({ errorMessage: ERROR_MESSAGES.WALLET_EXISTS_NOT, statusCode: STATUS_CODES.GENERATE_ADDRESS }))
         return
     }
     const ks: keystore = deserializeKeystore(serialized)
@@ -126,17 +126,17 @@ function *generateAddress ({ payload }: ReturnType<typeof keystoreActions.genera
         const serialized = serializeKeystore(ks)
         const ksHash = getKeystoreHash()
         if (!ksHash) {
-            yield put(keystoreActions.rejected({ error: { message: ERROR_MESSAGES.WALLET_EXISTS_NOT, errorCode: 3 }}))
+            yield put(keystoreActions.rejected({ errorMessage: ERROR_MESSAGES.WALLET_EXISTS_NOT, statusCode: STATUS_CODES.GENERATE_ADDRESS }))
             return
         }
         if (setKeystore(ksHash, serialized, ks.getAddresses())) {
-            yield put(keystoreActions.fulfilled({ keystore: serialized, successCode: SUCCESS_CODES.GENERATE_ADDRESS }))
+            yield put(keystoreActions.fulfilled({ keystore: serialized, statusCode: STATUS_CODES.GENERATE_ADDRESS }))
         } else {
-            yield put(keystoreActions.rejected({ error: { message: ERROR_MESSAGES.WALLET_EXISTS_NOT, errorCode: 3 }}))
+            yield put(keystoreActions.rejected({ errorMessage: ERROR_MESSAGES.WALLET_EXISTS_NOT, statusCode: STATUS_CODES.GENERATE_ADDRESS }))
         }
     } catch (error: any) {
         const errorMessage = (error && error.message) ? error.message : ERROR_MESSAGES.GENERATE_ADDRESS
-        yield put(keystoreActions.rejected({ error: { message: errorMessage, errorCode: 5 } }))
+        yield put(keystoreActions.rejected({ errorMessage, statusCode: STATUS_CODES.GENERATE_ADDRESS }))
     }
 }
 

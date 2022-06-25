@@ -6,17 +6,15 @@ import { VaultOptions } from 'eth-lightwallet'
 interface KeystoreState {
     keystore: string | null,
     loading: boolean,
-    error: string | null,
-    errorCode: number | null,
-    successCode: number | null,
+    statusCode: number | null,
+    errorMessage: string | null,
 }
 
 const initialState: KeystoreState = {
     keystore: null,
     loading: false,
-    error: null,
-    errorCode: null,
-    successCode: null,
+    statusCode: null,
+    errorMessage: null,
 }
 
 // Actions
@@ -26,11 +24,9 @@ const keystoreActions = {
     load: createAction<{ keystore: string }>('keystore/load'),
     destroy: createAction('keystore/destroy'),
     generateAddress: createAction<{ password: string }>('keystore/generateAddress'),
-    clearError: createAction('keystore/clearErrors'),
-    clearSuccess: createAction('keystore/clearSuccess'),
     pending: createAction('keystore/pending'),
-    fulfilled: createAction<{ keystore: string | null, successCode: number }>('keystore/fulfilled'),
-    rejected: createAction<{ error: { message: string, errorCode: number } }>('keystore/rejected')
+    fulfilled: createAction<{ keystore: string | null, statusCode: number }>('keystore/fulfilled'),
+    rejected: createAction<{ errorMessage: string, statusCode: number }>('keystore/rejected')
 }
 
 const keystoreSlice = createSlice({
@@ -43,41 +39,25 @@ const keystoreSlice = createSlice({
                 return {
                     ...state,
                     loading: true,
-                    error: null,
-                    errorCode: null,
-                    successCode: null,
+                    statusCode: null,
+                    errorMessage: null,
                 }
             })
             .addCase(keystoreActions.fulfilled, (state, action) => {
                 return {
                     ...state,
-                    loading: false,
-                    error: null,
                     keystore: action.payload.keystore,
-                    errorCode: null,
-                    successCode: action.payload.successCode,
+                    statusCode: action.payload.statusCode,
+                    loading: false,
+                    errorMessage: null,
                 }
             })
             .addCase(keystoreActions.rejected, (state, action) => {
                 return {
                     ...state,
+                    statusCode: action.payload.statusCode,
+                    errorMessage: action.payload.errorMessage,
                     loading: false,
-                    error: action.payload.error.message,
-                    errorCode: action.payload.error.errorCode,
-                    successCode: null,
-                }
-            })
-            .addCase(keystoreActions.clearError, (state) => {
-                return {
-                    ...state,
-                    error: null,
-                    errorCode: null,
-                }
-            })
-            .addCase(keystoreActions.clearSuccess, (state) => {
-                return {
-                    ...state,
-                    successCode: null,
                 }
             })
 })
