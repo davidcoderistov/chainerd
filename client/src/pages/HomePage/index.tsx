@@ -9,10 +9,7 @@ import CreateWalletModal from '../../components/CreateWalletModal'
 import RestoreWalletModal from '../../components/RestoreWalletModal'
 import SendTransactionModal from '../../components/SendTransactionModal'
 import CloseWalletModal from '../../components/CloseWalletModal'
-import { BROWSER_STORAGE_KEYS } from '../../sagas/keystore'
-import store from 'store'
-
-
+import { getCurrentKeystore } from '../../localStorage'
 
 
 export default function HomePage () {
@@ -22,9 +19,9 @@ export default function HomePage () {
     const keystore = useSelector(getKeystore)
 
     useEffect(() => {
-        const keystore = store.get(BROWSER_STORAGE_KEYS.KEYSTORE)
-        if (keystore) {
-            dispatch(keystoreActions.load({ keystore }))
+        const ks = getCurrentKeystore()
+        if (ks) {
+            dispatch(keystoreActions.load({ keystore: ks }))
         }
     }, [])
 
