@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React from 'react'
 import { Dialog, DialogTitle, DialogContent, DialogActions } from '@mui/material'
 import { Grid, IconButton, styled } from '@mui/material'
 import { LoadingButton } from '@mui/lab'
@@ -16,8 +16,8 @@ interface EditAccountModalProps {
     address: string,
     loading?: boolean,
     onClose: () => void,
-    onDelete: (address: string) => void,
-    onEdit: (address: string) => void,
+    onDelete: () => void,
+    onEdit: () => void,
 }
 
 export default function EditAccountModal ({ open, address, loading, onClose, onDelete, onEdit } : EditAccountModalProps) {
@@ -51,10 +51,10 @@ export default function EditAccountModal ({ open, address, loading, onClose, onD
                 </Grid>
             </DialogContent>
             <DialogActions>
-                <LoadingButton sx={{ mr: 1 }} color='error' loading={loading} onClick={() => onDelete(address)}>
+                <LoadingButton sx={{ mr: 1 }} color='error' loading={loading} onClick={onDelete}>
                     Delete
                 </LoadingButton>
-                <LoadingButton sx={{ mr: 1 }} loading={loading} onClick={() => onEdit(address)}>
+                <LoadingButton sx={{ mr: 1 }} loading={loading} onClick={onEdit}>
                     Edit
                 </LoadingButton>
             </DialogActions>
