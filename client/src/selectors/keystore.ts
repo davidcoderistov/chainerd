@@ -19,20 +19,17 @@ const getAddresses = (state: RootState): string[] => {
     return []
 }
 
-const getError = (state: RootState) => state.keystore.error
-
-const getErrorCode = (state: RootState) => state.keystore.errorCode
-
-const getSuccessCode = (state: RootState) => state.keystore.successCode
-
 const getLoading = (state: RootState) => state.keystore.loading
+
+const getStatusCode = (state: RootState) => state.keystore.statusCode
+
+const getErrorMessage = (state: RootState) => state.keystore.errorMessage
 
 
 export {
     getKeystore,
     getAddresses,
-    getError,
-    getErrorCode,
-    getSuccessCode,
     getLoading,
+    getStatusCode,
+    getErrorMessage,
 }

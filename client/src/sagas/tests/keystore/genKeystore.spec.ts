@@ -1,5 +1,5 @@
 import { put, call } from 'redux-saga/effects'
-import { SUCCESS_CODES } from '../../keystore'
+import { STATUS_CODES } from '../../keystore'
 import { keystoreActions } from '../../../slices/keystore'
 import { genKeystore, createVault } from '../../keystore'
 
@@ -33,7 +33,7 @@ describe('Test *genKeystore fulfilled case', () => {
         expect(it.next(keystore)).toEqual({
             value: put(keystoreActions.fulfilled({
                 keystore: keystore.serialize(),
-                successCode: SUCCESS_CODES.GENERATE_KEYSTORE,
+                statusCode: STATUS_CODES.GENERATE_KEYSTORE,
             })),
             done: false,
         })
@@ -64,7 +64,7 @@ describe('Test *genKeystore rejected case', () => {
         }
         it.next()
         expect(it.throw(error)).toEqual({
-            value: put(keystoreActions.rejected({ error })),
+            value: put(keystoreActions.rejected({ errorMessage: error.message, statusCode: error.errorCode })),
             done: false,
         })
     })
