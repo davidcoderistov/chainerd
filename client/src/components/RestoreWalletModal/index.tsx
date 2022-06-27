@@ -8,9 +8,8 @@ import { Close } from '@mui/icons-material'
 import PasswordInput from '../PasswordInput'
 import Label from '../Label'
 import SeedInfo from '../SeedInfo'
-import Snackbar from '../Snackbar'
 import { useFormInputValidator } from '../../hooks'
-import { getKeystore, getError, getLoading, getErrorCode } from '../../selectors/keystore'
+import { getLoading, isRestoreKeystoreSuccess } from '../../selectors/keystore'
 import { keystore } from 'eth-lightwallet'
 import _range from 'lodash/range'
 
@@ -48,26 +47,14 @@ export default function RestoreWalletModal ({ open, onRestoreWallet, onClose }: 
     const [password, setPassword] = useState<string>('')
     const [isPasswordDirty, errorPassword, handleBlurPassword] = useFormInputValidator(passwordRules, [password], [password])
 
-    const [showSnackbar, setShowSnackbar] = useState<boolean>(false)
-    const [shouldShowSnackbar, setShouldShowSnackbar] = useState<boolean>(false)
-    const [snackbarMessage, setSnackbarMessage] = useState<string>('')
-
-    const createKeystore = useSelector(getKeystore)
-    const createError = useSelector(getError)
-    const createErrorCode = useSelector(getErrorCode)
-    const createLoading = useSelector(getLoading)
+    const walletRestored = useSelector(isRestoreKeystoreSuccess)
+    const loading = useSelector(getLoading)
 
     const handleChangePassword = (event: React.ChangeEvent<HTMLInputElement>) => {
         setPassword(event.target.value)
     }
 
-    const handleCloseSnackbar = () => {
-        setShouldShowSnackbar(false)
-        setShowSnackbar(false)
-    }
-
     const handleOnRestore = () => {
-        setShouldShowSnackbar(true)
         dispatch(keystoreActions.restore({
             password,
             seedPhrase: seed.join(' '),
@@ -76,81 +63,61 @@ export default function RestoreWalletModal ({ open, onRestoreWallet, onClose }: 
     }
 
     useEffect(() => {
-        if (createKeystore && !createError) {
-            if (shouldShowSnackbar) {
-                setShowSnackbar(true)
-                setSnackbarMessage('Wallet successfully restored')
-            }
+        if (walletRestored && onRestoreWallet) {
             onRestoreWallet()
         }
-    }, [shouldShowSnackbar, createKeystore, createError, onRestoreWallet])
+    }, [walletRestored, onRestoreWallet])
 
-    useEffect(() => {
-        if (createError) {
-            if (shouldShowSnackbar) {
-                setShowSnackbar(true)
-                setSnackbarMessage(createError)
-            }
-        }
-    }, [shouldShowSnackbar, createError])
-
-    const restoreDisabled = !isPasswordDirty || errorPassword.has || createErrorCode === 2 || !keystore.isSeedValid(seed.join(' '))
+    const restoreDisabled = !isPasswordDirty || errorPassword.has || !keystore.isSeedValid(seed.join(' '))
 
     return (
-        <React.Fragment>
-            <Dialog open={open} fullWidth maxWidth='sm' scroll='paper'>
-                <DialogTitleStyled>
-                    <div/>
-                    <div>Restore Wallet</div>
-                    <IconButton
-                        aria-label='close'
-                        onClick={onClose}
-                        sx={{
-                            color: (theme) => theme.palette.grey[500],
-                        }}
-                    >
-                        <Close />
-                    </IconButton>
-                </DialogTitleStyled>
-                <DialogContent dividers={true}>
-                    <div style={{ height: '400px' }}>
-                        <Grid container spacing={2}>
-                            <Grid item xs={12} sx={{ mt: 1, mx: 1 }}>
-                                <PasswordInput
-                                    id='outlined-adornment-password'
-                                    inputLabel='Password'
-                                    placeholder='Enter password for keystore encryption'
-                                    value={password}
-                                    onChange={handleChangePassword}
-                                    onBlur={handleBlurPassword}
-                                    error={errorPassword.has}
-                                    helperText={errorPassword.message}
-                                    sx={{ mb: 2 }}
-                                    fullWidth />
-                                <Label value='Seed Phrase' />
-                                <SeedInfo
-                                    seed={seed}
-                                    writable
-                                    onChangeWord={handleOnChangeWord} />
-                            </Grid>
+        <Dialog open={open} fullWidth maxWidth='sm' scroll='paper'>
+            <DialogTitleStyled>
+                <div/>
+                <div>Restore Wallet</div>
+                <IconButton
+                    aria-label='close'
+                    onClick={onClose}
+                    sx={{
+                        color: (theme) => theme.palette.grey[500],
+                    }}
+                >
+                    <Close />
+                </IconButton>
+            </DialogTitleStyled>
+            <DialogContent dividers={true}>
+                <div style={{ height: '400px' }}>
+                    <Grid container spacing={2}>
+                        <Grid item xs={12} sx={{ mt: 1, mx: 1 }}>
+                            <PasswordInput
+                                id='outlined-adornment-password'
+                                inputLabel='Password'
+                                placeholder='Enter password for keystore encryption'
+                                value={password}
+                                onChange={handleChangePassword}
+                                onBlur={handleBlurPassword}
+                                error={errorPassword.has}
+                                helperText={errorPassword.message}
+                                sx={{ mb: 2 }}
+                                fullWidth />
+                            <Label value='Seed Phrase' />
+                            <SeedInfo
+                                seed={seed}
+                                writable
+                                onChangeWord={handleOnChangeWord} />
                         </Grid>
-                    </div>
-                </DialogContent>
-                <DialogActions>
-                    <LoadingButton
-                        sx={{ mr:1 }}
-                        loading={createLoading}
-                        disabled={restoreDisabled}
-                        onClick={handleOnRestore}>
-                        Restore
-                    </LoadingButton>
-                </DialogActions>
-            </Dialog>
-            <Snackbar
-                open={showSnackbar}
-                error={!!createError}
-                message={snackbarMessage}
-                onClose={handleCloseSnackbar} />
-        </React.Fragment>
+                    </Grid>
+                </div>
+            </DialogContent>
+            <DialogActions>
+                <LoadingButton
+                    sx={{ mr:1 }}
+                    loading={loading}
+                    disabled={restoreDisabled}
+                    onClick={handleOnRestore}>
+                    Restore
+                </LoadingButton>
+            </DialogActions>
+        </Dialog>
     )
 }
