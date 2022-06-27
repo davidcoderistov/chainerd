@@ -13,8 +13,7 @@ import { passwordRules, confirmPasswordRules } from './CreatePassword'
 import { useFormInputValidator } from '../../hooks'
 import { keystore } from 'eth-lightwallet'
 import _isEqual from 'lodash/isEqual'
-import { STATUS_CODES } from '../../sagas/keystore'
-import { getLoading, getStatusCode, getErrorMessage } from '../../selectors/keystore'
+import { getLoading, isGenerateKeystoreSuccess } from '../../selectors/keystore'
 
 const steps = [
     'Create Password',
@@ -49,9 +48,8 @@ export default function CreateWalletModal({ open, onCreateWallet, onClose } : Cr
 
     const [seedInfo, setSeedInfo] = useState<Array<{ name: string, index: number }>>([])
 
-    const statusCode = useSelector(getStatusCode)
-    const errorMessage = useSelector(getErrorMessage)
-    const createLoading = useSelector(getLoading)
+    const walletCreated = useSelector(isGenerateKeystoreSuccess)
+    const loading = useSelector(getLoading)
 
     const onClickWord = (seedInfo: Array<{ name: string, index: number }>) => {
         setSeedInfo(seedInfo)
@@ -70,10 +68,10 @@ export default function CreateWalletModal({ open, onCreateWallet, onClose } : Cr
     }
 
     useEffect(() => {
-       if (statusCode === STATUS_CODES.GENERATE_KEYSTORE && !errorMessage && onCreateWallet) {
+       if (walletCreated && onCreateWallet) {
            onCreateWallet()
        }
-    }, [statusCode, errorMessage, onCreateWallet])
+    }, [walletCreated, onCreateWallet])
 
     const seed = useMemo(() => {
         const seed = keystore.generateRandomSeed()
@@ -151,7 +149,7 @@ export default function CreateWalletModal({ open, onCreateWallet, onClose } : Cr
                 <LoadingButton
                     sx={{ mr:1 }}
                     disabled={buttonDisabled}
-                    loading={createLoading}
+                    loading={loading}
                     onClick={handleOnContinue}>
                     { activeStep < 2 ? 'Continue' : 'Confirm' }
                 </LoadingButton>
