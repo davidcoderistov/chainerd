@@ -1,12 +1,11 @@
 import React, { useState, useEffect } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { keystoreActions } from '../../slices/keystore'
-import { SUCCESS_CODES } from '../../sagas/keystore'
-import { getAddresses, getError, getErrorCode, getSuccessCode, getLoading } from '../../selectors/keystore'
+import { getAddresses, getLoading, isGenerateAddressSuccess } from '../../selectors/keystore'
 import { Button, Typography, styled } from '@mui/material'
 import AccountsList, { AccountsListProps } from '../../components/AccountsList'
 import ConfirmPasswordModal from '../../components/ConfirmPasswordModal'
-import Snackbar from '../../components/Snackbar'
+import EditAccountModal from '../../components/EditAccountModal'
 import { Add } from '@mui/icons-material'
 
 const AccountsToolbar = styled('div')({
@@ -21,9 +20,7 @@ export default function AccountsPage () {
     const dispatch = useDispatch()
 
     const storeAddresses = useSelector(getAddresses)
-    const errorMessage = useSelector(getError)
-    const errorCode = useSelector(getErrorCode)
-    const successCode = useSelector(getSuccessCode)
+    const accountCreated = useSelector(isGenerateAddressSuccess)
     const loading = useSelector(getLoading)
 
     const [searchText, setSearchText] = useState<string>('')
@@ -32,45 +29,22 @@ export default function AccountsPage () {
         setSearchText(searchText)
     }
 
-    const [showSnackbar, setShowSnackbar] = useState<boolean>(false)
-    const [snackbarMessage, setSnackbarMessage] = useState<string>('')
-    const [errorSnackbarMessage, setErrorSnackbarMessage] = useState<boolean>(false)
-
-    const handleCloseSnackbar = () => {
-        setShowSnackbar(false)
-    }
-
     const [isConfirmPasswordModalOpen, setConfirmPasswordModalOpen] = useState<boolean>(false)
     const [confirmPasswordModalKey, setConfirmPasswordModalKey] = useState<number>(9999)
 
-    const handleCloseModal = () => {
+    const handleCloseConfirmPasswordModal = () => {
         setConfirmPasswordModalOpen(false)
     }
 
-    const handleConfirmModal = (password: string) => {
+    const handleAddAccount = (password: string) => {
         dispatch(keystoreActions.generateAddress({ password }))
     }
 
     useEffect(() => {
-        if (errorCode === 5 && errorMessage) {
-            setShowSnackbar(true)
-            setSnackbarMessage(errorMessage)
-            setErrorSnackbarMessage(true)
-        }
-        if (errorMessage) {
-            dispatch(keystoreActions.clearError())
-        }
-    }, [errorMessage, errorCode])
-
-    useEffect(() => {
-        if (successCode === SUCCESS_CODES.GENERATE_ADDRESS) {
-            setShowSnackbar(true)
-            setSnackbarMessage('Account successfully generated')
-            setErrorSnackbarMessage(false)
-            dispatch(keystoreActions.clearSuccess())
+        if (accountCreated) {
             setConfirmPasswordModalOpen(false)
         }
-    }, [successCode])
+    }, [accountCreated])
 
     const handleOnChangeSortBy = (sortBy: number) => {
 
@@ -86,17 +60,36 @@ export default function AccountsPage () {
         })))
     }, [storeAddresses])
 
-    const handleAddAccount = () => {
+    const handleOpenConfirmPasswordModal = () => {
         setConfirmPasswordModalKey(confirmPasswordModalKey + 1)
         setConfirmPasswordModalOpen(true)
     }
 
+    const [selectedAddress, setSelectedAddress] = useState<string | null>(null)
+
+    const [isEditAccountModalOpen, setIsEditAccountModalOpen] = useState<boolean>(false)
+    const [editAccountModalKey, setEditAccountModalKey] = useState<number>(1111)
+
+    const handleCloseEditAccountModal = () => {
+        setIsEditAccountModalOpen(false)
+    }
+
     const handleOnEdit = (address: string) => {
+        setSelectedAddress(address)
+        setEditAccountModalKey(editAccountModalKey + 1)
+        setIsEditAccountModalOpen(true)
+    }
+
+    const handleDeleteAccount = () => {
+
+    }
+
+    const handleEditAccount = () => {
 
     }
 
     const handleOnSend = (address: string) => {
-
+        setSelectedAddress(address)
     }
 
     return (
@@ -105,7 +98,7 @@ export default function AccountsPage () {
                 <Typography variant='h5' component='div'>
                     Accounts
                 </Typography>
-                <Button variant='contained' startIcon={<Add />} sx={{ textTransform: 'none' }} onClick={handleAddAccount}>
+                <Button variant='contained' startIcon={<Add />} sx={{ textTransform: 'none' }} onClick={handleOpenConfirmPasswordModal}>
                     Add account
                 </Button>
             </AccountsToolbar>
@@ -120,14 +113,16 @@ export default function AccountsPage () {
                 key={confirmPasswordModalKey}
                 open={isConfirmPasswordModalOpen}
                 loading={loading}
-                onClose={handleCloseModal}
-                onConfirm={handleConfirmModal}
+                onClose={handleCloseConfirmPasswordModal}
+                onConfirm={handleAddAccount}
                 addNewAddress />
-            <Snackbar
-                open={showSnackbar}
-                error={errorSnackbarMessage}
-                message={snackbarMessage}
-                onClose={handleCloseSnackbar} />
+            <EditAccountModal
+                key={editAccountModalKey}
+                open={isEditAccountModalOpen}
+                address={selectedAddress ? selectedAddress : ''}
+                onClose={handleCloseEditAccountModal}
+                onDelete={handleDeleteAccount}
+                onEdit={handleEditAccount} />
         </React.Fragment>
     )
 }
