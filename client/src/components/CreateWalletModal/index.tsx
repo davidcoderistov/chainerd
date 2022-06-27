@@ -8,13 +8,13 @@ import { LoadingButton } from '@mui/lab'
 import CreatePassword from './CreatePassword'
 import ShowSeed from './ShowSeed'
 import CreateWallet from './CreateWallet'
-import Snackbar from '../Snackbar'
 import { Close } from '@mui/icons-material'
 import { passwordRules, confirmPasswordRules } from './CreatePassword'
 import { useFormInputValidator } from '../../hooks'
 import { keystore } from 'eth-lightwallet'
 import _isEqual from 'lodash/isEqual'
-import { getKeystore, getError, getLoading } from '../../selectors/keystore'
+import { STATUS_CODES } from '../../sagas/keystore'
+import { getLoading, getStatusCode, getErrorMessage } from '../../selectors/keystore'
 
 const steps = [
     'Create Password',
@@ -49,12 +49,8 @@ export default function CreateWalletModal({ open, onCreateWallet, onClose } : Cr
 
     const [seedInfo, setSeedInfo] = useState<Array<{ name: string, index: number }>>([])
 
-    const [showSnackbar, setShowSnackbar] = useState<boolean>(false)
-    const [shouldShowSnackbar, setShouldShowSnackbar] = useState<boolean>(false)
-    const [snackbarMessage, setSnackbarMessage] = useState<string>('')
-
-    const createKeystore = useSelector(getKeystore)
-    const createError = useSelector(getError)
+    const statusCode = useSelector(getStatusCode)
+    const errorMessage = useSelector(getErrorMessage)
     const createLoading = useSelector(getLoading)
 
     const onClickWord = (seedInfo: Array<{ name: string, index: number }>) => {
@@ -65,7 +61,6 @@ export default function CreateWalletModal({ open, onCreateWallet, onClose } : Cr
         if (activeStep < 2) {
             setActiveStep(activeStep + 1)
         } else {
-            setShouldShowSnackbar(true)
             dispatch(keystoreActions.generate({
                 password,
                 seedPhrase: seed.join(' '),
@@ -74,29 +69,11 @@ export default function CreateWalletModal({ open, onCreateWallet, onClose } : Cr
         }
     }
 
-    const handleCloseSnackbar = () => {
-        setShouldShowSnackbar(false)
-        setShowSnackbar(false)
-    }
-
     useEffect(() => {
-        if (createKeystore && !createError) {
-            if (shouldShowSnackbar) {
-                setShowSnackbar(true)
-                setSnackbarMessage('Wallet successfully initialized')
-            }
-            onCreateWallet()
-        }
-    }, [shouldShowSnackbar, createKeystore, createError, onCreateWallet])
-
-    useEffect(() => {
-        if (createError) {
-            if (shouldShowSnackbar) {
-                setShowSnackbar(true)
-                setSnackbarMessage(createError)
-            }
-        }
-    }, [shouldShowSnackbar, createError])
+       if (statusCode === STATUS_CODES.GENERATE_KEYSTORE && !errorMessage && onCreateWallet) {
+           onCreateWallet()
+       }
+    }, [statusCode, errorMessage, onCreateWallet])
 
     const seed = useMemo(() => {
         const seed = keystore.generateRandomSeed()
@@ -118,74 +95,67 @@ export default function CreateWalletModal({ open, onCreateWallet, onClose } : Cr
             !equalSeeds : false
 
     return (
-        <React.Fragment>
-            <Dialog open={open} fullWidth={true} maxWidth='sm' scroll='paper'>
-                <DialogTitleStyled>
-                    <div/>
-                    <div>Create Wallet</div>
-                    <IconButton
-                        aria-label='close'
-                        onClick={onClose}
-                        sx={{
-                            color: (theme) => theme.palette.grey[500],
-                        }}
-                    >
-                        <Close />
-                    </IconButton>
-                </DialogTitleStyled>
-                <DialogContent dividers={true}>
-                    <div style={{ height: '400px' }}>
-                        <Grid container spacing={2}>
-                            <Grid item xs={12}>
-                                <Stepper activeStep={activeStep} alternativeLabel>
-                                    {steps.map((label) => (
-                                        <Step key={label}>
-                                            <StepLabel>{ label }</StepLabel>
-                                        </Step>
-                                    ))}
-                                </Stepper>
-                            </Grid>
-                            <Grid item xs={12} sx={{ mt: 1, mx: 1 }}>
-                                { activeStep === 0 && (
-                                    <CreatePassword
-                                        password={password}
-                                        onChangePassword={setPassword}
-                                        onBlurPassword={handleBlurPassword}
-                                        errorPassword={errorPassword}
-                                        confirmPassword={confirmPassword}
-                                        onChangeConfirmPassword={setConfirmPassword}
-                                        onBlurConfirmPassword={handleBlurConfirmPassword}
-                                        errorConfirmPassword={errorConfirmPassword} />
-                                )}
-                                { activeStep === 1 && (
-                                    <ShowSeed seed={seed} />
-                                )}
-
-                                { activeStep > 1 && (
-                                    <CreateWallet
-                                        seed={seed}
-                                        seedInfo={seedInfo}
-                                        onClickWord={onClickWord} />
-                                )}
-                            </Grid>
+        <Dialog open={open} fullWidth={true} maxWidth='sm' scroll='paper'>
+            <DialogTitleStyled>
+                <div/>
+                <div>Create Wallet</div>
+                <IconButton
+                    aria-label='close'
+                    onClick={onClose}
+                    sx={{
+                        color: (theme) => theme.palette.grey[500],
+                    }}
+                >
+                    <Close />
+                </IconButton>
+            </DialogTitleStyled>
+            <DialogContent dividers={true}>
+                <div style={{ height: '400px' }}>
+                    <Grid container spacing={2}>
+                        <Grid item xs={12}>
+                            <Stepper activeStep={activeStep} alternativeLabel>
+                                {steps.map((label) => (
+                                    <Step key={label}>
+                                        <StepLabel>{ label }</StepLabel>
+                                    </Step>
+                                ))}
+                            </Stepper>
                         </Grid>
-                    </div>
-                </DialogContent>
-                <DialogActions>
-                    <LoadingButton
-                        sx={{ mr:1 }}
-                        disabled={buttonDisabled}
-                        loading={createLoading}
-                        onClick={handleOnContinue}>
-                        { activeStep < 2 ? 'Continue' : 'Confirm' }
-                    </LoadingButton>
-                </DialogActions>
-            </Dialog>
-            <Snackbar
-                open={showSnackbar}
-                error={!!createError}
-                message={snackbarMessage}
-                onClose={handleCloseSnackbar} />
-        </React.Fragment>
+                        <Grid item xs={12} sx={{ mt: 1, mx: 1 }}>
+                            { activeStep === 0 && (
+                                <CreatePassword
+                                    password={password}
+                                    onChangePassword={setPassword}
+                                    onBlurPassword={handleBlurPassword}
+                                    errorPassword={errorPassword}
+                                    confirmPassword={confirmPassword}
+                                    onChangeConfirmPassword={setConfirmPassword}
+                                    onBlurConfirmPassword={handleBlurConfirmPassword}
+                                    errorConfirmPassword={errorConfirmPassword} />
+                            )}
+                            { activeStep === 1 && (
+                                <ShowSeed seed={seed} />
+                            )}
+
+                            { activeStep > 1 && (
+                                <CreateWallet
+                                    seed={seed}
+                                    seedInfo={seedInfo}
+                                    onClickWord={onClickWord} />
+                            )}
+                        </Grid>
+                    </Grid>
+                </div>
+            </DialogContent>
+            <DialogActions>
+                <LoadingButton
+                    sx={{ mr:1 }}
+                    disabled={buttonDisabled}
+                    loading={createLoading}
+                    onClick={handleOnContinue}>
+                    { activeStep < 2 ? 'Continue' : 'Confirm' }
+                </LoadingButton>
+            </DialogActions>
+        </Dialog>
     )
 }
