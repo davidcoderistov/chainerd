@@ -1,5 +1,6 @@
 import { RootState } from '../app/store'
 import { keystore } from 'eth-lightwallet'
+import { STATUS_CODES } from '../sagas/keystore'
 import { deserializeKeystore } from '../sagas/keystore'
 
 const getKeystore = (state: RootState): keystore | null => {
@@ -25,6 +26,22 @@ const getStatusCode = (state: RootState) => state.keystore.statusCode
 
 const getErrorMessage = (state: RootState) => state.keystore.errorMessage
 
+const getSuccessMessage = (state: RootState) => state.keystore.successMessage
+
+const isGenerateKeystoreSuccess = (state: RootState) => {
+    return getStatusCode(state) === STATUS_CODES.GENERATE_KEYSTORE &&
+        !getLoading(state) && !getErrorMessage(state) && getSuccessMessage(state)
+}
+
+const isRestoreKeystoreSuccess = (state: RootState) => {
+    return getStatusCode(state) === STATUS_CODES.RESTORE_KEYSTORE &&
+        !getLoading(state) && !getErrorMessage(state) && getSuccessMessage(state)
+}
+
+const isGenerateAddressSuccess = (state: RootState) => {
+    return getStatusCode(state) === STATUS_CODES.GENERATE_ADDRESS &&
+        !getLoading(state) && !getErrorMessage(state) && getSuccessMessage(state)
+}
 
 export {
     getKeystore,
@@ -32,4 +49,8 @@ export {
     getLoading,
     getStatusCode,
     getErrorMessage,
+    getSuccessMessage,
+    isGenerateKeystoreSuccess,
+    isRestoreKeystoreSuccess,
+    isGenerateAddressSuccess,
 }
