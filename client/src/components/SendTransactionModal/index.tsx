@@ -1,4 +1,6 @@
 import React, { useState } from 'react'
+import { useSelector } from 'react-redux'
+import { getAddresses } from '../../selectors/keystore'
 import { Dialog, DialogTitle, DialogContent, DialogActions } from '@mui/material'
 import { Stepper, Step, StepLabel } from '@mui/material'
 import { Grid, Button, IconButton, styled } from '@mui/material'
@@ -6,6 +8,7 @@ import { Close } from '@mui/icons-material'
 import RecipientStep from './RecipientStep'
 import AmountStep, { AmountStepProps } from './AmountStep'
 import SummaryStep from './SummaryStep'
+import { ethers } from 'ethers'
 
 
 const steps = [
@@ -30,7 +33,8 @@ export default function SendTransactionModal ({ open, onClose, onConfirm } : Sen
 
     const [activeStep, setActiveStep] = useState<number>(0)
 
-    const [fromAddress, setFromAddress] = useState<string>('')
+    const addresses = useSelector(getAddresses)
+    const [fromAddress, setFromAddress] = useState<string>(addresses.length > 0 ? addresses[0] : '')
     const [toAddress, setToAddress] = useState<string>('')
 
     const [cryptoAmount, setCryptoAmount] = useState<string>('20')
@@ -44,6 +48,8 @@ export default function SendTransactionModal ({ open, onClose, onConfirm } : Sen
             onConfirm()
         }
     }
+
+    const buttonDisabled = activeStep > 0 ? false : (addresses.length <= 0 || !ethers.utils.isAddress(toAddress))
 
     return (
         <Dialog open={open} fullWidth maxWidth='sm' scroll='paper'>
@@ -75,6 +81,7 @@ export default function SendTransactionModal ({ open, onClose, onConfirm } : Sen
                         <Grid item xs={12} sx={{ mt: 1, mx: 1 }}>
                             { activeStep === 0 && (
                                 <RecipientStep
+                                    addresses={addresses}
                                     fromAddress={fromAddress}
                                     onChangeFromAddress={setFromAddress}
                                     toAddress={toAddress}
@@ -107,6 +114,7 @@ export default function SendTransactionModal ({ open, onClose, onConfirm } : Sen
             <DialogActions>
                 <Button
                     sx={{ mr:1 }}
+                    disabled={buttonDisabled}
                     onClick={handleOnContinue}>
                         { activeStep < 2 ? 'Continue' : 'Confirm' }
                 </Button>
