@@ -75,7 +75,7 @@ function *genKeystore({ payload }: ReturnType<typeof keystoreActions.generate>) 
             addresses: [],
             addressAliases: {},
         })
-        yield put(keystoreActions.fulfilled({ keystore: serialized, statusCode: STATUS_CODES.GENERATE_KEYSTORE }))
+        yield put(keystoreActions.fulfilled({ keystore: serialized, statusCode: STATUS_CODES.GENERATE_KEYSTORE, successMessage: 'Wallet successfully created' }))
     } catch (error: any) {
         const errorMessage = (error && error.message) ? error.message : ERROR_MESSAGES.INITIALIZE
         yield put(keystoreActions.rejected({ errorMessage, statusCode: STATUS_CODES.GENERATE_KEYSTORE }))
@@ -92,7 +92,7 @@ function *restoreKeystore({ payload }: ReturnType<typeof keystoreActions.restore
     const ks = getKeystoreByHash(ksHash)
     if (ks) {
         setKeystoreHash(ksHash)
-        yield put(keystoreActions.fulfilled({ keystore: ks, statusCode: STATUS_CODES.RESTORE_KEYSTORE }))
+        yield put(keystoreActions.fulfilled({ keystore: ks, statusCode: STATUS_CODES.RESTORE_KEYSTORE, successMessage: 'Wallet successfully restored' }))
     } else {
         yield put(keystoreActions.rejected({ errorMessage: ERROR_MESSAGES.WALLET_EXISTS_NOT, statusCode: STATUS_CODES.RESTORE_KEYSTORE }))
     }
@@ -104,12 +104,12 @@ function *loadKeystore ({ payload }: ReturnType<typeof keystoreActions.load>) {
         yield put(keystoreActions.rejected({ errorMessage: ERROR_MESSAGES.INITIALIZE, statusCode: STATUS_CODES.LOAD_KEYSTORE }))
         return
     }
-    yield put(keystoreActions.fulfilled({ keystore: ks, statusCode: STATUS_CODES.LOAD_KEYSTORE }))
+    yield put(keystoreActions.fulfilled({ keystore: ks, statusCode: STATUS_CODES.LOAD_KEYSTORE, successMessage: 'Wallet successfully loaded' }))
 }
 
 function *destroyKeystore () {
     setKeystoreHash(null)
-    yield put(keystoreActions.fulfilled({ keystore: null, statusCode: STATUS_CODES.DESTROY_KEYSTORE }))
+    yield put(keystoreActions.fulfilled({ keystore: null, statusCode: STATUS_CODES.DESTROY_KEYSTORE, successMessage: 'Wallet successfully closed' }))
 }
 
 function *generateAddress ({ payload }: ReturnType<typeof keystoreActions.generateAddress>) {
@@ -130,7 +130,7 @@ function *generateAddress ({ payload }: ReturnType<typeof keystoreActions.genera
             return
         }
         if (setKeystore(ksHash, serialized, ks.getAddresses())) {
-            yield put(keystoreActions.fulfilled({ keystore: serialized, statusCode: STATUS_CODES.GENERATE_ADDRESS }))
+            yield put(keystoreActions.fulfilled({ keystore: serialized, statusCode: STATUS_CODES.GENERATE_ADDRESS, successMessage: 'Account added successfully' }))
         } else {
             yield put(keystoreActions.rejected({ errorMessage: ERROR_MESSAGES.WALLET_EXISTS_NOT, statusCode: STATUS_CODES.GENERATE_ADDRESS }))
         }

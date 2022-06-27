@@ -34,6 +34,7 @@ describe('Test *genKeystore fulfilled case', () => {
             value: put(keystoreActions.fulfilled({
                 keystore: keystore.serialize(),
                 statusCode: STATUS_CODES.GENERATE_KEYSTORE,
+                successMessage: 'Wallet created'
             })),
             done: false,
         })

@@ -8,6 +8,7 @@ interface KeystoreState {
     loading: boolean,
     statusCode: number | null,
     errorMessage: string | null,
+    successMessage: string | null,
 }
 
 const initialState: KeystoreState = {
@@ -15,6 +16,7 @@ const initialState: KeystoreState = {
     loading: false,
     statusCode: null,
     errorMessage: null,
+    successMessage: null,
 }
 
 // Actions
@@ -25,7 +27,7 @@ const keystoreActions = {
     destroy: createAction('keystore/destroy'),
     generateAddress: createAction<{ password: string }>('keystore/generateAddress'),
     pending: createAction('keystore/pending'),
-    fulfilled: createAction<{ keystore: string | null, statusCode: number }>('keystore/fulfilled'),
+    fulfilled: createAction<{ keystore: string | null, statusCode: number, successMessage: string }>('keystore/fulfilled'),
     rejected: createAction<{ errorMessage: string, statusCode: number }>('keystore/rejected')
 }
 
@@ -41,6 +43,7 @@ const keystoreSlice = createSlice({
                     loading: true,
                     statusCode: null,
                     errorMessage: null,
+                    successMessage: null,
                 }
             })
             .addCase(keystoreActions.fulfilled, (state, action) => {
@@ -48,6 +51,7 @@ const keystoreSlice = createSlice({
                     ...state,
                     keystore: action.payload.keystore,
                     statusCode: action.payload.statusCode,
+                    successMessage: action.payload.successMessage,
                     loading: false,
                     errorMessage: null,
                 }
@@ -58,6 +62,7 @@ const keystoreSlice = createSlice({
                     statusCode: action.payload.statusCode,
                     errorMessage: action.payload.errorMessage,
                     loading: false,
+                    successMessage: null,
                 }
             })
 })
