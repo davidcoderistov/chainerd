@@ -42,8 +42,6 @@ const keystoreSlice = createSlice({
                     ...state,
                     loading: true,
                     statusCode: null,
-                    errorMessage: null,
-                    successMessage: null,
                 }
             })
             .addCase(keystoreActions.fulfilled, (state, action) => {
