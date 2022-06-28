@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { keystoreActions } from '../../slices/keystore'
-import { getKeystore } from '../../selectors/keystore'
+import { getKeystore, shouldShowSnackbar, getErrorMessage, getSuccessMessage } from '../../selectors/keystore'
 import { Box } from '@mui/material'
 import Dashboard from '../../components/Dashboard'
 import AccountsPage from '../AccountsPage'
@@ -9,6 +9,7 @@ import CreateWalletModal from '../../components/CreateWalletModal'
 import RestoreWalletModal from '../../components/RestoreWalletModal'
 import SendTransactionModal from '../../components/SendTransactionModal'
 import CloseWalletModal from '../../components/CloseWalletModal'
+import Snackbar from '../../components/Snackbar'
 import { getCurrentKeystore } from '../../localStorage'
 
 
@@ -78,6 +79,10 @@ export default function HomePage () {
         closeCloseWalletModal()
     }
 
+    const snackbarOpen = useSelector(shouldShowSnackbar)
+    const errorMessage = useSelector(getErrorMessage)
+    const successMessage = useSelector(getSuccessMessage)
+
     return (
         <Box>
             <Dashboard
@@ -109,6 +114,10 @@ export default function HomePage () {
                 open={isCloseWalletModalOpen}
                 onCloseModal={closeCloseWalletModal}
                 onCloseWallet={handleCloseWallet} />
+            <Snackbar
+                isOpen={snackbarOpen}
+                error={!!errorMessage}
+                message={errorMessage ? errorMessage : successMessage ? successMessage : ''} />
         </Box>
     )
 }
