@@ -43,6 +43,14 @@ const isGenerateAddressSuccess = (state: RootState) => {
         !getLoading(state) && !getErrorMessage(state) && getSuccessMessage(state)
 }
 
+const shouldShowSnackbar = (state: RootState) => {
+    const statusCode = getStatusCode(state)
+    return statusCode === STATUS_CODES.GENERATE_KEYSTORE ||
+        statusCode === STATUS_CODES.RESTORE_KEYSTORE ||
+        statusCode === STATUS_CODES.GENERATE_ADDRESS ||
+        statusCode === STATUS_CODES.DESTROY_KEYSTORE
+}
+
 export {
     getKeystore,
     getAddresses,
@@ -53,4 +61,5 @@ export {
     isGenerateKeystoreSuccess,
     isRestoreKeystoreSuccess,
     isGenerateAddressSuccess,
+    shouldShowSnackbar,
 }
