@@ -1,5 +1,5 @@
 import { keystore, VaultOptions } from 'eth-lightwallet'
-import { call, put, takeLatest } from 'redux-saga/effects'
+import { call, put, delay, takeLatest } from 'redux-saga/effects'
 import { plainToInstance, instanceToPlain } from 'class-transformer'
 import keccak256 from 'keccak256'
 import { keystoreActions } from '../slices/keystore'
@@ -84,6 +84,7 @@ function *genKeystore({ payload }: ReturnType<typeof keystoreActions.generate>) 
 
 function *restoreKeystore({ payload }: ReturnType<typeof keystoreActions.restore>) {
     yield put(keystoreActions.pending())
+    yield delay(300)
     if (keystoreHashExists()) {
         yield put(keystoreActions.rejected({ errorMessage: ERROR_MESSAGES.ALREADY_INITIALIZED, statusCode: STATUS_CODES.RESTORE_KEYSTORE }))
         return
@@ -99,6 +100,7 @@ function *restoreKeystore({ payload }: ReturnType<typeof keystoreActions.restore
 }
 
 function *loadKeystore ({ payload }: ReturnType<typeof keystoreActions.load>) {
+    yield put(keystoreActions.pending())
     const ks = payload.keystore
     if (!ks) {
         yield put(keystoreActions.rejected({ errorMessage: ERROR_MESSAGES.INITIALIZE, statusCode: STATUS_CODES.LOAD_KEYSTORE }))
@@ -108,6 +110,8 @@ function *loadKeystore ({ payload }: ReturnType<typeof keystoreActions.load>) {
 }
 
 function *destroyKeystore () {
+    yield put(keystoreActions.pending())
+    yield delay(300)
     setKeystoreHash(null)
     yield put(keystoreActions.fulfilled({ keystore: null, statusCode: STATUS_CODES.DESTROY_KEYSTORE, successMessage: 'Wallet successfully closed' }))
 }
