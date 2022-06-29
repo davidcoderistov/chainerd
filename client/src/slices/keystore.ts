@@ -26,9 +26,11 @@ const keystoreActions = {
     load: createAction<{ keystore: string }>('keystore/load'),
     destroy: createAction('keystore/destroy'),
     generateAddress: createAction<{ password: string }>('keystore/generateAddress'),
+    editAddress: createAction<{ address: string | null, alias: string }>('keystore/editAddress'),
     pending: createAction('keystore/pending'),
     fulfilled: createAction<{ keystore: string | null, statusCode: number, successMessage: string }>('keystore/fulfilled'),
-    rejected: createAction<{ errorMessage: string, statusCode: number }>('keystore/rejected')
+    rejected: createAction<{ errorMessage: string, statusCode: number }>('keystore/rejected'),
+    resolved: createAction<{ statusCode: number, message: string, error: boolean }>('keystore/resolved')
 }
 
 const keystoreSlice = createSlice({
@@ -61,6 +63,15 @@ const keystoreSlice = createSlice({
                     errorMessage: action.payload.errorMessage,
                     loading: false,
                     successMessage: null,
+                }
+            })
+            .addCase(keystoreActions.resolved, (state, action) => {
+                return {
+                    ...state,
+                    statusCode: action.payload.statusCode,
+                    loading: false,
+                    errorMessage: action.payload.error ? action.payload.message : null,
+                    successMessage: action.payload.error ? null : action.payload.message,
                 }
             })
 })

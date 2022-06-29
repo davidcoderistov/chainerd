@@ -8,9 +8,11 @@ import {
     setKeystoreHash,
     addKeystore,
     setKeystore,
+    setAddressAlias,
     getKeystoreByHash,
     getCurrentKeystore,
-    getKeystoreHash
+    getKeystoreHash,
+    getCurrentAddresses
 } from '../localStorage'
 
 const ERROR_MESSAGES = {
@@ -27,6 +29,7 @@ export const STATUS_CODES = {
     LOAD_KEYSTORE: 3,
     DESTROY_KEYSTORE: 4,
     GENERATE_ADDRESS: 5,
+    EDIT_ADDRESS: 6,
 }
 
 function createVault(opts: VaultOptions): Promise<keystore> {
@@ -144,12 +147,40 @@ function *generateAddress ({ payload }: ReturnType<typeof keystoreActions.genera
     }
 }
 
+function *editAddress ({ payload }: ReturnType<typeof keystoreActions.editAddress>) {
+    yield put(keystoreActions.pending())
+    yield delay(300)
+    const hash = getKeystoreHash()
+    if (!hash) {
+        yield put(keystoreActions.rejected({
+            errorMessage: 'Can\'t edit address, wallet is not initialized',
+            statusCode: STATUS_CODES.EDIT_ADDRESS
+        }))
+        return
+    }
+    const addresses = getCurrentAddresses()
+    if (!payload.address || !Array.isArray(addresses) || addresses.findIndex(address => address === payload.address) < 0) {
+        yield put(keystoreActions.rejected({
+            errorMessage: 'Can\'t edit address, it does not exist',
+            statusCode: STATUS_CODES.EDIT_ADDRESS
+        }))
+        return
+    }
+    const success = setAddressAlias(hash, payload.address, payload.alias)
+    yield put(keystoreActions.resolved({
+        statusCode: STATUS_CODES.EDIT_ADDRESS,
+        error: !success,
+        message: success ? 'Address successfully edited' : 'Something went wrong while trying to edit the address'
+    }))
+}
+
 function *watchGenKeystore() {
     yield takeLatest(keystoreActions.generate.type, genKeystore)
     yield takeLatest(keystoreActions.restore.type, restoreKeystore)
     yield takeLatest(keystoreActions.load.type, loadKeystore)
     yield takeLatest(keystoreActions.destroy.type, destroyKeystore)
     yield takeLatest(keystoreActions.generateAddress.type, generateAddress)
+    yield takeLatest(keystoreActions.editAddress.type, editAddress)
 }
 
 export {
