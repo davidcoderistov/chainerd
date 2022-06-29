@@ -138,7 +138,7 @@ function *generateAddress ({ payload }: ReturnType<typeof keystoreActions.genera
             yield put(keystoreActions.rejected({ errorMessage: ERROR_MESSAGES.WALLET_EXISTS_NOT, statusCode: STATUS_CODES.GENERATE_ADDRESS }))
             return
         }
-        if (setKeystore(ksHash, serialized, ks.getAddresses())) {
+        if (setKeystore(ksHash, serialized, ks.getAddresses()[ks.getAddresses().length - 1])) {
             yield put(keystoreActions.fulfilled({ keystore: serialized, statusCode: STATUS_CODES.GENERATE_ADDRESS, successMessage: 'Account added successfully' }))
         } else {
             yield put(keystoreActions.rejected({ errorMessage: ERROR_MESSAGES.WALLET_EXISTS_NOT, statusCode: STATUS_CODES.GENERATE_ADDRESS }))

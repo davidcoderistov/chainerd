@@ -50,7 +50,7 @@ function addKeystore (hash: string, keystore: KeystoreType): void {
     })
 }
 
-function setKeystore(hash: string, keystore: string, addresses: string[]) : boolean {
+function setKeystore(hash: string, keystore: string, address: string) : boolean {
     if (!keystoreAllExists()) {
         setKeystoreAll({})
     }
@@ -62,7 +62,7 @@ function setKeystore(hash: string, keystore: string, addresses: string[]) : bool
     addKeystore(hash, {
         ...ks,
         keystore,
-        addresses,
+        addresses: [...ks.addresses, address],
     })
     return true
 }
