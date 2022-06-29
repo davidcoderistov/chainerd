@@ -61,8 +61,11 @@ export default function AccountsPage () {
     const [addresses, setAddresses] = useState<AccountsListProps['addresses']>([])
 
     useEffect(() => {
-        setAddresses(storeAddresses.map(address => ({
-            address,
+        setAddresses(storeAddresses.map(({ address, alias }) => ({
+            address: {
+                name: address,
+                alias,
+            },
             ethAmount: 0.3327,
             fiatAmount: 359.36,
         })))
@@ -73,7 +76,12 @@ export default function AccountsPage () {
         setConfirmPasswordModalOpen(true)
     }
 
-    const [selectedAddress, setSelectedAddress] = useState<string | null>(null)
+    const [selectedAddress, setSelectedAddress] = useState<{ name: string, alias: string | null } | null>(null)
+    const [editedAlias, setEditedAlias] = useState<string>('')
+
+    const handleChangeEditedAlias = (alias: string) => {
+        setEditedAlias(alias)
+    }
 
     const [isEditAccountModalOpen, setIsEditAccountModalOpen] = useState<boolean>(false)
     const [editAccountModalKey, setEditAccountModalKey] = useState<number>(1111)
@@ -82,15 +90,16 @@ export default function AccountsPage () {
         setIsEditAccountModalOpen(false)
     }
 
-    const handleOnEdit = (address: string) => {
+    const handleOnEdit = (address: { name: string, alias: string | null }) => {
         setSelectedAddress(address)
+        setEditedAlias(address.alias ? address.alias : '')
         setEditAccountModalKey(editAccountModalKey + 1)
         setIsEditAccountModalOpen(true)
     }
 
     const handleDeleteAccount = () => {
         dispatch(keystoreActions.deleteAddress({
-            address: selectedAddress,
+            address: selectedAddress ? selectedAddress.name : null,
         }))
     }
 
@@ -100,10 +109,10 @@ export default function AccountsPage () {
         }
     }, [accountDeleted])
 
-    const handleEditAccount = (alias: string) => {
+    const handleEditAccount = () => {
         dispatch(keystoreActions.editAddress({
-            address: selectedAddress,
-            alias,
+            address: selectedAddress ? selectedAddress.name : null,
+            alias: editedAlias,
         }))
     }
 
@@ -113,7 +122,7 @@ export default function AccountsPage () {
         }
     }, [accountEdited])
 
-    const handleOnSend = (address: string) => {
+    const handleOnSend = (address: { name: string, alias: string | null }) => {
         setSelectedAddress(address)
     }
 
@@ -144,7 +153,9 @@ export default function AccountsPage () {
             <EditAccountModal
                 key={editAccountModalKey}
                 open={isEditAccountModalOpen}
-                address={selectedAddress ? selectedAddress : ''}
+                address={selectedAddress ? selectedAddress : { name: '', alias: null }}
+                alias={editedAlias}
+                onChangeAlias={handleChangeEditedAlias}
                 loading={loading}
                 onClose={handleCloseEditAccountModal}
                 onDelete={handleDeleteAccount}

@@ -25,7 +25,7 @@ export default function AccountsList ({ searchText, onChangeSearchText, onChange
             { addresses.length > 0 ? (
                 addresses.map(({ address, ethAmount, fiatAmount }) => (
                     <AccountListItem
-                        key={address}
+                        key={address.name}
                         address={address}
                         ethAmount={ethAmount}
                         fiatAmount={fiatAmount}

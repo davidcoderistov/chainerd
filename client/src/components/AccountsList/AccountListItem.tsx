@@ -9,11 +9,11 @@ const GridItem = styled(Grid)({
 })
 
 export interface AccountListItemProps {
-    address: string,
+    address: { name: string, alias: string | null },
     ethAmount: number,
     fiatAmount: number,
-    onEdit: (address: string) => void,
-    onSend: (address: string) => void,
+    onEdit: (address: { name: string, alias: string | null }) => void,
+    onSend: (address: { name: string, alias: string | null }) => void,
 }
 
 export default function AccountListItem ({ address, ethAmount, fiatAmount, onEdit, onSend } : AccountListItemProps) {
@@ -37,7 +37,7 @@ export default function AccountListItem ({ address, ethAmount, fiatAmount, onEdi
             <Grid container spacing={2}>
                 <GridItem item xs={5}>
                     <Typography variant='body2'>
-                        { address }
+                        { address.alias ? address.alias : address.name }
                     </Typography>
                 </GridItem>
                 <GridItem item xs>

@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useCallback } from 'react'
 import { Dialog, DialogTitle, DialogContent, DialogActions } from '@mui/material'
 import { Grid, IconButton, styled } from '@mui/material'
 import { LoadingButton } from '@mui/lab'
@@ -13,23 +13,23 @@ const DialogTitleStyled = styled(DialogTitle)({
 
 interface EditAccountModalProps {
     open: boolean,
-    address: string,
+    address: { name: string, alias: string | null },
+    alias: string,
+    onChangeAlias: (alias: string) => void,
     loading?: boolean,
     onClose: () => void,
     onDelete: () => void,
-    onEdit: (alias: string) => void,
+    onEdit: () => void,
 }
 
-export default function EditAccountModal ({ open, address, loading, onClose, onDelete, onEdit } : EditAccountModalProps) {
-    const [alias, setAlias] = useState<string>('')
+export default function EditAccountModal ({ open, alias, onChangeAlias, address, loading, onClose, onDelete, onEdit } : EditAccountModalProps) {
 
-    const handleChangeAlias = (event: React.ChangeEvent<HTMLInputElement>) => {
-        setAlias(event.target.value)
-    }
-
-    const handleEdit = () => {
-        onEdit(alias)
-    }
+    const handleChangeAlias = useCallback(
+        (event: React.ChangeEvent<HTMLInputElement>) => {
+            onChangeAlias(event.target.value)
+        },
+        [onChangeAlias]
+    )
 
     return (
         <Dialog open={open} fullWidth={true} maxWidth='xs' scroll='paper'>
@@ -64,7 +64,7 @@ export default function EditAccountModal ({ open, address, loading, onClose, onD
                 <LoadingButton sx={{ mr: 1 }} color='error' loading={loading} onClick={onDelete}>
                     Delete
                 </LoadingButton>
-                <LoadingButton sx={{ mr: 1 }} loading={loading} onClick={handleEdit} disabled={alias.trim().length <= 0}>
+                <LoadingButton sx={{ mr: 1 }} loading={loading} onClick={onEdit} disabled={alias.trim().length <= 0}>
                     Edit
                 </LoadingButton>
             </DialogActions>
