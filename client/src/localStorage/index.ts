@@ -67,7 +67,7 @@ function setKeystore(hash: string, keystore: string, addresses: string[]) : bool
     return true
 }
 
-function setAddressAlias(hash: string, address: string, alias: string) {
+function setAddressAlias(hash: string, address: string, alias: string): boolean {
     if (!keystoreAllExists()) {
         setKeystoreAll({})
     }
@@ -83,6 +83,7 @@ function setAddressAlias(hash: string, address: string, alias: string) {
             [address]: alias,
         }
     })
+    return true
 }
 
 function keystoreExistsByHash (hash: string | null): boolean {
