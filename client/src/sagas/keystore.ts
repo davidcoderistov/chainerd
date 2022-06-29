@@ -9,6 +9,7 @@ import {
     addKeystore,
     setKeystore,
     setAddressAlias,
+    deleteAddress as deleteStoreAddress,
     getKeystoreByHash,
     getCurrentKeystore,
     getKeystoreHash,
@@ -30,6 +31,7 @@ export const STATUS_CODES = {
     DESTROY_KEYSTORE: 4,
     GENERATE_ADDRESS: 5,
     EDIT_ADDRESS: 6,
+    DELETE_ADDRESS: 7,
 }
 
 function createVault(opts: VaultOptions): Promise<keystore> {
@@ -174,6 +176,33 @@ function *editAddress ({ payload }: ReturnType<typeof keystoreActions.editAddres
     }))
 }
 
+function *deleteAddress ({ payload }: ReturnType<typeof keystoreActions.deleteAddress>) {
+    yield put(keystoreActions.pending())
+    yield delay(300)
+    const hash = getKeystoreHash()
+    if (!hash) {
+        yield put(keystoreActions.rejected({
+            errorMessage: 'Can\'t delete address, wallet is not initialized',
+            statusCode: STATUS_CODES.DELETE_ADDRESS
+        }))
+        return
+    }
+    const addresses = getCurrentAddresses()
+    if (!payload.address || !Array.isArray(addresses) || addresses.findIndex(address => address === payload.address) < 0) {
+        yield put(keystoreActions.rejected({
+            errorMessage: 'Can\'t delete address, it does not exist',
+            statusCode: STATUS_CODES.DELETE_ADDRESS
+        }))
+        return
+    }
+    const success = deleteStoreAddress(hash, payload.address)
+    yield put(keystoreActions.resolved({
+        statusCode: STATUS_CODES.DELETE_ADDRESS,
+        error: !success,
+        message: success ? 'Address successfully deleted' : 'Something went wrong while trying to delete the address'
+    }))
+}
+
 function *watchGenKeystore() {
     yield takeLatest(keystoreActions.generate.type, genKeystore)
     yield takeLatest(keystoreActions.restore.type, restoreKeystore)
@@ -181,6 +210,7 @@ function *watchGenKeystore() {
     yield takeLatest(keystoreActions.destroy.type, destroyKeystore)
     yield takeLatest(keystoreActions.generateAddress.type, generateAddress)
     yield takeLatest(keystoreActions.editAddress.type, editAddress)
+    yield takeLatest(keystoreActions.deleteAddress.type, deleteAddress)
 }
 
 export {

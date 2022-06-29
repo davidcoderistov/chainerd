@@ -27,6 +27,7 @@ const keystoreActions = {
     destroy: createAction('keystore/destroy'),
     generateAddress: createAction<{ password: string }>('keystore/generateAddress'),
     editAddress: createAction<{ address: string | null, alias: string }>('keystore/editAddress'),
+    deleteAddress: createAction<{ address: string | null }>('keystore/deleteAddress'),
     pending: createAction('keystore/pending'),
     fulfilled: createAction<{ keystore: string | null, statusCode: number, successMessage: string }>('keystore/fulfilled'),
     rejected: createAction<{ errorMessage: string, statusCode: number }>('keystore/rejected'),

@@ -48,13 +48,19 @@ const isEditAddressSuccess = (state: RootState) => {
         !getLoading(state) && !getErrorMessage(state) && getSuccessMessage(state)
 }
 
+const isDeleteAddressSuccess = (state: RootState) => {
+    return getStatusCode(state) === STATUS_CODES.DELETE_ADDRESS &&
+        !getLoading(state) && !getErrorMessage(state) && getSuccessMessage(state)
+}
+
 const shouldShowSnackbar = (state: RootState) => {
     const statusCode = getStatusCode(state)
     return statusCode === STATUS_CODES.GENERATE_KEYSTORE ||
         statusCode === STATUS_CODES.RESTORE_KEYSTORE ||
         statusCode === STATUS_CODES.GENERATE_ADDRESS ||
         statusCode === STATUS_CODES.DESTROY_KEYSTORE ||
-        statusCode === STATUS_CODES.EDIT_ADDRESS
+        statusCode === STATUS_CODES.EDIT_ADDRESS ||
+        statusCode === STATUS_CODES.DELETE_ADDRESS
 }
 
 export {
@@ -68,5 +74,6 @@ export {
     isRestoreKeystoreSuccess,
     isGenerateAddressSuccess,
     isEditAddressSuccess,
+    isDeleteAddressSuccess,
     shouldShowSnackbar,
 }

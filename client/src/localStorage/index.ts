@@ -86,6 +86,22 @@ function setAddressAlias(hash: string, address: string, alias: string): boolean 
     return true
 }
 
+function deleteAddress (hash: string, address: string): boolean {
+    if (!keystoreAllExists()) {
+        setKeystoreAll({})
+    }
+    if (!keystoreExistsByHash(hash)) {
+        return false
+    }
+    const all = getKeystoreAll()
+    const ks = all[hash]
+    addKeystore(hash, {
+        ...ks,
+        addresses: ks.addresses.filter(addr => addr !== address)
+    })
+    return true
+}
+
 function keystoreExistsByHash (hash: string | null): boolean {
     if (hash) {
         const all = getKeystoreAll()
@@ -149,6 +165,7 @@ export {
     addKeystore,
     setKeystore,
     setAddressAlias,
+    deleteAddress,
     keystoreExistsByHash,
     getKeystoreObjByHash,
     getKeystoreByHash,
