@@ -2,6 +2,8 @@ import { RootState } from '../app/store'
 import { keystore } from 'eth-lightwallet'
 import { STATUS_CODES } from '../sagas/keystore'
 import { deserializeKeystore } from '../sagas/keystore'
+import { getCurrentAddresses, getCurrentAddressAliases } from '../localStorage'
+import _intersection from 'lodash/intersection'
 
 const getKeystore = (state: RootState): keystore | null => {
     const ks = state.keystore.keystore
@@ -11,11 +13,20 @@ const getKeystore = (state: RootState): keystore | null => {
     return null
 }
 
-const getAddresses = (state: RootState): string[] => {
+const getAddresses = (state: RootState): Array<{ address: string, alias: string | null }> => {
     const ks = state.keystore.keystore
     if (ks) {
         const deserialized = deserializeKeystore(ks)
-        return deserialized.getAddresses()
+        let keystoreAddresses = deserialized.getAddresses()
+        const storeAddresses = getCurrentAddresses()
+        const storeAddressAliases = getCurrentAddressAliases()
+        if (Array.isArray(storeAddresses)) {
+           keystoreAddresses = _intersection(keystoreAddresses, storeAddresses)
+        }
+        return keystoreAddresses.map(address => ({
+            address,
+            alias: storeAddressAliases && storeAddressAliases.hasOwnProperty(address) ? storeAddressAliases[address] : null,
+        }))
     }
     return []
 }
