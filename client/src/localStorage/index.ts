@@ -67,6 +67,24 @@ function setKeystore(hash: string, keystore: string, addresses: string[]) : bool
     return true
 }
 
+function setAddressAlias(hash: string, address: string, alias: string) {
+    if (!keystoreAllExists()) {
+        setKeystoreAll({})
+    }
+    if (!keystoreExistsByHash(hash)) {
+        return false
+    }
+    const all = getKeystoreAll()
+    const ks = all[hash]
+    addKeystore(hash, {
+        ...ks,
+        addressAliases: {
+            ...ks.addressAliases,
+            [address]: alias,
+        }
+    })
+}
+
 function keystoreExistsByHash (hash: string | null): boolean {
     if (hash) {
         const all = getKeystoreAll()
@@ -75,16 +93,48 @@ function keystoreExistsByHash (hash: string | null): boolean {
     return false
 }
 
-function getKeystoreByHash (hash: string | null): string | null {
+function getKeystoreObjByHash (hash: string | null): KeystoreType | null {
     if (hash && keystoreExistsByHash(hash)) {
         const all = getKeystoreAll()
-        return all[hash].keystore
+        return all[hash]
+    }
+    return null
+}
+
+function getKeystoreByHash (hash: string | null): string | null {
+    const keystoreObj = getKeystoreObjByHash(hash)
+    if (keystoreObj && keystoreObj.hasOwnProperty('keystore')) {
+        return keystoreObj.keystore
+    }
+    return null
+}
+
+function getAddressesByHash (hash: string | null): string[] | null {
+    const keystoreObj = getKeystoreObjByHash(hash)
+    if (keystoreObj && keystoreObj.hasOwnProperty('addresses')) {
+        return keystoreObj.addresses
+    }
+    return null
+}
+
+function getAddressAliasesByHash (hash: string | null): KeystoreType['addressAliases'] | null {
+    const keystoreObj = getKeystoreObjByHash(hash)
+    if (keystoreObj && keystoreObj.hasOwnProperty('addressAliases')) {
+        return keystoreObj.addressAliases
     }
     return null
 }
 
 function getCurrentKeystore (): string | null {
     return getKeystoreByHash(getKeystoreHash())
+}
+
+function getCurrentAddresses (): string[] | null {
+    return getAddressesByHash(getKeystoreHash())
+}
+
+function getCurrentAddressAliases (): KeystoreType['addressAliases'] | null {
+    return getAddressAliasesByHash(getKeystoreHash())
 }
 
 export {
@@ -97,7 +147,13 @@ export {
     setKeystoreAll,
     addKeystore,
     setKeystore,
+    setAddressAlias,
     keystoreExistsByHash,
+    getKeystoreObjByHash,
     getKeystoreByHash,
     getCurrentKeystore,
+    getAddressesByHash,
+    getCurrentAddresses,
+    getAddressAliasesByHash,
+    getCurrentAddressAliases,
 }
