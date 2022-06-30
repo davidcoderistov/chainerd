@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useMemo } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { keystoreActions } from '../../slices/keystore'
 import {
@@ -59,6 +59,15 @@ export default function AccountsPage () {
     }
 
     const [addresses, setAddresses] = useState<AccountsListProps['addresses']>([])
+
+    const filteredAddresses = useMemo(() => {
+        if (searchText.trim().length > 0) {
+            return addresses.filter(({ address}) => {
+                return address.name.includes(searchText) || (address.alias && address.alias.includes(searchText))
+            })
+        }
+        return addresses
+    }, [searchText, addresses])
 
     useEffect(() => {
         setAddresses(storeAddresses.map(({ address, alias }) => ({
@@ -137,7 +146,7 @@ export default function AccountsPage () {
                 </Button>
             </AccountsToolbar>
             <AccountsList
-                addresses={addresses}
+                addresses={filteredAddresses}
                 onEdit={handleOnEdit}
                 onSend={handleOnSend}
                 searchText={searchText}
