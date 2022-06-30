@@ -13,6 +13,7 @@ import AccountsList, { AccountsListProps } from '../../components/AccountsList'
 import ConfirmPasswordModal from '../../components/ConfirmPasswordModal'
 import EditAccountModal from '../../components/EditAccountModal'
 import { Add } from '@mui/icons-material'
+import _orderBy from 'lodash/orderBy'
 
 const AccountsToolbar = styled('div')({
     display: 'flex',
@@ -54,20 +55,26 @@ export default function AccountsPage () {
         }
     }, [accountCreated])
 
-    const handleOnChangeSortBy = (sortBy: number) => {
+    const [sortBy, setSortBy] = useState<number>(0)
 
+    const handleOnChangeSortBy = (sortBy: number) => {
+        setSortBy(sortBy)
     }
 
     const [addresses, setAddresses] = useState<AccountsListProps['addresses']>([])
 
     const filteredAddresses = useMemo(() => {
+        let filtered = Array.from(addresses)
         if (searchText.trim().length > 0) {
-            return addresses.filter(({ address}) => {
+            filtered = addresses.filter(({ address}) => {
                 return address.name.includes(searchText) || (address.alias && address.alias.includes(searchText))
             })
         }
-        return addresses
-    }, [searchText, addresses])
+        if (sortBy > 1) {
+            return _orderBy(filtered, ['address.alias', 'address.name'], [sortBy > 2 ? 'desc' : 'asc', 'desc'])
+        }
+        return _orderBy(filtered, 'ethAmount', sortBy > 0 ? 'asc' : 'desc')
+    }, [searchText, sortBy, addresses])
 
     useEffect(() => {
         setAddresses(storeAddresses.map(({ address, alias }) => ({
