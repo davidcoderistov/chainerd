@@ -9,6 +9,11 @@ interface TransactionState {
     }
     ethAmount: string
     fiatAmount: string
+    gasInfo: {
+        lowGasPrice: number
+        highGasPrice: number
+        gasPrice: number
+    }
 }
 
 const initialState: TransactionState = {
@@ -20,18 +25,32 @@ const initialState: TransactionState = {
     },
     ethAmount: '',
     fiatAmount: '',
+    gasInfo: {
+        lowGasPrice: 0,
+        highGasPrice: 100,
+        gasPrice: 50,
+    }
 }
 
 const transactionActions = {
     setEthAmount: createAction<{ ethAmount: string }>('transaction/setEthAmount'),
     setFiatAmount: createAction<{ fiatAmount: string }>('transaction/setFiatAmount'),
+    setGasInfo: createAction('transaction/setGasInfo'),
+    setGasPrice: createAction<{ gasPrice: number }>('transaction/setGasPrice'),
     setAmountFulfilled: createAction<{
         statusCode: number,
         successMessage: string,
         ethAmount: string,
         fiatAmount: string,
     }>('transaction/setAmountResolved'),
-    setAmountRejected: createAction<{ statusCode: number, errorMessage: string }>('transaction/setAmountRejected'),
+    setGasInfoFulfilled: createAction<{
+        lowGasPrice: number,
+        highGasPrice: number,
+        gasPrice: number,
+        statusCode: number,
+        successMessage: string,
+    }>('transaction/setGasInfoFulfilled'),
+    rejected: createAction<{ statusCode: number, errorMessage: string }>('transaction/rejected'),
     pending: createAction('transaction/pending')
 }
 
@@ -57,6 +76,15 @@ const transactionSlice = createSlice({
                 },
                 fiatAmount: action.payload.fiatAmount,
             }))
+            .addCase(transactionActions.setGasPrice, (state, action) => {
+                return ({
+                    ...state,
+                    gasInfo: {
+                        ...state.gasInfo,
+                        gasPrice: action.payload.gasPrice,
+                    }
+                })
+            })
             .addCase(transactionActions.pending, state => ({
                 ...state,
                 request: {
@@ -67,6 +95,7 @@ const transactionSlice = createSlice({
                 }
             }))
             .addCase(transactionActions.setAmountFulfilled, (state, action) => ({
+                ...state,
                 request: {
                     loading: false,
                     statusCode: action.payload.statusCode,
@@ -76,7 +105,21 @@ const transactionSlice = createSlice({
                 ethAmount: action.payload.ethAmount,
                 fiatAmount: action.payload.fiatAmount,
             }))
-            .addCase(transactionActions.setAmountRejected, (state, action) => ({
+            .addCase(transactionActions.setGasInfoFulfilled, (state, action) => ({
+                ...state,
+                request: {
+                    loading: false,
+                    statusCode: action.payload.statusCode,
+                    errorMessage: null,
+                    successMessage: action.payload.successMessage,
+                },
+                gasInfo: {
+                    lowGasPrice: action.payload.lowGasPrice,
+                    highGasPrice: action.payload.highGasPrice,
+                    gasPrice: action.payload.gasPrice,
+                }
+            }))
+            .addCase(transactionActions.rejected, (state, action) => ({
                 ...state,
                 request: {
                     loading: false,
