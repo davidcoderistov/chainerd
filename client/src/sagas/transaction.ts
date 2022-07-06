@@ -1,9 +1,11 @@
-import { call, put, debounce } from 'redux-saga/effects'
+import { call, put, debounce, takeLatest } from 'redux-saga/effects'
 import { transactionActions } from '../slices/transaction'
-import { getEthPrice } from '../services'
+import { getEthPrice, getGasInfo } from '../services'
+import { roundedWeiToGwei } from '../utils'
 
 export const STATUS_CODES = {
     GET_ETH_PRICE: 1,
+    SET_GAS_INFO: 2,
 }
 
 function getErrorMessage(error: any, defaultMessage: string): string {
@@ -21,7 +23,7 @@ function *setAmount (calcAmount: (ethPrice: number, isFiat: boolean) => string) 
             fiatAmount: calcAmount(ethPrice, true),
         }))
     } catch (error: any) {
-        yield put(transactionActions.setAmountRejected({
+        yield put(transactionActions.rejected({
             statusCode: STATUS_CODES.GET_ETH_PRICE,
             errorMessage: getErrorMessage(error, 'Cannot get eth price at the moment'),
         }))
@@ -54,9 +56,29 @@ function *setFiatAmount ({ payload }: ReturnType<typeof transactionActions.setFi
     })
 }
 
+function *setGasInfo () {
+    yield put(transactionActions.pending())
+    try {
+        const { lowGasPrice, mediumGasPrice, highGasPrice } = yield call(getGasInfo)
+        yield put(transactionActions.setGasInfoFulfilled({
+            lowGasPrice,
+            gasPrice: roundedWeiToGwei(mediumGasPrice),
+            highGasPrice,
+            statusCode: STATUS_CODES.SET_GAS_INFO,
+            successMessage: 'Gas info successfully fetched'
+        }))
+    } catch (error: any) {
+        yield put(transactionActions.rejected({
+            statusCode: STATUS_CODES.SET_GAS_INFO,
+            errorMessage: getErrorMessage(error, 'Cannot get gas info at the moment'),
+        }))
+    }
+}
+
 function *watchTransaction () {
     yield debounce(500, transactionActions.setEthAmount.type, setEthAmount)
     yield debounce(500, transactionActions.setFiatAmount.type, setFiatAmount)
+    yield takeLatest(transactionActions.setGasInfo.type, setGasInfo)
 }
 
 export {
