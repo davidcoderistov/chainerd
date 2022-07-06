@@ -131,11 +131,13 @@ const GasPriceContainer = styled('div')({
 })
 
 interface GasPriceProps {
+    lowGasPrice: number,
+    highGasPrice: number,
     gasPrice: SliderProps['value'],
     onChangeGasPrice: (gasPrice: SliderProps['value']) => void,
 }
 
-const GasPrice = ({ gasPrice, onChangeGasPrice } : GasPriceProps) => {
+const GasPrice = ({ lowGasPrice, highGasPrice, gasPrice, onChangeGasPrice } : GasPriceProps) => {
 
     const handleOnChangeGasPrice = useCallback(
         (event: any, value: any) => {
@@ -161,10 +163,10 @@ const GasPrice = ({ gasPrice, onChangeGasPrice } : GasPriceProps) => {
                 <Slider
                     aria-label='Gas price'
                     value={gasPrice}
-                    onChange={handleOnChangeGasPrice}
-                    step={5}
-                    min={40}
-                    max={90}
+                    onChangeCommitted={handleOnChangeGasPrice}
+                    step={1}
+                    min={lowGasPrice}
+                    max={highGasPrice}
                 />
                 <GasPriceContainer>
                     <Label value='Slow' />
@@ -194,8 +196,7 @@ const GasLimit = () => (
 
 export type AmountStepProps = AmountProps & GasPriceProps
 
-export default function AmountStep ({cryptoAmount, onChangeCryptoAmount, fiatAmount, onChangeFiatAmount, gasPrice, onChangeGasPrice } : AmountStepProps) {
-
+export default function AmountStep ({ cryptoAmount, onChangeCryptoAmount, fiatAmount, onChangeFiatAmount, lowGasPrice, highGasPrice, gasPrice, onChangeGasPrice } : AmountStepProps) {
     return (
         <React.Fragment>
             <Amount
@@ -204,6 +205,8 @@ export default function AmountStep ({cryptoAmount, onChangeCryptoAmount, fiatAmo
                 fiatAmount={fiatAmount}
                 onChangeFiatAmount={onChangeFiatAmount} />
             <GasPrice
+                lowGasPrice={lowGasPrice}
+                highGasPrice={highGasPrice}
                 gasPrice={gasPrice}
                 onChangeGasPrice={onChangeGasPrice} />
             <GasLimit />
