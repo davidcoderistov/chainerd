@@ -1,7 +1,5 @@
-import { keystore, VaultOptions } from 'eth-lightwallet'
+import { keystore } from 'eth-lightwallet'
 import { call, put, delay, takeLatest } from 'redux-saga/effects'
-import { plainToInstance, instanceToPlain } from 'class-transformer'
-import keccak256 from 'keccak256'
 import { keystoreActions } from '../slices/keystore'
 import {
     keystoreHashExists,
@@ -15,6 +13,13 @@ import {
     getKeystoreHash,
     getCurrentAddresses
 } from '../localStorage'
+import {
+    createVault,
+    keyFromPassword,
+    serializeKeystore,
+    deserializeKeystore,
+    getKsHash,
+} from '../utils'
 
 const ERROR_MESSAGES = {
     INITIALIZE: 'Something went wrong while initializing the wallet',
@@ -32,40 +37,6 @@ export const STATUS_CODES = {
     GENERATE_ADDRESS: 5,
     EDIT_ADDRESS: 6,
     DELETE_ADDRESS: 7,
-}
-
-function createVault(opts: VaultOptions): Promise<keystore> {
-    return new Promise((resolve, reject) => {
-        keystore.createVault(opts, (error, ks) => {
-            if (error) {
-                return reject(error)
-            }
-            return resolve(ks)
-        })
-    })
-}
-
-function keyFromPassword(ks: keystore, password: string): Promise<Uint8Array> {
-    return new Promise((resolve, reject) => {
-        ks.keyFromPassword(password, (error, pwDerivedKey) => {
-            if (error) {
-                return reject(error)
-            }
-            return resolve(pwDerivedKey)
-        })
-    })
-}
-
-function serializeKeystore (ks: keystore): string {
-    return JSON.stringify(instanceToPlain(ks))
-}
-
-function deserializeKeystore(ks: string): keystore {
-    return plainToInstance(keystore, JSON.parse(ks))
-}
-
-function getKsHash (password: string, seed: string) {
-    return keccak256(`${password} ${seed}`).toString('hex')
 }
 
 function *genKeystore({ payload }: ReturnType<typeof keystoreActions.generate>) {
@@ -214,10 +185,6 @@ function *watchGenKeystore() {
 }
 
 export {
-    createVault,
-    keyFromPassword,
-    serializeKeystore,
-    deserializeKeystore,
     genKeystore,
     restoreKeystore,
     loadKeystore,

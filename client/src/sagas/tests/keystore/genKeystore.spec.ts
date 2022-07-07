@@ -1,7 +1,8 @@
 import { put, call } from 'redux-saga/effects'
 import { STATUS_CODES } from '../../keystore'
 import { keystoreActions } from '../../../slices/keystore'
-import { genKeystore, createVault } from '../../keystore'
+import { genKeystore } from '../../keystore'
+import { createVault } from '../../../utils'
 
 const mockAction = keystoreActions.generate({
     password: '',

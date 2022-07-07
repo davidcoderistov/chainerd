@@ -1,8 +1,8 @@
 import { RootState } from '../app/store'
 import { keystore } from 'eth-lightwallet'
 import { STATUS_CODES } from '../sagas/keystore'
-import { deserializeKeystore } from '../sagas/keystore'
 import { getCurrentAddresses, getCurrentAddressAliases } from '../localStorage'
+import { deserializeKeystore } from '../utils'
 import _intersection from 'lodash/intersection'
 
 const getKeystore = (state: RootState): keystore | null => {
