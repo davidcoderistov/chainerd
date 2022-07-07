@@ -21,6 +21,7 @@ function *setAmount (calcAmount: (ethPrice: number, isFiat: boolean) => string) 
             successMessage: 'Eth price successfully fetched',
             ethAmount: calcAmount(ethPrice, false),
             fiatAmount: calcAmount(ethPrice, true),
+            ethPrice,
         }))
     } catch (error: any) {
         yield put(transactionActions.rejected({

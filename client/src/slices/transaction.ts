@@ -9,6 +9,7 @@ interface TransactionState {
     }
     ethAmount: string
     fiatAmount: string
+    ethPrice: number
     gasInfo: {
         lowGasPrice: number
         highGasPrice: number
@@ -25,6 +26,7 @@ const initialState: TransactionState = {
     },
     ethAmount: '',
     fiatAmount: '',
+    ethPrice: 0,
     gasInfo: {
         lowGasPrice: 0,
         highGasPrice: 100,
@@ -42,6 +44,7 @@ const transactionActions = {
         successMessage: string,
         ethAmount: string,
         fiatAmount: string,
+        ethPrice: number,
     }>('transaction/setAmountResolved'),
     setGasInfoFulfilled: createAction<{
         lowGasPrice: number,
@@ -104,6 +107,7 @@ const transactionSlice = createSlice({
                 },
                 ethAmount: action.payload.ethAmount,
                 fiatAmount: action.payload.fiatAmount,
+                ethPrice: action.payload.ethPrice,
             }))
             .addCase(transactionActions.setGasInfoFulfilled, (state, action) => ({
                 ...state,
