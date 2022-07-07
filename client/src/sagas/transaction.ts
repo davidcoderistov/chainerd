@@ -1,7 +1,7 @@
 import { call, put, debounce, takeLatest } from 'redux-saga/effects'
 import { transactionActions } from '../slices/transaction'
 import { getEthPrice, getGasInfo } from '../services'
-import { roundedWeiToGwei } from '../utils'
+import { roundedWeiToGwei, toRoundedEth, toRoundedFiat } from '../utils'
 
 export const STATUS_CODES = {
     GET_ETH_PRICE: 1,
@@ -36,7 +36,7 @@ function *setEthAmount ({ payload }: ReturnType<typeof transactionActions.setEth
         if (isFiat) {
             const ethAmount = parseFloat(payload.ethAmount)
             if (!isNaN(ethAmount)) {
-                return (ethAmount * ethPrice).toFixed(2)
+                return toRoundedFiat(ethAmount * ethPrice)
             }
             return ''
         }
@@ -49,7 +49,7 @@ function *setFiatAmount ({ payload }: ReturnType<typeof transactionActions.setFi
         if (!isFiat) {
             const fiatAmount = parseFloat(payload.fiatAmount)
             if (!isNaN(fiatAmount)) {
-                return (fiatAmount / ethPrice).toFixed(2)
+                return toRoundedEth(fiatAmount / ethPrice)
             }
             return ''
         }
