@@ -51,6 +51,7 @@ export default function SendTransactionModal ({ open, onClose, onConfirm } : Sen
     const [activeStep, setActiveStep] = useState<number>(0)
 
     const addresses = useSelector(getAddresses)
+    const showAddresses = addresses.map(({ address, alias }) => alias ? alias : address)
     const [fromAddress, setFromAddress] = useState<string>(addresses.length > 0 ? addresses[0].address : '')
     const [toAddress, setToAddress] = useState<string>('')
 
@@ -123,7 +124,7 @@ export default function SendTransactionModal ({ open, onClose, onConfirm } : Sen
                         <Grid item xs={12} sx={{ mt: 1, mx: 1 }}>
                             { activeStep === 0 && (
                                 <RecipientStep
-                                    addresses={addresses.map(({ address }) => address)}
+                                    addresses={showAddresses}
                                     fromAddress={fromAddress}
                                     onChangeFromAddress={setFromAddress}
                                     toAddress={toAddress}
