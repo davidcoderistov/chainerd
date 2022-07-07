@@ -59,6 +59,9 @@ export interface SummaryStepProps {
     fiatTotalAmount: string,
 }
 
+const toEth = (eth: string) => `${eth} ETH`
+const toFiat = (fiat: string) => `$${fiat}`
+
 export default function SummaryStep (props: SummaryStepProps) {
 
     const {
@@ -100,17 +103,17 @@ export default function SummaryStep (props: SummaryStepProps) {
             <Divider sx={{ mt: 1, mb: 2 }}/>
             <Info
                 title='Amount'
-                subtitle={cryptoWithdrawAmount}
-                caption={fiatWithdrawAmount} />
+                subtitle={toEth(cryptoWithdrawAmount)}
+                caption={toFiat(fiatWithdrawAmount)} />
             <Info
                 title='Network Fees'
-                subtitle={cryptoFees}
-                caption={fiatFees} />
+                subtitle={toEth(cryptoFees)}
+                caption={toFiat(fiatFees)} />
             <Divider sx={{ my: 1 }}/>
             <Info
                 title='Total to debit'
-                subtitle={cryptoTotalAmount}
-                caption={fiatTotalAmount} />
+                subtitle={toEth(cryptoTotalAmount)}
+                caption={toFiat(fiatTotalAmount)} />
         </React.Fragment>
     )
 }
