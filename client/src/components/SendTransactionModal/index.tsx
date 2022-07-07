@@ -92,7 +92,9 @@ export default function SendTransactionModal ({ open, onClose, onConfirm } : Sen
         }
     }
 
-    const buttonDisabled = activeStep > 0 ? false : (addresses.length <= 0 || !ethers.utils.isAddress(toAddress))
+    const buttonDisabled = activeStep > 1 ? false :
+        activeStep > 0 ? (ethAmount.trim().length <=0 && fiatAmount.trim().length <= 0) :
+            (addresses.length <= 0 || !ethers.utils.isAddress(toAddress))
 
     return (
         <Dialog open={open} fullWidth maxWidth='sm' scroll='paper'>
