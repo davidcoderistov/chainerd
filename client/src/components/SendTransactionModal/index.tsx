@@ -1,13 +1,28 @@
-import React, { useState } from 'react'
-import { useSelector } from 'react-redux'
+import React, { useState, useEffect } from 'react'
+import { useDispatch, useSelector } from 'react-redux'
+import { transactionActions } from '../../slices/transaction'
 import { getAddresses } from '../../selectors/keystore'
+import {
+    getEthAmount,
+    getFiatAmount,
+    getLowGasPrice,
+    getHighGasPrice,
+    getGasPrice,
+    getLoading,
+    getEthNetworkFees,
+    getFiatNetworkFees,
+    getEthTotalAmount,
+    getFiatTotalAmount,
+} from '../../selectors/transaction'
 import { Dialog, DialogTitle, DialogContent, DialogActions } from '@mui/material'
 import { Stepper, Step, StepLabel } from '@mui/material'
-import { Grid, Button, IconButton, styled } from '@mui/material'
+import { Grid, IconButton, styled } from '@mui/material'
+import { LoadingButton } from '@mui/lab'
 import { Close } from '@mui/icons-material'
 import RecipientStep from './RecipientStep'
 import AmountStep, { AmountStepProps } from './AmountStep'
 import SummaryStep from './SummaryStep'
+import { toRoundedEth, toRoundedFiat } from '../../utils'
 import { ethers } from 'ethers'
 
 
@@ -31,15 +46,42 @@ interface SendTransactionModalProps {
 
 export default function SendTransactionModal ({ open, onClose, onConfirm } : SendTransactionModalProps) {
 
+    const dispatch = useDispatch()
+
     const [activeStep, setActiveStep] = useState<number>(0)
 
     const addresses = useSelector(getAddresses)
     const [fromAddress, setFromAddress] = useState<string>(addresses.length > 0 ? addresses[0].address : '')
     const [toAddress, setToAddress] = useState<string>('')
 
-    const [cryptoAmount, setCryptoAmount] = useState<string>('20')
-    const [fiatAmount, setFiatAmount] = useState<string>('30')
-    const [gasPrice, setGasPrice] = useState<AmountStepProps['gasPrice']>(65)
+    const loading = useSelector(getLoading)
+    const ethAmount = useSelector(getEthAmount)
+    const fiatAmount = useSelector(getFiatAmount)
+
+    const handleChangeEthAmount = (ethAmount: string) => {
+        dispatch(transactionActions.setEthAmount({ ethAmount }))
+    }
+
+    const handleChangeFiatAmount = (fiatAmount: string) => {
+        dispatch(transactionActions.setFiatAmount( { fiatAmount }))
+    }
+
+    const lowGasPrice = useSelector(getLowGasPrice)
+    const highGasPrice = useSelector(getHighGasPrice)
+    const gasPrice = useSelector(getGasPrice)
+
+    useEffect(() => {
+        dispatch(transactionActions.setGasInfo())
+    }, [])
+
+    const handleChangeGasPrice = (gasPrice: AmountStepProps['gasPrice']) => {
+        dispatch(transactionActions.setGasPrice({ gasPrice: Number(gasPrice) }))
+    }
+
+    const ethFee = useSelector(getEthNetworkFees)
+    const fiatFee = useSelector(getFiatNetworkFees)
+    const ethTotal = useSelector(getEthTotalAmount)
+    const fiatTotal = useSelector(getFiatTotalAmount)
 
     const handleOnContinue = () => {
         if (activeStep < 2) {
@@ -89,35 +131,38 @@ export default function SendTransactionModal ({ open, onClose, onConfirm } : Sen
                             )}
                             { activeStep === 1 && (
                                 <AmountStep
-                                    cryptoAmount={cryptoAmount}
-                                    onChangeCryptoAmount={setCryptoAmount}
+                                    cryptoAmount={ethAmount}
+                                    onChangeCryptoAmount={handleChangeEthAmount}
                                     fiatAmount={fiatAmount}
-                                    onChangeFiatAmount={setFiatAmount}
+                                    onChangeFiatAmount={handleChangeFiatAmount}
+                                    lowGasPrice={lowGasPrice}
+                                    highGasPrice={highGasPrice}
                                     gasPrice={gasPrice}
-                                    onChangeGasPrice={setGasPrice} />
+                                    onChangeGasPrice={handleChangeGasPrice} />
                             )}
                             { activeStep === 2 && (
                                 <SummaryStep
-                                    fromAddress='0x05fE66a4F7577b060831F572eE63BBCb51b2D16A'
-                                    toAddress='0x05fE66a4F7577b060831F572eE63BBCb51b2D16A'
-                                    cryptoWithdrawAmount='0.02 ETH'
-                                    fiatWithdrawAmount='$35.32'
-                                    cryptoFees='0.001386 ETH'
-                                    fiatFees='$2.449'
-                                    cryptoTotalAmount='0.021386 ETH'
-                                    fiatTotalAmount='$37.79'  />
+                                    fromAddress={fromAddress}
+                                    toAddress={toAddress}
+                                    cryptoWithdrawAmount={ethAmount}
+                                    fiatWithdrawAmount={fiatAmount}
+                                    cryptoFees={toRoundedEth(ethFee)}
+                                    fiatFees={toRoundedFiat(fiatFee)}
+                                    cryptoTotalAmount={toRoundedEth(ethTotal)}
+                                    fiatTotalAmount={toRoundedFiat(fiatTotal)}  />
                             )}
                         </Grid>
                     </Grid>
                 </div>
             </DialogContent>
             <DialogActions>
-                <Button
+                <LoadingButton
                     sx={{ mr:1 }}
                     disabled={buttonDisabled}
+                    loading={loading}
                     onClick={handleOnContinue}>
                         { activeStep < 2 ? 'Continue' : 'Confirm' }
-                </Button>
+                </LoadingButton>
             </DialogActions>
         </Dialog>
     )
