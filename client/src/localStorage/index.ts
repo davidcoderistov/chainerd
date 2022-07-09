@@ -156,6 +156,36 @@ function getCurrentAddressAliases (): KeystoreType['addressAliases'] | null {
     return getAddressAliasesByHash(getKeystoreHash())
 }
 
+function getNonceByAddress (address: string): number | null {
+    const ksHash = getKeystoreHash()
+    if (ksHash) {
+        const ks = getKeystoreObjByHash(ksHash)
+        if (ks) {
+            return ks.nonceByAddress.hasOwnProperty(address) ? ks.nonceByAddress[address] : null
+        }
+        return null
+    }
+    return null
+}
+
+function incrementNonceByAddress (address: string): boolean {
+    const currNonce = getNonceByAddress(address)
+    if (currNonce !== null) {
+        const ksHash = getKeystoreHash()
+        if (ksHash) {
+            const all = getKeystoreAll()
+            const ks = all[ksHash]
+            addKeystore(ksHash, {
+                ...ks,
+                nonceByAddress: {...ks.nonceByAddress, [address]: currNonce + 1 },
+            })
+            return true
+        }
+        return false
+    }
+    return false
+}
+
 export {
     KEYS,
     keystoreHashExists,
@@ -176,4 +206,6 @@ export {
     getCurrentAddresses,
     getAddressAliasesByHash,
     getCurrentAddressAliases,
+    getNonceByAddress,
+    incrementNonceByAddress,
 }
