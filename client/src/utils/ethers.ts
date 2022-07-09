@@ -1,4 +1,5 @@
 import { ethers } from 'ethers'
+import { UnsignedTransaction } from 'ethers'
 
 
 export function roundedWeiToGwei (value: number): number {
@@ -19,4 +20,8 @@ export function toRoundedEth (number: number): string {
 
 export function toRoundedFiat (number: number): string {
     return toRounded(number, 2)
+}
+
+export function getRawTransaction (tx: UnsignedTransaction): string {
+    return ethers.utils.serializeTransaction(tx)
 }
