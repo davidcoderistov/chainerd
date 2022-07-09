@@ -50,6 +50,7 @@ function *genKeystore({ payload }: ReturnType<typeof keystoreActions.generate>) 
             keystore: serialized,
             addresses: [],
             addressAliases: {},
+            nonceByAddress: {},
         })
         yield put(keystoreActions.fulfilled({ keystore: serialized, statusCode: STATUS_CODES.GENERATE_KEYSTORE, successMessage: 'Wallet successfully created' }))
     } catch (error: any) {

@@ -4,6 +4,7 @@ interface KeystoreType {
     keystore: string,
     addresses: string[],
     addressAliases: { [address: string]: string },
+    nonceByAddress: { [address: string]: number },
 }
 
 interface AllType {
@@ -63,6 +64,7 @@ function setKeystore(hash: string, keystore: string, address: string) : boolean 
         ...ks,
         keystore,
         addresses: [...ks.addresses, address],
+        nonceByAddress: {...ks.nonceByAddress, [address]: 0 },
     })
     return true
 }
