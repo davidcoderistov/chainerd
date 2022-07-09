@@ -1,16 +1,26 @@
-import { call, put, debounce, takeLatest } from 'redux-saga/effects'
+import { call, put, debounce, select, takeLatest } from 'redux-saga/effects'
 import { transactionActions } from '../slices/transaction'
+import { getKeystore } from '../selectors/keystore'
+import { getEthAmount, getGasPrice } from '../selectors/transaction'
 import { getEthPrice, getGasInfo } from '../services'
-import { roundedWeiToGwei, toRoundedEth, toRoundedFiat } from '../utils'
+import {
+    keyFromPassword,
+    roundedWeiToGwei,
+    toRoundedEth,
+    toRoundedFiat,
+    getAxiosErrorMessage,
+    getGenericErrorMessage,
+    getRawTransaction,
+} from '../utils'
+import { getNonceByAddress, incrementNonceByAddress } from '../localStorage'
+import { keystore, signing } from 'eth-lightwallet'
+import { ethersProvider } from '../providers'
+import { ethers } from 'ethers'
 
 export const STATUS_CODES = {
     GET_ETH_PRICE: 1,
     SET_GAS_INFO: 2,
-}
-
-function getErrorMessage(error: any, defaultMessage: string): string {
-    return error && error.response && error.response.data && error.response.data.error ?
-        error.response.data.error : defaultMessage
+    SEND_TRANSACTION: 3,
 }
 
 function *setAmount (calcAmount: (ethPrice: number, isFiat: boolean) => string) {
@@ -26,7 +36,7 @@ function *setAmount (calcAmount: (ethPrice: number, isFiat: boolean) => string) 
     } catch (error: any) {
         yield put(transactionActions.rejected({
             statusCode: STATUS_CODES.GET_ETH_PRICE,
-            errorMessage: getErrorMessage(error, 'Cannot get eth price at the moment'),
+            errorMessage: getAxiosErrorMessage(error, 'Cannot get eth price at the moment'),
         }))
     }
 }
@@ -71,7 +81,58 @@ function *setGasInfo () {
     } catch (error: any) {
         yield put(transactionActions.rejected({
             statusCode: STATUS_CODES.SET_GAS_INFO,
-            errorMessage: getErrorMessage(error, 'Cannot get gas info at the moment'),
+            errorMessage: getAxiosErrorMessage(error, 'Cannot get gas info at the moment'),
+        }))
+    }
+}
+
+function *sendTransaction ({ payload }: ReturnType<typeof transactionActions.sendTransaction>) {
+    yield put(transactionActions.pending())
+    const ks: keystore = yield select(getKeystore)
+    if (!ks) {
+        yield put(transactionActions.rejected({
+            statusCode: STATUS_CODES.SEND_TRANSACTION,
+            errorMessage: 'Wallet is not initialized',
+        }))
+        return
+    }
+    try {
+        const pwDerivedKey: Uint8Array = yield call(keyFromPassword, ks, payload.password)
+        const ethAmount: string = yield select(getEthAmount)
+        const gasPrice: number = yield select(getGasPrice)
+        const nonce = getNonceByAddress(payload.fromAddress)
+        if (nonce === null) {
+            yield put(transactionActions.rejected({
+                statusCode: STATUS_CODES.SEND_TRANSACTION,
+                errorMessage: 'Cannot infer address nonce',
+            }))
+            return
+        }
+        const rawTx = getRawTransaction({
+            to: payload.toAddress,
+            value: ethers.utils.parseUnits(ethAmount, 'ether'),
+            gasPrice: ethers.utils.parseUnits(gasPrice.toString(), 'gwei'),
+            nonce,
+            gasLimit: 21000,
+        })
+        const signedTx = signing.signTx(ks, pwDerivedKey, rawTx, payload.fromAddress)
+        const { hash } = yield call([ethersProvider, ethersProvider.sendTransaction], `0x${signedTx}`)
+        const nonceIncremented = incrementNonceByAddress(payload.fromAddress)
+        if (hash && nonceIncremented) {
+            yield put(transactionActions.fulfilled({
+                statusCode: STATUS_CODES.SEND_TRANSACTION,
+                successMessage: `Transaction ${hash} successfully sent`,
+            }))
+        } else {
+            yield put(transactionActions.rejected({
+                statusCode: STATUS_CODES.SEND_TRANSACTION,
+                errorMessage: 'Something went wrong while trying to send the transaction',
+            }))
+        }
+    } catch(error: any) {
+        yield put(transactionActions.rejected({
+            statusCode: STATUS_CODES.SEND_TRANSACTION,
+            errorMessage: getGenericErrorMessage(error, 'Something went wrong while trying to send the transaction')
         }))
     }
 }
@@ -80,6 +141,7 @@ function *watchTransaction () {
     yield debounce(500, transactionActions.setEthAmount.type, setEthAmount)
     yield debounce(500, transactionActions.setFiatAmount.type, setFiatAmount)
     yield takeLatest(transactionActions.setGasInfo.type, setGasInfo)
+    yield takeLatest(transactionActions.sendTransaction.type, sendTransaction)
 }
 
 export {

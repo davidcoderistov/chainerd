@@ -53,6 +53,8 @@ const transactionActions = {
         statusCode: number,
         successMessage: string,
     }>('transaction/setGasInfoFulfilled'),
+    sendTransaction: createAction<{ fromAddress: string, toAddress: string, password: string }>('transaction/sendTransaction'),
+    fulfilled: createAction<{ statusCode: number, successMessage: string }>('transaction/fulfilled'),
     rejected: createAction<{ statusCode: number, errorMessage: string }>('transaction/rejected'),
     pending: createAction('transaction/pending')
 }
@@ -121,6 +123,15 @@ const transactionSlice = createSlice({
                     lowGasPrice: action.payload.lowGasPrice,
                     highGasPrice: action.payload.highGasPrice,
                     gasPrice: action.payload.gasPrice,
+                }
+            }))
+            .addCase(transactionActions.fulfilled, (state, action) => ({
+                ...state,
+                request: {
+                    loading: false,
+                    statusCode: action.payload.statusCode,
+                    successMessage: action.payload.successMessage,
+                    errorMessage: null,
                 }
             }))
             .addCase(transactionActions.rejected, (state, action) => ({
