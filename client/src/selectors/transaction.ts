@@ -1,5 +1,6 @@
 import { RootState } from '../app/store'
 import { roundedWeiToGwei, getNetworkFees } from '../utils'
+import { STATUS_CODES } from '../sagas/transaction'
 
 const getEthAmount = (state: RootState): string => state.transaction.ethAmount
 
@@ -21,6 +22,17 @@ const getEthTotalAmount = (state: RootState): number => Number(getEthAmount(stat
 
 const getFiatTotalAmount = (state: RootState): number => Number(getFiatAmount(state)) + getFiatNetworkFees(state)
 
+const getStatusCode = (state: RootState): number | null => state.transaction.request.statusCode
+
+const getErrorMessage = (state: RootState): string | null => state.transaction.request.errorMessage
+
+const getSuccessMessage = (state: RootState): string | null => state.transaction.request.successMessage
+
+const shouldShowSnackbar = (state: RootState) => {
+    const statusCode = getStatusCode(state)
+    return statusCode === STATUS_CODES.SEND_TRANSACTION
+}
+
 export {
     getEthAmount,
     getFiatAmount,
@@ -32,4 +44,8 @@ export {
     getFiatNetworkFees,
     getEthTotalAmount,
     getFiatTotalAmount,
+    getStatusCode,
+    getErrorMessage,
+    getSuccessMessage,
+    shouldShowSnackbar,
 }
