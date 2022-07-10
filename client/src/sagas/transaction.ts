@@ -98,6 +98,13 @@ function *sendTransaction ({ payload }: ReturnType<typeof transactionActions.sen
     }
     try {
         const pwDerivedKey: Uint8Array = yield call(keyFromPassword, ks, payload.password)
+        if (!ks.isDerivedKeyCorrect(pwDerivedKey)) {
+            yield put(transactionActions.rejected({
+                statusCode: STATUS_CODES.SEND_TRANSACTION,
+                errorMessage: 'Incorrect derived key !',
+            }))
+            return
+        }
         const ethAmount: string = yield select(getEthAmount)
         const gasPrice: number = yield select(getGasPrice)
         const nonce = getNonceByAddress(payload.fromAddress)

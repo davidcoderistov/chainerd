@@ -103,6 +103,13 @@ function *generateAddress ({ payload }: ReturnType<typeof keystoreActions.genera
     const ks: keystore = deserializeKeystore(serialized)
     try {
         const pwDerivedKey: Uint8Array = yield call(keyFromPassword, ks, payload.password)
+        if (!ks.isDerivedKeyCorrect(pwDerivedKey)) {
+            yield put(keystoreActions.rejected({
+                statusCode: STATUS_CODES.GENERATE_ADDRESS,
+                errorMessage: 'Incorrect derived key !',
+            }))
+            return
+        }
         ks.generateNewAddress(pwDerivedKey, 1)
         const serialized = serializeKeystore(ks)
         const ksHash = getKeystoreHash()
