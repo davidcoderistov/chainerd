@@ -154,6 +154,42 @@ export const getCurrentSerializedKeystore = (): string | null => {
     return keystore.keystore
 }
 
+export const getCurrentAddresses = (): string[] | null => {
+    const ksHash = getCurrentKeystoreHash()
+    if (!ksHash) {
+        return null
+    }
+    const keystore = getKeystore(ksHash)
+    if (!keystore) {
+        return null
+    }
+    return keystore.addresses
+}
+
+export const getCurrentAliasByAddress = (): { [address: string]: string} | null => {
+    const ksHash = getCurrentKeystoreHash()
+    if (!ksHash) {
+        return null
+    }
+    const keystore = getKeystore(ksHash)
+    if (!keystore) {
+        return null
+    }
+    return keystore.aliasByAddress
+}
+
+export const getCurrentNonceByAddress = (): { [address: string]: number} | null => {
+    const ksHash = getCurrentKeystoreHash()
+    if (!ksHash) {
+        return null
+    }
+    const keystore = getKeystore(ksHash)
+    if (!keystore) {
+        return null
+    }
+    return keystore.nonceByAddress
+}
+
 export const getKeystore = (ksHash: string): Keystore | null => {
     if (!store.get(STORE_KEYS.ALL)) {
         return null
