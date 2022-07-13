@@ -39,7 +39,7 @@ export const restoreKeystore = (ksHash: string): string => {
     return keystore.keystore
 }
 
-export const addAddress = (pwDerivedKey: Uint8Array): { ksSerialized: string, addresses: string[] } => {
+export const addAddress = (pwDerivedKey: Uint8Array): { ksSerialized: string, address: string } => {
     const ksHash = getCurrentKeystoreHash()
     if (!ksHash) {
         throw new Error('Can\'t add address, wallet not initialized')
@@ -64,7 +64,7 @@ export const addAddress = (pwDerivedKey: Uint8Array): { ksSerialized: string, ad
     })
     return {
         ksSerialized: serialized,
-        addresses,
+        address,
     }
 }
 
