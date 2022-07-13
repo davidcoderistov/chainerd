@@ -115,7 +115,7 @@ export default function AccountsPage () {
 
     const handleDeleteAccount = () => {
         dispatch(keystoreActions.deleteAddress({
-            address: selectedAddress ? selectedAddress.name : null,
+            address: selectedAddress ? selectedAddress.name : '',
         }))
     }
 
@@ -127,7 +127,7 @@ export default function AccountsPage () {
 
     const handleEditAccount = () => {
         dispatch(keystoreActions.editAddress({
-            address: selectedAddress ? selectedAddress.name : null,
+            address: selectedAddress ? selectedAddress.name : '',
             alias: editedAlias,
         }))
     }

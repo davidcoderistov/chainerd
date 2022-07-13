@@ -12,7 +12,7 @@ import {
     getGenericErrorMessage,
     getRawTransaction,
 } from '../utils'
-import { getNonceByAddress, incrementNonceByAddress } from '../localStorage'
+import { getNonce, incrementNonce } from '../localStorage'
 import { keystore, signing } from 'eth-lightwallet'
 import { ethersProvider } from '../providers'
 import { ethers } from 'ethers'
@@ -107,7 +107,7 @@ function *sendTransaction ({ payload }: ReturnType<typeof transactionActions.sen
         }
         const ethAmount: string = yield select(getEthAmount)
         const gasPrice: number = yield select(getGasPrice)
-        const nonce = getNonceByAddress(payload.fromAddress)
+        const nonce = getNonce(payload.fromAddress)
         if (nonce === null) {
             yield put(transactionActions.rejected({
                 statusCode: STATUS_CODES.SEND_TRANSACTION,
@@ -124,8 +124,8 @@ function *sendTransaction ({ payload }: ReturnType<typeof transactionActions.sen
         })
         const signedTx = signing.signTx(ks, pwDerivedKey, rawTx, payload.fromAddress)
         const { hash } = yield call([ethersProvider, ethersProvider.sendTransaction], `0x${signedTx}`)
-        const nonceIncremented = incrementNonceByAddress(payload.fromAddress)
-        if (hash && nonceIncremented) {
+        incrementNonce(payload.fromAddress)
+        if (hash) {
             yield put(transactionActions.fulfilled({
                 statusCode: STATUS_CODES.SEND_TRANSACTION,
                 successMessage: `Transaction ${hash} successfully sent`,

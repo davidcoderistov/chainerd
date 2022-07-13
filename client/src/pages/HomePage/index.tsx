@@ -11,7 +11,7 @@ import RestoreWalletModal from '../../components/RestoreWalletModal'
 import SendTransactionModal from '../../components/SendTransactionModal'
 import CloseWalletModal from '../../components/CloseWalletModal'
 import Snackbar from '../../components/Snackbar'
-import { getCurrentKeystore } from '../../localStorage'
+import { getCurrentSerializedKeystore } from '../../localStorage'
 
 
 export default function HomePage () {
@@ -21,7 +21,7 @@ export default function HomePage () {
     const keystore = useSelector(getKeystore)
 
     useEffect(() => {
-        const ks = getCurrentKeystore()
+        const ks = getCurrentSerializedKeystore()
         if (ks) {
             dispatch(keystoreActions.load({ keystore: ks }))
         }

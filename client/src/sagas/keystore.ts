@@ -1,17 +1,15 @@
 import { keystore } from 'eth-lightwallet'
-import { call, put, delay, takeLatest } from 'redux-saga/effects'
+import { call, put, delay, select, takeLatest } from 'redux-saga/effects'
 import { keystoreActions } from '../slices/keystore'
+import { getSerializedKeystore } from '../selectors/keystore'
 import {
-    keystoreHashExists,
-    setKeystoreHash,
-    addKeystore,
-    setKeystore,
-    setAddressAlias,
-    deleteAddress as deleteStoreAddress,
-    getKeystoreByHash,
-    getCurrentKeystore,
-    getKeystoreHash,
-    getCurrentAddresses
+    setCurrentKeystoreHash,
+    getCurrentSerializedKeystore,
+    addKeystore as localStorageAddKeystore,
+    restoreKeystore as localStorageRestoreKeystore,
+    addAddress as localStorageAddAddress,
+    editAddress as localStorageEditAddress,
+    deleteAddress as localStorageDeleteAddress,
 } from '../localStorage'
 import {
     createVault,
@@ -43,36 +41,39 @@ function *genKeystore({ payload }: ReturnType<typeof keystoreActions.generate>) 
     yield put(keystoreActions.pending())
     try {
         const ks: keystore = yield call(createVault, payload)
-        const serialized = serializeKeystore(ks)
         const ksHash = getKsHash(payload.password, payload.seedPhrase)
-        setKeystoreHash(ksHash)
-        addKeystore(ksHash, {
+        const serialized = serializeKeystore(ks)
+        localStorageAddKeystore(ksHash, serialized)
+        yield put(keystoreActions.fulfilled({
             keystore: serialized,
-            addresses: [],
-            addressAliases: {},
-            nonceByAddress: {},
-        })
-        yield put(keystoreActions.fulfilled({ keystore: serialized, statusCode: STATUS_CODES.GENERATE_KEYSTORE, successMessage: 'Wallet successfully created' }))
+            statusCode: STATUS_CODES.GENERATE_KEYSTORE,
+            successMessage: 'Wallet successfully created'
+        }))
     } catch (error: any) {
         const errorMessage = (error && error.message) ? error.message : ERROR_MESSAGES.INITIALIZE
-        yield put(keystoreActions.rejected({ errorMessage, statusCode: STATUS_CODES.GENERATE_KEYSTORE }))
+        yield put(keystoreActions.rejected({
+            errorMessage,
+            statusCode: STATUS_CODES.GENERATE_KEYSTORE
+        }))
     }
 }
 
 function *restoreKeystore({ payload }: ReturnType<typeof keystoreActions.restore>) {
     yield put(keystoreActions.pending())
     yield delay(300)
-    if (keystoreHashExists()) {
-        yield put(keystoreActions.rejected({ errorMessage: ERROR_MESSAGES.ALREADY_INITIALIZED, statusCode: STATUS_CODES.RESTORE_KEYSTORE }))
-        return
-    }
     const ksHash = getKsHash(payload.password, payload.seedPhrase)
-    const ks = getKeystoreByHash(ksHash)
-    if (ks) {
-        setKeystoreHash(ksHash)
-        yield put(keystoreActions.fulfilled({ keystore: ks, statusCode: STATUS_CODES.RESTORE_KEYSTORE, successMessage: 'Wallet successfully restored' }))
-    } else {
-        yield put(keystoreActions.rejected({ errorMessage: ERROR_MESSAGES.WALLET_EXISTS_NOT, statusCode: STATUS_CODES.RESTORE_KEYSTORE }))
+    try {
+        const serialized = localStorageRestoreKeystore(ksHash)
+        yield put(keystoreActions.fulfilled({
+            keystore: serialized,
+            statusCode: STATUS_CODES.RESTORE_KEYSTORE,
+            successMessage: 'Wallet successfully restored'
+        }))
+    } catch (error: any) {
+        yield put(keystoreActions.rejected({
+            errorMessage: ERROR_MESSAGES.WALLET_EXISTS_NOT,
+            statusCode: STATUS_CODES.RESTORE_KEYSTORE
+        }))
     }
 }
 
@@ -80,48 +81,50 @@ function *loadKeystore ({ payload }: ReturnType<typeof keystoreActions.load>) {
     yield put(keystoreActions.pending())
     const ks = payload.keystore
     if (!ks) {
-        yield put(keystoreActions.rejected({ errorMessage: ERROR_MESSAGES.INITIALIZE, statusCode: STATUS_CODES.LOAD_KEYSTORE }))
+        yield put(keystoreActions.rejected({
+            errorMessage: ERROR_MESSAGES.INITIALIZE,
+            statusCode: STATUS_CODES.LOAD_KEYSTORE
+        }))
         return
     }
-    yield put(keystoreActions.fulfilled({ keystore: ks, statusCode: STATUS_CODES.LOAD_KEYSTORE, successMessage: 'Wallet successfully loaded' }))
+    yield put(keystoreActions.fulfilled({
+        keystore: ks,
+        statusCode: STATUS_CODES.LOAD_KEYSTORE,
+        successMessage: 'Wallet successfully loaded'
+    }))
 }
 
 function *destroyKeystore () {
     yield put(keystoreActions.pending())
     yield delay(300)
-    setKeystoreHash(null)
-    yield put(keystoreActions.fulfilled({ keystore: null, statusCode: STATUS_CODES.DESTROY_KEYSTORE, successMessage: 'Wallet successfully closed' }))
+    setCurrentKeystoreHash(null)
+    yield put(keystoreActions.fulfilled({
+        keystore: null,
+        statusCode: STATUS_CODES.DESTROY_KEYSTORE,
+        successMessage: 'Wallet successfully closed'
+    }))
 }
 
 function *generateAddress ({ payload }: ReturnType<typeof keystoreActions.generateAddress>) {
     yield put(keystoreActions.pending())
-    const serialized = getCurrentKeystore()
-    if (!serialized) {
-        yield put(keystoreActions.rejected({ errorMessage: ERROR_MESSAGES.WALLET_EXISTS_NOT, statusCode: STATUS_CODES.GENERATE_ADDRESS }))
+    const reduxSerialized: string | null = yield select(getSerializedKeystore)
+    const localStorageSerialized = getCurrentSerializedKeystore()
+    if (!reduxSerialized || !localStorageSerialized || reduxSerialized !== localStorageSerialized) {
+        yield put(keystoreActions.rejected({
+            statusCode: STATUS_CODES.GENERATE_ADDRESS,
+            errorMessage: 'Can\'t add address, wallet not initialized',
+        }))
         return
     }
-    const ks: keystore = deserializeKeystore(serialized)
+    const ks: keystore = deserializeKeystore(reduxSerialized)
     try {
         const pwDerivedKey: Uint8Array = yield call(keyFromPassword, ks, payload.password)
-        if (!ks.isDerivedKeyCorrect(pwDerivedKey)) {
-            yield put(keystoreActions.rejected({
-                statusCode: STATUS_CODES.GENERATE_ADDRESS,
-                errorMessage: 'Incorrect derived key !',
-            }))
-            return
-        }
-        ks.generateNewAddress(pwDerivedKey, 1)
-        const serialized = serializeKeystore(ks)
-        const ksHash = getKeystoreHash()
-        if (!ksHash) {
-            yield put(keystoreActions.rejected({ errorMessage: ERROR_MESSAGES.WALLET_EXISTS_NOT, statusCode: STATUS_CODES.GENERATE_ADDRESS }))
-            return
-        }
-        if (setKeystore(ksHash, serialized, ks.getAddresses()[ks.getAddresses().length - 1])) {
-            yield put(keystoreActions.fulfilled({ keystore: serialized, statusCode: STATUS_CODES.GENERATE_ADDRESS, successMessage: 'Account added successfully' }))
-        } else {
-            yield put(keystoreActions.rejected({ errorMessage: ERROR_MESSAGES.WALLET_EXISTS_NOT, statusCode: STATUS_CODES.GENERATE_ADDRESS }))
-        }
+        const { ksSerialized } = localStorageAddAddress(pwDerivedKey)
+        yield put(keystoreActions.fulfilled({
+            keystore: ksSerialized,
+            statusCode: STATUS_CODES.GENERATE_ADDRESS,
+            successMessage: 'Account added successfully'
+        }))
     } catch (error: any) {
         const errorMessage = (error && error.message) ? error.message : ERROR_MESSAGES.GENERATE_ADDRESS
         yield put(keystoreActions.rejected({ errorMessage, statusCode: STATUS_CODES.GENERATE_ADDRESS }))
@@ -131,55 +134,55 @@ function *generateAddress ({ payload }: ReturnType<typeof keystoreActions.genera
 function *editAddress ({ payload }: ReturnType<typeof keystoreActions.editAddress>) {
     yield put(keystoreActions.pending())
     yield delay(300)
-    const hash = getKeystoreHash()
-    if (!hash) {
+    const reduxSerialized: string | null = yield select(getSerializedKeystore)
+    const localStorageSerialized = getCurrentSerializedKeystore()
+    if (!reduxSerialized || !localStorageSerialized || reduxSerialized !== localStorageSerialized) {
+        yield put(keystoreActions.rejected({
+            statusCode: STATUS_CODES.GENERATE_ADDRESS,
+            errorMessage: 'Can\'t edit address, wallet not initialized',
+        }))
+        return
+    }
+    try {
+        localStorageEditAddress(payload.address, payload.alias)
+        yield put(keystoreActions.resolved({
+            statusCode: STATUS_CODES.EDIT_ADDRESS,
+            error: false,
+            message: 'Address successfully edited'
+        }))
+    } catch (error: any) {
         yield put(keystoreActions.rejected({
             errorMessage: 'Can\'t edit address, wallet is not initialized',
             statusCode: STATUS_CODES.EDIT_ADDRESS
         }))
-        return
     }
-    const addresses = getCurrentAddresses()
-    if (!payload.address || !Array.isArray(addresses) || addresses.findIndex(address => address === payload.address) < 0) {
-        yield put(keystoreActions.rejected({
-            errorMessage: 'Can\'t edit address, it does not exist',
-            statusCode: STATUS_CODES.EDIT_ADDRESS
-        }))
-        return
-    }
-    const success = setAddressAlias(hash, payload.address, payload.alias)
-    yield put(keystoreActions.resolved({
-        statusCode: STATUS_CODES.EDIT_ADDRESS,
-        error: !success,
-        message: success ? 'Address successfully edited' : 'Something went wrong while trying to edit the address'
-    }))
 }
 
 function *deleteAddress ({ payload }: ReturnType<typeof keystoreActions.deleteAddress>) {
     yield put(keystoreActions.pending())
     yield delay(300)
-    const hash = getKeystoreHash()
-    if (!hash) {
+    const reduxSerialized: string | null = yield select(getSerializedKeystore)
+    const localStorageSerialized = getCurrentSerializedKeystore()
+    if (!reduxSerialized || !localStorageSerialized || reduxSerialized !== localStorageSerialized) {
         yield put(keystoreActions.rejected({
-            errorMessage: 'Can\'t delete address, wallet is not initialized',
-            statusCode: STATUS_CODES.DELETE_ADDRESS
+            statusCode: STATUS_CODES.GENERATE_ADDRESS,
+            errorMessage: 'Can\'t delete address, wallet not initialized',
         }))
         return
     }
-    const addresses = getCurrentAddresses()
-    if (!payload.address || !Array.isArray(addresses) || addresses.findIndex(address => address === payload.address) < 0) {
+    try {
+        localStorageDeleteAddress(payload.address)
+        yield put(keystoreActions.resolved({
+            statusCode: STATUS_CODES.DELETE_ADDRESS,
+            error: false,
+            message: 'Address successfully deleted'
+        }))
+    } catch (error: any) {
         yield put(keystoreActions.rejected({
             errorMessage: 'Can\'t delete address, it does not exist',
             statusCode: STATUS_CODES.DELETE_ADDRESS
         }))
-        return
     }
-    const success = deleteStoreAddress(hash, payload.address)
-    yield put(keystoreActions.resolved({
-        statusCode: STATUS_CODES.DELETE_ADDRESS,
-        error: !success,
-        message: success ? 'Address successfully deleted' : 'Something went wrong while trying to delete the address'
-    }))
 }
 
 function *watchGenKeystore() {
