@@ -1,211 +1,173 @@
 import store from 'store'
+import { serializeKeystore, deserializeKeystore } from '../utils'
 
-interface KeystoreType {
-    keystore: string,
-    addresses: string[],
-    addressAliases: { [address: string]: string },
-    nonceByAddress: { [address: string]: number },
-}
-
-interface AllType {
-    [hash: string]: KeystoreType
-}
-
-const KEYS = {
+const STORE_KEYS = {
     HASH: 'hash',
     ALL: 'all',
 }
 
-function keystoreHashExists (): boolean {
-    return !!getKeystoreHash()
+interface Keystore {
+    keystore: string
+    addresses: string[]
+    aliasByAddress: { [address: string]: string}
+    nonceByAddress: { [address: string]: number}
 }
 
-function getKeystoreHash (): string | null {
-    return store.get(KEYS.HASH)
-}
+export const getCurrentKeystoreHash = (): string | null => store.get(STORE_KEYS.HASH)
 
-function setKeystoreHash (hash: string | null): void {
-    store.set(KEYS.HASH, hash)
-}
+export const setCurrentKeystoreHash = (hash: string | null) => store.set(STORE_KEYS.HASH, hash)
 
-function keystoreAllExists (): boolean {
-    return !!getKeystoreAll()
-}
-
-function getKeystoreAll (): AllType {
-    return store.get(KEYS.ALL)
-}
-
-function setKeystoreAll (all: AllType): void {
-    store.set(KEYS.ALL, all)
-}
-
-function addKeystore (hash: string, keystore: KeystoreType): void {
-    if (!keystoreAllExists()) {
-        setKeystoreAll({})
-    }
-    const all = getKeystoreAll()
-    setKeystoreAll({
-        ...all,
-        [hash]: keystore,
+export const addKeystore = (ksHash: string, ksSerialized: string) => {
+    setCurrentKeystoreHash(ksHash)
+    setKeystore(ksHash, {
+        keystore: ksSerialized,
+        addresses: [],
+        aliasByAddress: {},
+        nonceByAddress: {},
     })
 }
 
-function setKeystore(hash: string, keystore: string, address: string) : boolean {
-    if (!keystoreAllExists()) {
-        setKeystoreAll({})
+export const restoreKeystore = (ksHash: string): string => {
+    if (getCurrentKeystoreHash()) {
+        throw new Error('Can\'t restore wallet, already initialized')
     }
-    if (!keystoreExistsByHash(hash)) {
-        return false
+    const keystore = getKeystore(ksHash)
+    if (!keystore) {
+        throw new Error('Can\'t restore wallet, it does not exist')
     }
-    const all = getKeystoreAll()
-    const ks = all[hash]
-    addKeystore(hash, {
-        ...ks,
-        keystore,
-        addresses: [...ks.addresses, address],
-        nonceByAddress: {...ks.nonceByAddress, [address]: 0 },
+    setCurrentKeystoreHash(ksHash)
+    return keystore.keystore
+}
+
+export const addAddress = (pwDerivedKey: Uint8Array): { ksSerialized: string, addresses: string[] } => {
+    const ksHash = getCurrentKeystoreHash()
+    if (!ksHash) {
+        throw new Error('Can\'t add address, wallet not initialized')
+    }
+    const keystore = getKeystore(ksHash)
+    if (!keystore) {
+        throw new Error('Can\'t add address, wallet not initialized')
+    }
+    const ks = deserializeKeystore(keystore.keystore)
+    if (!ks.isDerivedKeyCorrect(pwDerivedKey)) {
+        throw new Error('Incorrect derived key')
+    }
+    ks.generateNewAddress(pwDerivedKey, 1)
+    const serialized = serializeKeystore(ks)
+    const address = ks.getAddresses()[ks.getAddresses().length - 1]
+    const addresses = [...keystore.addresses, address]
+    setKeystore(ksHash, {
+        ...keystore,
+        keystore: serialized,
+        addresses,
+        nonceByAddress: {...keystore.nonceByAddress, [address]: 0},
     })
-    return true
+    return {
+        ksSerialized: serialized,
+        addresses,
+    }
 }
 
-function setAddressAlias(hash: string, address: string, alias: string): boolean {
-    if (!keystoreAllExists()) {
-        setKeystoreAll({})
+export const editAddress  = (address: string, alias: string) => {
+    const ksHash = getCurrentKeystoreHash()
+    if (!ksHash) {
+        throw new Error('Can\'t edit address, wallet not initialized')
     }
-    if (!keystoreExistsByHash(hash)) {
-        return false
+    const keystore = getKeystore(ksHash)
+    if (!keystore) {
+        throw new Error('Can\'t edit address, wallet not initialized')
     }
-    const all = getKeystoreAll()
-    const ks = all[hash]
-    addKeystore(hash, {
-        ...ks,
-        addressAliases: {
-            ...ks.addressAliases,
-            [address]: alias,
-        }
+    if (!keystore.addresses.some(addr => addr === address)) {
+        throw new Error('Can\'t edit address, it does not exist')
+    }
+    setKeystore(ksHash, {
+        ...keystore,
+        aliasByAddress: {...keystore.aliasByAddress, [address]: alias}
     })
-    return true
 }
 
-function deleteAddress (hash: string, address: string): boolean {
-    if (!keystoreAllExists()) {
-        setKeystoreAll({})
+export const deleteAddress = (address: string) => {
+    const ksHash = getCurrentKeystoreHash()
+    if (!ksHash) {
+        throw new Error('Can\'t delete address, wallet not initialized')
     }
-    if (!keystoreExistsByHash(hash)) {
-        return false
+    const keystore = getKeystore(ksHash)
+    if (!keystore) {
+        throw new Error('Can\'t delete address, wallet not initialized')
     }
-    const all = getKeystoreAll()
-    const ks = all[hash]
-    addKeystore(hash, {
-        ...ks,
-        addresses: ks.addresses.filter(addr => addr !== address)
+    if (!keystore.addresses.some(addr => addr === address)) {
+        throw new Error('Can\'t delete address, it does not exist')
+    }
+    setKeystore(ksHash, {
+        ...keystore,
+        addresses: keystore.addresses.filter(addr => addr !== address)
     })
-    return true
 }
 
-function keystoreExistsByHash (hash: string | null): boolean {
-    if (hash) {
-        const all = getKeystoreAll()
-        return (all && all.hasOwnProperty(hash) && all[hash].hasOwnProperty('keystore'))
+export const getNonce = (address: string): number => {
+    const ksHash = getCurrentKeystoreHash()
+    if (!ksHash) {
+        throw new Error('Can\'t use nonce, wallet not initialized')
     }
-    return false
-}
-
-function getKeystoreObjByHash (hash: string | null): KeystoreType | null {
-    if (hash && keystoreExistsByHash(hash)) {
-        const all = getKeystoreAll()
-        return all[hash]
+    const keystore = getKeystore(ksHash)
+    if (!keystore) {
+        throw new Error('Can\'t use nonce, wallet not initialized')
     }
-    return null
-}
-
-function getKeystoreByHash (hash: string | null): string | null {
-    const keystoreObj = getKeystoreObjByHash(hash)
-    if (keystoreObj && keystoreObj.hasOwnProperty('keystore')) {
-        return keystoreObj.keystore
+    if (!keystore.addresses.some(addr => addr === address) || !keystore.nonceByAddress.hasOwnProperty(address)) {
+        throw new Error('Can\'t use nonce, address does not exist')
     }
-    return null
+    return keystore.nonceByAddress[address]
 }
 
-function getAddressesByHash (hash: string | null): string[] | null {
-    const keystoreObj = getKeystoreObjByHash(hash)
-    if (keystoreObj && keystoreObj.hasOwnProperty('addresses')) {
-        return keystoreObj.addresses
+export const incrementNonce = (address: string) => {
+    const ksHash = getCurrentKeystoreHash()
+    if (!ksHash) {
+        throw new Error('Can\'t increment nonce, wallet not initialized')
     }
-    return null
-}
-
-function getAddressAliasesByHash (hash: string | null): KeystoreType['addressAliases'] | null {
-    const keystoreObj = getKeystoreObjByHash(hash)
-    if (keystoreObj && keystoreObj.hasOwnProperty('addressAliases')) {
-        return keystoreObj.addressAliases
+    const keystore = getKeystore(ksHash)
+    if (!keystore) {
+        throw new Error('Can\'t increment nonce, wallet not initialized')
     }
-    return null
+    if (!keystore.addresses.some(addr => addr === address)) {
+        throw new Error('Can\'t delete address, it does not exist')
+    }
+    try {
+        const nonce = getNonce(address)
+        setKeystore(ksHash, {
+            ...keystore,
+            nonceByAddress: {...keystore.nonceByAddress, [address]: nonce + 1}
+        })
+    } catch (error: any) {
+        throw error
+    }
 }
 
-function getCurrentKeystore (): string | null {
-    return getKeystoreByHash(getKeystoreHash())
-}
-
-function getCurrentAddresses (): string[] | null {
-    return getAddressesByHash(getKeystoreHash())
-}
-
-function getCurrentAddressAliases (): KeystoreType['addressAliases'] | null {
-    return getAddressAliasesByHash(getKeystoreHash())
-}
-
-function getNonceByAddress (address: string): number | null {
-    const ksHash = getKeystoreHash()
-    if (ksHash) {
-        const ks = getKeystoreObjByHash(ksHash)
-        if (ks) {
-            return ks.nonceByAddress.hasOwnProperty(address) ? ks.nonceByAddress[address] : null
-        }
+export const getCurrentSerializedKeystore = (): string | null => {
+    const ksHash = getCurrentKeystoreHash()
+    if (!ksHash) {
         return null
     }
-    return null
-}
-
-function incrementNonceByAddress (address: string): boolean {
-    const currNonce = getNonceByAddress(address)
-    if (currNonce !== null) {
-        const ksHash = getKeystoreHash()
-        if (ksHash) {
-            const all = getKeystoreAll()
-            const ks = all[ksHash]
-            addKeystore(ksHash, {
-                ...ks,
-                nonceByAddress: {...ks.nonceByAddress, [address]: currNonce + 1 },
-            })
-            return true
-        }
-        return false
+    const keystore = getKeystore(ksHash)
+    if (!keystore) {
+        return null
     }
-    return false
+    return keystore.keystore
 }
 
-export {
-    KEYS,
-    keystoreHashExists,
-    getKeystoreHash,
-    setKeystoreHash,
-    keystoreAllExists,
-    getKeystoreAll,
-    setKeystoreAll,
-    addKeystore,
-    setKeystore,
-    setAddressAlias,
-    deleteAddress,
-    keystoreExistsByHash,
-    getKeystoreObjByHash,
-    getKeystoreByHash,
-    getCurrentKeystore,
-    getAddressesByHash,
-    getCurrentAddresses,
-    getAddressAliasesByHash,
-    getCurrentAddressAliases,
-    getNonceByAddress,
-    incrementNonceByAddress,
+export const getKeystore = (ksHash: string): Keystore | null => {
+    if (!store.get(STORE_KEYS.ALL)) {
+        return null
+    }
+    const all = store.get(STORE_KEYS.ALL)
+    return all.hasOwnProperty(ksHash) ? all[ksHash] : null
+}
+
+export const setKeystore = (ksHash: string, keystore: Keystore) => {
+    if (!store.get(STORE_KEYS.ALL)) {
+        store.set(STORE_KEYS.ALL, {})
+    }
+    store.set(STORE_KEYS.ALL, {
+        ...store.get(STORE_KEYS.ALL),
+        [ksHash]: keystore
+    })
 }
