@@ -1,7 +1,7 @@
 import { put, call } from 'redux-saga/effects'
 import { STATUS_CODES } from '../../keystore'
 import { keystoreActions } from '../../../slices/keystore'
-import { genKeystore } from '../../keystore'
+import { generateKeystore } from '../../keystore'
 import { createVault } from '../../../utils'
 
 const mockAction = keystoreActions.generate({
@@ -11,7 +11,7 @@ const mockAction = keystoreActions.generate({
 })
 
 describe('Test *genKeystore fulfilled case', () => {
-    const it = genKeystore(mockAction)
+    const it = generateKeystore(mockAction)
 
     test('*genKeystore should dispatch pending action', () => {
         expect(it.next()).toEqual({
@@ -50,7 +50,7 @@ describe('Test *genKeystore fulfilled case', () => {
 })
 
 describe('Test *genKeystore rejected case', () => {
-    const it = genKeystore(mockAction)
+    const it = generateKeystore(mockAction)
 
     test('*genKeystore should dispatch pending action', () => {
         expect(it.next()).toEqual({
