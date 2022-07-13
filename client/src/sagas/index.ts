@@ -1,6 +1,6 @@
 import { all } from 'redux-saga/effects'
 import watchKeystore from './keystore'
-import { watchTransaction } from './transaction'
+import watchTransaction from './transaction'
 
 function *rootSaga() {
     yield all([

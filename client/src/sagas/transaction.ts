@@ -23,7 +23,7 @@ export const STATUS_CODES = {
     SEND_TRANSACTION: 3,
 }
 
-function *setAmount (calcAmount: (ethPrice: number, isFiat: boolean) => string) {
+export function *setAmount (calcAmount: (ethPrice: number, isFiat: boolean) => string) {
     try {
         const ethPrice: number = yield call(getEthPrice)
         yield put(transactionActions.setAmountFulfilled({
@@ -41,7 +41,7 @@ function *setAmount (calcAmount: (ethPrice: number, isFiat: boolean) => string) 
     }
 }
 
-function *setEthAmount ({ payload }: ReturnType<typeof transactionActions.setEthAmount>) {
+export function *setEthAmount ({ payload }: ReturnType<typeof transactionActions.setEthAmount>) {
     yield call(setAmount, (ethPrice: number, isFiat: boolean) => {
         if (isFiat) {
             const ethAmount = parseFloat(payload.ethAmount)
@@ -54,7 +54,7 @@ function *setEthAmount ({ payload }: ReturnType<typeof transactionActions.setEth
     })
 }
 
-function *setFiatAmount ({ payload }: ReturnType<typeof transactionActions.setFiatAmount>) {
+export function *setFiatAmount ({ payload }: ReturnType<typeof transactionActions.setFiatAmount>) {
     yield call(setAmount, (ethPrice: number, isFiat: boolean) => {
         if (!isFiat) {
             const fiatAmount = parseFloat(payload.fiatAmount)
@@ -67,7 +67,7 @@ function *setFiatAmount ({ payload }: ReturnType<typeof transactionActions.setFi
     })
 }
 
-function *setGasInfo () {
+export function *setGasInfo () {
     yield put(transactionActions.pending())
     try {
         const { lowGasPrice, mediumGasPrice, highGasPrice } = yield call(getGasInfo)
@@ -86,7 +86,7 @@ function *setGasInfo () {
     }
 }
 
-function *sendTransaction ({ payload }: ReturnType<typeof transactionActions.sendTransaction>) {
+export function *sendTransaction ({ payload }: ReturnType<typeof transactionActions.sendTransaction>) {
     yield put(transactionActions.pending())
     const ks: keystore = yield select(getKeystore)
     if (!ks) {
@@ -144,14 +144,9 @@ function *sendTransaction ({ payload }: ReturnType<typeof transactionActions.sen
     }
 }
 
-function *watchTransaction () {
+export default function *watchTransaction () {
     yield debounce(500, transactionActions.setEthAmount.type, setEthAmount)
     yield debounce(500, transactionActions.setFiatAmount.type, setFiatAmount)
     yield takeLatest(transactionActions.setGasInfo.type, setGasInfo)
     yield takeLatest(transactionActions.sendTransaction.type, sendTransaction)
 }
-
-export {
-    watchTransaction
-}
-
