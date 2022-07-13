@@ -1,8 +1,6 @@
 import { createAction, createSlice } from '@reduxjs/toolkit'
 import { VaultOptions } from 'eth-lightwallet'
 
-
-// Initial state
 interface KeystoreState {
     keystore: string | null,
     loading: boolean,
@@ -19,19 +17,14 @@ const initialState: KeystoreState = {
     successMessage: null,
 }
 
-// Actions
 const keystoreActions = {
     generate: createAction<VaultOptions>('keystore/generate'),
     restore: createAction<VaultOptions>('keystore/restore'),
     load: createAction<{ keystore: string }>('keystore/load'),
     destroy: createAction('keystore/destroy'),
-    generateAddress: createAction<{ password: string }>('keystore/generateAddress'),
-    editAddress: createAction<{ address: string, alias: string }>('keystore/editAddress'),
-    deleteAddress: createAction<{ address: string }>('keystore/deleteAddress'),
     pending: createAction('keystore/pending'),
     fulfilled: createAction<{ keystore: string | null, statusCode: number, successMessage: string }>('keystore/fulfilled'),
     rejected: createAction<{ errorMessage: string, statusCode: number }>('keystore/rejected'),
-    resolved: createAction<{ statusCode: number, message: string, error: boolean }>('keystore/resolved')
 }
 
 const keystoreSlice = createSlice({
@@ -64,15 +57,6 @@ const keystoreSlice = createSlice({
                     errorMessage: action.payload.errorMessage,
                     loading: false,
                     successMessage: null,
-                }
-            })
-            .addCase(keystoreActions.resolved, (state, action) => {
-                return {
-                    ...state,
-                    statusCode: action.payload.statusCode,
-                    loading: false,
-                    errorMessage: action.payload.error ? action.payload.message : null,
-                    successMessage: action.payload.error ? null : action.payload.message,
                 }
             })
 })
