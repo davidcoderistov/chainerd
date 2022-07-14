@@ -1,8 +1,25 @@
 import React, { useState, useEffect } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { keystoreActions } from '../../slices/keystore'
-import { getKeystore } from '../../selectors/keystore'
-import { getIsSnackbarOpen, getIsSnackbarError, getSnackbarMessage } from '../../selectors/misc'
+import {
+    getKeystore,
+    shouldShowSnackbar as shouldShowKeystoreSnackbar,
+    isError as isKeystoreError,
+    getErrorMessage as getKeystoreErrorMessage,
+    getSuccessMessage as getKeystoreSuccessMessage,
+} from '../../selectors/keystore'
+import {
+    shouldShowSnackbar as shouldShowTransactionSnackbar,
+    isError as isTransactionError,
+    getErrorMessage as getTransactionErrorMessage,
+    getSuccessMessage as getTransactionSuccessMessage,
+} from '../../selectors/transaction'
+import {
+    shouldShowSnackbar as shouldShowAddressSnackbar,
+    isError as isAddressError,
+    getErrorMessage as getAddressErrorMessage,
+    getSuccessMessage as getAddressSuccessMessage,
+} from '../../selectors/address'
 import { Box } from '@mui/material'
 import Dashboard from '../../components/Dashboard'
 import AccountsPage from '../AccountsPage'
@@ -12,6 +29,7 @@ import SendTransactionModal from '../../components/SendTransactionModal'
 import CloseWalletModal from '../../components/CloseWalletModal'
 import Snackbar from '../../components/Snackbar'
 import { getCurrentSerializedKeystore } from '../../localStorage'
+import { useSnackbarEffect } from '../../hooks'
 
 
 export default function HomePage () {
@@ -80,9 +98,59 @@ export default function HomePage () {
         closeCloseWalletModal()
     }
 
-    const snackbarOpen = useSelector(getIsSnackbarOpen)
-    const snackbarError = useSelector(getIsSnackbarError)
-    const snackbarMessage = useSelector(getSnackbarMessage)
+    const [keystoreSnackbarOpen, setKeystoreSnackbarOpen] = useState<boolean>(false)
+    const [keystoreSnackbarError, setKeystoreSnackbarError] = useState<boolean>(false)
+    const [keystoreSnackbarMessage, setKeystoreSnackbarMessage] = useState<string>('')
+    const showKeystoreSnackbar = useSelector(shouldShowKeystoreSnackbar)
+    const keystoreError = useSelector(isKeystoreError)
+    const keystoreErrorMessage = useSelector(getKeystoreErrorMessage)
+    const keystoreSuccessMessage = useSelector(getKeystoreSuccessMessage)
+
+    useSnackbarEffect({
+        isSnackbarOpen: showKeystoreSnackbar,
+        isError: keystoreError,
+        errorMessage: keystoreErrorMessage,
+        successMessage: keystoreSuccessMessage,
+        setSnackbarOpen: setKeystoreSnackbarOpen,
+        setSnackbarError: setKeystoreSnackbarError,
+        setSnackbarMessage: setKeystoreSnackbarMessage,
+    })
+
+    const [transactionSnackbarOpen, setTransactionSnackbarOpen] = useState<boolean>(false)
+    const [transactionSnackbarError, setTransactionSnackbarError] = useState<boolean>(false)
+    const [transactionSnackbarMessage, setTransactionSnackbarMessage] = useState<string>('')
+    const showTransactionSnackbar = useSelector(shouldShowTransactionSnackbar)
+    const transactionError = useSelector(isTransactionError)
+    const transactionErrorMessage = useSelector(getTransactionErrorMessage)
+    const transactionSuccessMessage = useSelector(getTransactionSuccessMessage)
+
+    useSnackbarEffect({
+        isSnackbarOpen: showTransactionSnackbar,
+        isError: transactionError,
+        errorMessage: transactionErrorMessage,
+        successMessage: transactionSuccessMessage,
+        setSnackbarOpen: setTransactionSnackbarOpen,
+        setSnackbarError: setTransactionSnackbarError,
+        setSnackbarMessage: setTransactionSnackbarMessage,
+    })
+
+    const [addressSnackbarOpen, setAddressSnackbarOpen] = useState<boolean>(false)
+    const [addressSnackbarError, setAddressSnackbarError] = useState<boolean>(false)
+    const [addressSnackbarMessage, setAddressSnackbarMessage] = useState<string>('')
+    const showAddressSnackbar = useSelector(shouldShowAddressSnackbar)
+    const addressError = useSelector(isAddressError)
+    const addressErrorMessage = useSelector(getAddressErrorMessage)
+    const addressSuccessMessage = useSelector(getAddressSuccessMessage)
+
+    useSnackbarEffect({
+        isSnackbarOpen: showAddressSnackbar,
+        isError: addressError,
+        errorMessage: addressErrorMessage,
+        successMessage: addressSuccessMessage,
+        setSnackbarOpen: setAddressSnackbarOpen,
+        setSnackbarError: setAddressSnackbarError,
+        setSnackbarMessage: setAddressSnackbarMessage,
+    })
 
     return (
         <Box>
@@ -115,10 +183,24 @@ export default function HomePage () {
                 open={isCloseWalletModalOpen}
                 onCloseModal={closeCloseWalletModal}
                 onCloseWallet={handleCloseWallet} />
-            <Snackbar
-                isOpen={snackbarOpen}
-                error={snackbarError}
-                message={snackbarMessage} />
+            { keystoreSnackbarOpen && (
+                <Snackbar
+                    isOpen={keystoreSnackbarOpen}
+                    error={keystoreSnackbarError}
+                    message={keystoreSnackbarMessage} />
+            )}
+            { transactionSnackbarOpen && (
+                <Snackbar
+                    isOpen={transactionSnackbarOpen}
+                    error={transactionSnackbarError}
+                    message={transactionSnackbarMessage} />
+            )}
+            { addressSnackbarOpen && (
+                <Snackbar
+                    isOpen={addressSnackbarOpen}
+                    error={addressSnackbarError}
+                    message={addressSnackbarMessage} />
+            )}
         </Box>
     )
 }
