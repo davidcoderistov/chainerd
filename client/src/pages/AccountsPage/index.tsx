@@ -76,13 +76,13 @@ export default function AccountsPage () {
     }, [searchText, sortBy, addresses])
 
     useEffect(() => {
-        setAddresses(storeAddresses.map(({ address, alias }) => ({
+        setAddresses(storeAddresses.map(({ address, alias, ethAmount, fiatAmount }) => ({
             address: {
                 name: address,
                 alias,
             },
-            ethAmount: 0.3327,
-            fiatAmount: 359.36,
+            ethAmount,
+            fiatAmount,
         })))
     }, [storeAddresses])
 

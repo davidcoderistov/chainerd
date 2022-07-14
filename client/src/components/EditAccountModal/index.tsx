@@ -55,7 +55,7 @@ export default function EditAccountModal ({ open, alias, onChangeAlias, address,
                             value={alias}
                             onChange={handleChangeAlias}
                             sx={{ mb: 2 }}
-                            helperText={`Account alias for ${address}`}
+                            helperText={`Account alias for ${address.name}`}
                             fullWidth />
                     </Grid>
                 </Grid>
