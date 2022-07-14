@@ -1,6 +1,7 @@
 import { keystore } from 'eth-lightwallet'
 import { call, put, delay, takeLatest } from 'redux-saga/effects'
 import { keystoreActions } from '../slices/keystore'
+import { addressActions } from '../slices/address'
 import {
     setCurrentKeystoreHash,
     addKeystore as localStorageAddKeystore,
@@ -32,6 +33,7 @@ export function *generateKeystore ({ payload }: ReturnType<typeof keystoreAction
             statusCode: STATUS_CODES.GENERATE_KEYSTORE,
             successMessage: 'Wallet successfully created'
         }))
+        yield put(addressActions.loadAll({ keystore: serialized }))
     } catch (error: any) {
         yield put(keystoreActions.rejected({
             statusCode: STATUS_CODES.GENERATE_KEYSTORE,
@@ -51,6 +53,7 @@ export function *restoreKeystore ({ payload }: ReturnType<typeof keystoreActions
             statusCode: STATUS_CODES.RESTORE_KEYSTORE,
             successMessage: 'Wallet successfully restored'
         }))
+        yield put(addressActions.loadAll({ keystore: serialized }))
     } catch (error: any) {
         yield put(keystoreActions.rejected({
             statusCode: STATUS_CODES.RESTORE_KEYSTORE,
@@ -74,6 +77,7 @@ export function *loadKeystore ({ payload }: ReturnType<typeof keystoreActions.lo
         statusCode: STATUS_CODES.LOAD_KEYSTORE,
         successMessage: 'Wallet successfully loaded'
     }))
+    yield put(addressActions.loadAll({ keystore: ks }))
 }
 
 export function *destroyKeystore () {
@@ -85,6 +89,7 @@ export function *destroyKeystore () {
         statusCode: STATUS_CODES.DESTROY_KEYSTORE,
         successMessage: 'Wallet successfully closed'
     }))
+    yield put(addressActions.loadAllFulfilled({ addresses: [] }))
 }
 
 export default function *watchKeystore () {

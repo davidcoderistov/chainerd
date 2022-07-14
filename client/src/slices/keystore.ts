@@ -21,6 +21,7 @@ const keystoreActions = {
     generate: createAction<VaultOptions>('keystore/generate'),
     restore: createAction<VaultOptions>('keystore/restore'),
     load: createAction<{ keystore: string }>('keystore/load'),
+    set: createAction<{ keystore: string }>('keystore/set'),
     destroy: createAction('keystore/destroy'),
     pending: createAction('keystore/pending'),
     fulfilled: createAction<{ keystore: string | null, statusCode: number, successMessage: string }>('keystore/fulfilled'),
@@ -33,6 +34,10 @@ const keystoreSlice = createSlice({
     reducers: {},
     extraReducers: builder =>
         builder
+            .addCase(keystoreActions.set, (state, action) => ({
+                ...state,
+                keystore: action.payload.keystore,
+            }))
             .addCase(keystoreActions.pending, state => {
                 return {
                     ...state,
