@@ -28,7 +28,18 @@ export const getErrorMessage = (state: RootState): string | null => state.transa
 
 export const getSuccessMessage = (state: RootState): string | null => state.transaction.request.successMessage
 
+export const isError = (state: RootState) => !getLoading(state) && !getSuccessMessage(state) && !!getErrorMessage(state)
+
+export const isSuccess = (state: RootState) => !getLoading(state) && !getErrorMessage(state) && !!getSuccessMessage(state)
+
+export const isSendTransactionSuccess = (state: RootState) => {
+    return getStatusCode(state) === STATUS_CODES.SEND_TRANSACTION && isSuccess(state)
+}
+
+export const isSendTransactionError = (state: RootState) => {
+    return getStatusCode(state) === STATUS_CODES.SEND_TRANSACTION && isError(state)
+}
+
 export const shouldShowSnackbar = (state: RootState) => {
-    const statusCode = getStatusCode(state)
-    return statusCode === STATUS_CODES.SEND_TRANSACTION
+    return isSendTransactionSuccess(state) || isSendTransactionError(state)
 }

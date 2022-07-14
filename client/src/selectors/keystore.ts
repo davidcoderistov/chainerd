@@ -21,19 +21,31 @@ export const getErrorMessage = (state: RootState) => state.keystore.errorMessage
 
 export const getSuccessMessage = (state: RootState) => state.keystore.successMessage
 
+export const isError = (state: RootState) => !getLoading(state) && !getSuccessMessage(state) && !!getErrorMessage(state)
+
+export const isSuccess = (state: RootState) => !getLoading(state) && !getErrorMessage(state) && !!getSuccessMessage(state)
+
 export const isGenerateKeystoreSuccess = (state: RootState) => {
-    return getStatusCode(state) === STATUS_CODES.GENERATE_KEYSTORE &&
-        !getLoading(state) && !getErrorMessage(state) && getSuccessMessage(state)
+    return getStatusCode(state) === STATUS_CODES.GENERATE_KEYSTORE && isSuccess(state)
+}
+
+export const isGenerateKeystoreError = (state: RootState) => {
+    return getStatusCode(state) === STATUS_CODES.GENERATE_KEYSTORE && isError(state)
 }
 
 export const isRestoreKeystoreSuccess = (state: RootState) => {
-    return getStatusCode(state) === STATUS_CODES.RESTORE_KEYSTORE &&
-        !getLoading(state) && !getErrorMessage(state) && getSuccessMessage(state)
+    return getStatusCode(state) === STATUS_CODES.RESTORE_KEYSTORE && isSuccess(state)
+}
+
+export const isRestoreKeystoreError = (state: RootState) => {
+    return getStatusCode(state) === STATUS_CODES.RESTORE_KEYSTORE && isError(state)
+}
+
+export const isDestroyKeystoreSuccess = (state: RootState) => {
+    return getStatusCode(state) === STATUS_CODES.DESTROY_KEYSTORE && isSuccess(state)
 }
 
 export const shouldShowSnackbar = (state: RootState) => {
-    const statusCode = getStatusCode(state)
-    return statusCode === STATUS_CODES.GENERATE_KEYSTORE ||
-        statusCode === STATUS_CODES.RESTORE_KEYSTORE ||
-        statusCode === STATUS_CODES.DESTROY_KEYSTORE
+    return isGenerateKeystoreSuccess(state) || isGenerateKeystoreError(state) ||
+        isRestoreKeystoreSuccess(state) || isRestoreKeystoreError(state) || isDestroyKeystoreSuccess(state)
 }
