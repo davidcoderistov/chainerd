@@ -1,13 +1,13 @@
 import React, { useState, useEffect, useMemo } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
-import { keystoreActions } from '../../slices/keystore'
+import { addressActions } from '../../slices/address'
 import {
     getAddresses,
     getLoading,
     isDeleteAddressSuccess,
     isEditAddressSuccess,
     isGenerateAddressSuccess
-} from '../../selectors/keystore'
+} from '../../selectors/address'
 import { Button, Typography, styled } from '@mui/material'
 import AccountsList, { AccountsListProps } from '../../components/AccountsList'
 import ConfirmPasswordModal from '../../components/ConfirmPasswordModal'
@@ -20,7 +20,6 @@ const AccountsToolbar = styled('div')({
     flexDirection: 'row',
     justifyContent: 'space-between',
 })
-
 
 export default function AccountsPage () {
 
@@ -46,7 +45,7 @@ export default function AccountsPage () {
     }
 
     const handleAddAccount = (password: string) => {
-        dispatch(keystoreActions.generateAddress({ password }))
+        dispatch(addressActions.generate({ password }))
     }
 
     useEffect(() => {
@@ -114,9 +113,7 @@ export default function AccountsPage () {
     }
 
     const handleDeleteAccount = () => {
-        dispatch(keystoreActions.deleteAddress({
-            address: selectedAddress ? selectedAddress.name : '',
-        }))
+        dispatch(addressActions.delete({ address: selectedAddress ? selectedAddress.name : ''}))
     }
 
     useEffect(() => {
@@ -126,7 +123,7 @@ export default function AccountsPage () {
     }, [accountDeleted])
 
     const handleEditAccount = () => {
-        dispatch(keystoreActions.editAddress({
+        dispatch(addressActions.edit({
             address: selectedAddress ? selectedAddress.name : '',
             alias: editedAlias,
         }))

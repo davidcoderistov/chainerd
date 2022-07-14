@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { transactionActions } from '../../slices/transaction'
-import { getAddresses } from '../../selectors/keystore'
+import { getAddresses } from '../../selectors/address'
 import {
     getEthAmount,
     getFiatAmount,
