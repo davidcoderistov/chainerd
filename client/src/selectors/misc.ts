@@ -9,10 +9,15 @@ import {
     getSuccessMessage as getTransactionSuccessMessage,
     getErrorMessage as getTransactionErrorMessage,
 } from './transaction'
+import {
+    shouldShowSnackbar as showAddressSnackbar,
+    getSuccessMessage as getAddressSuccessMessage,
+    getErrorMessage as getAddressErrorMessage,
+} from './address'
 
 
 const getIsSnackbarOpen = (state: RootState): boolean => {
-    return showKeystoreSnackbar(state) || showTransactionSnackbar(state)
+    return showKeystoreSnackbar(state) || showTransactionSnackbar(state) || showAddressSnackbar(state)
 }
 
 const getIsSnackbarError = (state: RootState): boolean => {
@@ -20,6 +25,8 @@ const getIsSnackbarError = (state: RootState): boolean => {
         return !!getKeystoreErrorMessage(state)
     } else if (showTransactionSnackbar(state)) {
         return !!getTransactionErrorMessage(state)
+    } else if (showAddressSnackbar(state)) {
+        return !!getAddressErrorMessage(state)
     } else {
         return false
     }
@@ -34,6 +41,9 @@ const getSnackbarMessage = (state: RootState): string => {
     } else if (showTransactionSnackbar(state)) {
         successMessage = getTransactionSuccessMessage(state)
         errorMessage = getTransactionErrorMessage(state)
+    } else if (showAddressSnackbar(state)) {
+        successMessage = getAddressSuccessMessage(state)
+        errorMessage = getAddressErrorMessage(state)
     }
     return errorMessage ? errorMessage : successMessage ? successMessage : ''
 }
