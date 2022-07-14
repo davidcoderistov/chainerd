@@ -15,6 +15,10 @@ export const isError = (state: RootState) => !getLoading(state) && !getSuccessMe
 
 export const isSuccess = (state: RootState) => !getLoading(state) && !getErrorMessage(state) && !!getSuccessMessage(state)
 
+export const isLoadAddressesError = (state: RootState) => {
+    return getStatusCode(state) === STATUS_CODES.LOAD_ALL && isError(state)
+}
+
 export const isGenerateAddressSuccess = (state: RootState) => {
     return getStatusCode(state) === STATUS_CODES.GENERATE_ADDRESS && isSuccess(state)
 }
@@ -42,5 +46,5 @@ export const isDeleteAddressError = (state: RootState) => {
 export const shouldShowSnackbar = (state: RootState) => {
     return isGenerateAddressSuccess(state) || isGenerateAddressError(state) ||
         isEditAddressSuccess(state) || isEditAddressError(state) ||
-        isDeleteAddressSuccess(state) || isDeleteAddressError(state)
+        isDeleteAddressSuccess(state) || isDeleteAddressError(state) || isLoadAddressesError(state)
 }

@@ -3,6 +3,7 @@ import { keystoreActions } from '../slices/keystore'
 import { addressActions } from '../slices/address'
 import { getSerializedKeystore } from '../selectors/keystore'
 import { keystore } from 'eth-lightwallet'
+import { getEthPrice, getEthBalances } from '../services'
 import {
     getCurrentSerializedKeystore,
     getCurrentAddresses,
@@ -14,7 +15,9 @@ import {
 import {
     keyFromPassword,
     deserializeKeystore,
-    getErrorMessage
+    getErrorMessage,
+    toRoundedEth,
+    toRoundedFiat,
 } from '../utils'
 import _intersection from 'lodash/intersection'
 
@@ -33,16 +36,27 @@ export function *loadAll ({ payload }: ReturnType<typeof addressActions.loadAll>
     if (Array.isArray(localStorageAddresses)) {
         addresses = _intersection(addresses, localStorageAddresses)
     }
-    yield put(addressActions.loadAllFulfilled({
-        addresses: addresses.map(address => ({
-            address,
-            alias: localStorageAddressAliases && localStorageAddressAliases.hasOwnProperty(address) ?
-                localStorageAddressAliases[address] : null,
-            ethAmount: 0.3327,
-            fiatAmount: 359.36,
-            loading: false,
+    try {
+        const ethBalances: { [address: string]: string } = yield call(getEthBalances, addresses)
+        const ethPrice: number = yield call(getEthPrice)
+        yield put(addressActions.loadAllFulfilled({
+            addresses: addresses.map(address => {
+                const ethAmount = Number(ethBalances[address])
+                return {
+                    address,
+                    alias: localStorageAddressAliases && localStorageAddressAliases.hasOwnProperty(address) ?
+                        localStorageAddressAliases[address] : null,
+                    ethAmount: ethBalances.hasOwnProperty(address) ? Number(toRoundedEth(ethAmount)) : 0,
+                    fiatAmount: Number(toRoundedFiat(ethAmount * ethPrice)),
+                    loading: false,
+            }})
         }))
-    }))
+    } catch (error: any) {
+        yield put(addressActions.rejected({
+            statusCode: STATUS_CODES.LOAD_ALL,
+            errorMessage: getErrorMessage(error, 'Cannot get eth balances at the moment')
+        }))
+    }
 }
 
 export function *generateAddress ({ payload }: ReturnType<typeof addressActions.generate>) {
