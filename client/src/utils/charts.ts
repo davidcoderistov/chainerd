@@ -12,7 +12,7 @@ function getLatestBalances (
     }), {})
 }
 
-function generateDays (start: moment.Moment, end: moment.Moment): Array<moment.Moment> {
+export function generateDays (start: moment.Moment, end: moment.Moment): Array<moment.Moment> {
     const currDay = start.clone()
     const days = []
     while (currDay.isSameOrBefore(end, 'day')) {
@@ -75,7 +75,7 @@ export function getMonthlyData (start: moment.Moment, end: moment.Moment, balanc
 
 // Yearly data methods
 
-function generateWeeks (start: moment.Moment, end: moment.Moment): Array<moment.Moment> {
+export function generateWeeks (start: moment.Moment, end: moment.Moment): Array<moment.Moment> {
     const currDate = start.clone()
     const weeks = []
     while (currDate.isSameOrBefore(end, 'week')) {
