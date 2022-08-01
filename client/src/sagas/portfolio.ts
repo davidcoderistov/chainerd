@@ -71,7 +71,7 @@ export function *generatePortfolioData ({ ethData, hasBalances, address }: {
 export function *generateWeeklyData ({ payload }: ReturnType<typeof portfolioActions.fetchWeekly>) {
     const address = payload.address
     const now = moment()
-    const start = now.clone().startOf('week')
+    const start = now.clone().subtract(1, 'week')
     const end = now.clone()
     try {
         const startBlock: string = yield call(getBlockNumber, start.unix())
@@ -106,7 +106,7 @@ export function *generateWeeklyData ({ payload }: ReturnType<typeof portfolioAct
 export function *generateMonthlyData ({ payload }: ReturnType<typeof portfolioActions.fetchMonthly>) {
     const address = payload.address
     const now = moment()
-    const start = now.clone().startOf('month')
+    const start = now.clone().subtract(1, 'month')
     const end = now.clone()
     try {
         const startBlock: string = yield call(getBlockNumber, start.unix())
