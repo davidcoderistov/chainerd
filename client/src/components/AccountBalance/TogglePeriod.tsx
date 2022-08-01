@@ -8,8 +8,10 @@ export interface TogglePeriodProps {
 
 export default function TogglePeriod ({ period, onChangePeriod }: TogglePeriodProps) {
 
-    const handleChange = (event: React.MouseEvent<HTMLElement>, period: 'week' | 'month' | 'year') => {
-        onChangePeriod(period)
+    const handleChange = (event: React.MouseEvent<HTMLElement>, period: 'week' | 'month' | 'year' | null) => {
+        if (period) {
+            onChangePeriod(period)
+        }
     }
 
     return (
