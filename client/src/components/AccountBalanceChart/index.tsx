@@ -173,7 +173,7 @@ interface LinePoint {
     y: string
 }
 
-interface AccountBalanceChartProps {
+export interface AccountBalanceChartProps {
     data: LinePoint[]
     type: 'weekly' | 'monthly' | 'yearly'
     loading: boolean
