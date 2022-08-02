@@ -140,11 +140,6 @@ const options = {
                 weight: 'normal',
                 size: 12
             },
-            callbacks: {
-                title: (title: TooltipItem<'line'>[]) => {
-                    return `$${title[0].formattedValue}`
-                },
-            },
         }
     }
 }
@@ -177,10 +172,11 @@ export interface AccountBalanceChartProps {
     data: LinePoint[]
     type: 'weekly' | 'monthly' | 'yearly'
     loading: boolean
+    fiat: boolean
     height: number
 }
 
-export default function AccountBalanceChart ({ data, type, loading, height }: AccountBalanceChartProps) {
+export default function AccountBalanceChart ({ data, type, loading, fiat, height }: AccountBalanceChartProps) {
 
     const [chartData, setChartData] = useState<ChartData<'line', LinePoint>>({ datasets: [] })
     const [chartOptions, setChartOptions] = useState({})
@@ -226,7 +222,13 @@ export default function AccountBalanceChart ({ data, type, loading, height }: Ac
                 tooltip: {
                     ...options.plugins.tooltip,
                     callbacks: {
-                        ...options.plugins.tooltip.callbacks,
+                        title: (title: TooltipItem<'line'>[]) => {
+                            const value = title[0].formattedValue
+                            if (fiat) {
+                                return `$${value}`
+                            }
+                            return `${value} ETH`
+                        },
                         label: (label: TooltipItem<'line'>) => {
                             const { x }: any = label.parsed
                             return moment(x).format(format)
@@ -241,16 +243,21 @@ export default function AccountBalanceChart ({ data, type, loading, height }: Ac
             if (typeof max === 'undefined') {
                 return 100
             }
-            const maxRounded = Math.round(max * 1.4)
-            const numDigits = Math.max(Math.floor(Math.log10(Math.abs(maxRounded))), 0) + 1
-            if (numDigits > 2) {
-                const squareBy = Math.pow(10, numDigits - 2)
-                return Math.ceil(maxRounded / squareBy) * squareBy
+            const upperBound = max * 1.4
+            if (upperBound < 1) {
+                return upperBound
+            } else {
+                const maxRounded = Math.round(upperBound)
+                const numDigits = Math.max(Math.floor(Math.log10(Math.abs(maxRounded))), 0) + 1
+                if (numDigits > 2) {
+                    const squareBy = Math.pow(10, numDigits - 2)
+                    return Math.ceil(maxRounded / squareBy) * squareBy
+                }
+                if (maxRounded % 2) {
+                    return maxRounded + 1
+                }
+                return maxRounded
             }
-            if (maxRounded % 2) {
-                return maxRounded + 1
-            }
-            return maxRounded
         }
 
         if (type === 'weekly') {
