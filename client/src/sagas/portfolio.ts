@@ -46,7 +46,10 @@ export function *generatePortfolioData ({ ethData, hasBalances, address }: {
     )
     if (hasBalances) {
         return {
-            ethData,
+            ethData: ethData.map(({ x, y }) => ({
+                x,
+                y: toRoundedEth(Number(y))
+            })),
             fiatData: ethData.map(({ x, y }, index) => ({
                 x,
                 y: toRoundedFiat(Number(ethPrices[index]) * Number(y))
