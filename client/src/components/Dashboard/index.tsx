@@ -157,6 +157,7 @@ export default function Dashboard ({ walletExists, onCreateWallet, onRestoreWall
                         flexGrow: 1,
                         height: '100vh',
                         overflow: 'auto',
+                        backgroundColor: 'rgb(249, 249, 249)'
                     }}
                 >
                     <Toolbar />
