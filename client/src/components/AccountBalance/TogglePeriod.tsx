@@ -2,13 +2,13 @@ import React from 'react'
 import { ToggleButtonGroup, ToggleButton } from '@mui/material'
 
 export interface TogglePeriodProps {
-    period: 'week' | 'month' | 'year'
-    onChangePeriod: (period: 'week' | 'month' | 'year') => void
+    period: 'weekly' | 'monthly' | 'yearly'
+    onChangePeriod: (period: 'weekly' | 'monthly' | 'yearly') => void
 }
 
 export default function TogglePeriod ({ period, onChangePeriod }: TogglePeriodProps) {
 
-    const handleChange = (event: React.MouseEvent<HTMLElement>, period: 'week' | 'month' | 'year' | null) => {
+    const handleChange = (event: React.MouseEvent<HTMLElement>, period: 'weekly' | 'monthly' | 'yearly' | null) => {
         if (period) {
             onChangePeriod(period)
         }
@@ -22,9 +22,9 @@ export default function TogglePeriod ({ period, onChangePeriod }: TogglePeriodPr
             exclusive
             onChange={handleChange}
         >
-            <ToggleButton value='week'>1W</ToggleButton>
-            <ToggleButton value='month'>1M</ToggleButton>
-            <ToggleButton value='year'>1Y</ToggleButton>
+            <ToggleButton value='weekly'>1W</ToggleButton>
+            <ToggleButton value='monthly'>1M</ToggleButton>
+            <ToggleButton value='yearly'>1Y</ToggleButton>
         </ToggleButtonGroup>
     )
 }

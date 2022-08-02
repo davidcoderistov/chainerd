@@ -1,12 +1,21 @@
 import React from 'react'
 import { Paper, Grid } from '@mui/material'
-import Balance, { BalanceProps } from './Balance'
-import TogglePeriod, { TogglePeriodProps } from './TogglePeriod'
-import AccountBalanceChart, { AccountBalanceChartProps } from '../AccountBalanceChart'
+import Balance from './Balance'
+import TogglePeriod from './TogglePeriod'
+import AccountBalanceChart from '../AccountBalanceChart'
 
-type AccountBalanceProps = BalanceProps & TogglePeriodProps & AccountBalanceChartProps
+export interface AccountBalanceProps {
+    balance: number
+    chartData: Array<{ x: string, y: string }>
+    chartDataLoading: boolean
+    fiat: boolean
+    periodType: 'weekly' | 'monthly' | 'yearly'
+    height: number
+    onChangeBalanceView: () => void
+    onChangePeriod: (period: 'weekly' | 'monthly' | 'yearly') => void
+}
 
-export default function AccountBalance ({ balance, fiat, onChangeBalanceView, period, onChangePeriod, data, type, loading, height }: AccountBalanceProps) {
+export default function AccountBalance ({ balance, chartData, chartDataLoading, periodType, fiat, onChangeBalanceView, onChangePeriod, height }: AccountBalanceProps) {
 
     return (
         <Paper sx={{ padding: '30px' }} elevation={4}>
@@ -15,10 +24,10 @@ export default function AccountBalance ({ balance, fiat, onChangeBalanceView, pe
                     <Balance balance={balance} fiat={fiat} onChangeBalanceView={onChangeBalanceView}/>
                 </Grid>
                 <Grid item xs={12} sx={{ marginBottom: '10px' }} container direction='row-reverse'>
-                    <TogglePeriod period={period} onChangePeriod={onChangePeriod} />
+                    <TogglePeriod period={periodType} onChangePeriod={onChangePeriod} />
                 </Grid>
                 <Grid item xs={12}>
-                    <AccountBalanceChart data={data} type={type} loading={loading} height={height} />
+                    <AccountBalanceChart data={chartData} type={periodType} loading={chartDataLoading} height={height} />
                 </Grid>
             </Grid>
         </Paper>
