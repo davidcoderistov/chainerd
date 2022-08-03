@@ -27,7 +27,7 @@ export default function AccountBalance ({ balance, chartData, chartDataLoading, 
                     <TogglePeriod period={periodType} onChangePeriod={onChangePeriod} />
                 </Grid>
                 <Grid item xs={12}>
-                    <AccountBalanceChart data={chartData} type={periodType} loading={chartDataLoading} height={height} />
+                    <AccountBalanceChart data={chartData} type={periodType} loading={chartDataLoading} fiat={fiat} height={height} />
                 </Grid>
             </Grid>
         </Paper>
