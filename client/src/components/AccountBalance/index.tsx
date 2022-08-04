@@ -21,10 +21,10 @@ export default function AccountBalance ({ balance, chartData, chartDataLoading, 
         <Paper sx={{ padding: '30px' }} elevation={4}>
             <Grid container>
                 <Grid item xs={12}>
-                    <Balance balance={balance} fiat={fiat} onChangeBalanceView={onChangeBalanceView}/>
+                    <Balance balance={balance} fiat={fiat} onChangeBalanceView={onChangeBalanceView} loading={chartDataLoading}/>
                 </Grid>
                 <Grid item xs={12} sx={{ marginBottom: '10px' }} container direction='row-reverse'>
-                    <TogglePeriod period={periodType} onChangePeriod={onChangePeriod} />
+                    <TogglePeriod period={periodType} onChangePeriod={onChangePeriod} disabled={chartDataLoading}/>
                 </Grid>
                 <Grid item xs={12}>
                     <AccountBalanceChart data={chartData} type={periodType} loading={chartDataLoading} fiat={fiat} height={height} />
