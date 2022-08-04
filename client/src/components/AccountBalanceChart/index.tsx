@@ -274,7 +274,7 @@ export default function AccountBalanceChart ({ data, type, loading, fiat, height
             { loading ? (
                 <Skeleton variant='rectangular' height={height} animation='wave'/>
             ) : (
-                <Line data={chartData} options={chartOptions} plugins={plugins}/>
+                <Line data={chartData} options={chartOptions} plugins={plugins} height={height}/>
             )}
         </div>
     )
