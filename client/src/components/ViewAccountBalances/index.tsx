@@ -10,23 +10,23 @@ interface SlideViewProps {
     onSlideRight: () => void
 }
 
-function SlideView (props: SlideViewProps) {
+function SlideView ({ address, onSlideLeft, onSlideRight, disabled }: SlideViewProps & { disabled: boolean }) {
 
     return (
         <Grid container>
             <Grid item xs={12} container justifyContent='space-between' alignItems='center'>
-                <IconButton color='primary' size='large' onClick={props.onSlideLeft}>
+                <IconButton color='primary' size='large' onClick={onSlideLeft} disabled={disabled}>
                     <ChevronLeft />
                 </IconButton>
                 <div>
                     <Typography variant='h5' fontWeight='bold'>
-                        { props.address }
+                        { address }
                     </Typography>
                     <Typography variant='subtitle2' color='#adb5bd' sx={{ textAlign: 'center' }}>
                         address
                     </Typography>
                 </div>
-                <IconButton color='primary' size='large' onClick={props.onSlideRight}>
+                <IconButton color='primary' size='large' onClick={onSlideRight} disabled={disabled}>
                     <ChevronRight />
                 </IconButton>
             </Grid>
@@ -63,6 +63,7 @@ export default function ViewAccountBalances (props: ViewAccountBalancesProps) {
                 <div>
                     <SlideView
                         address={props.address}
+                        disabled={props.chartDataLoading}
                         onSlideLeft={handleSlideLeft}
                         onSlideRight={handleSlideRight} />
                     <AccountBalance
