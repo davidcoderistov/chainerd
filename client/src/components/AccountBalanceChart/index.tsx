@@ -16,7 +16,7 @@ import {
     ChartData,
     Chart,
 } from 'chart.js'
-import { Backdrop, CircularProgress } from '@mui/material'
+import { Skeleton } from '@mui/material'
 import { Line } from 'react-chartjs-2'
 import moment from 'moment'
 import _max from 'lodash/max'
@@ -270,14 +270,12 @@ export default function AccountBalanceChart ({ data, type, loading, fiat, height
     }, [data, type])
 
     return (
-        <div style={{ position: 'relative', height: `${height}px` }}>
-            <Backdrop
-                sx={{ color: 'rgba(109, 150, 242, 0.8)', backgroundColor: 'rgba(0,0,0,0.2)', zIndex: (theme) => theme.zIndex.drawer + 1, position: 'absolute' }}
-                open={loading}
-            >
-                <CircularProgress color='primary' thickness={5}/>
-            </Backdrop>
-            <Line data={chartData} options={chartOptions} plugins={plugins}/>
+        <div style={{ height: `${height}px` }}>
+            { loading ? (
+                <Skeleton variant='rectangular' height={height} animation='wave'/>
+            ) : (
+                <Line data={chartData} options={chartOptions} plugins={plugins}/>
+            )}
         </div>
     )
 }
