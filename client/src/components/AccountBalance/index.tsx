@@ -18,18 +18,16 @@ export interface AccountBalanceProps {
 export default function AccountBalance ({ balance, chartData, chartDataLoading, periodType, fiat, onChangeBalanceView, onChangePeriod, height }: AccountBalanceProps) {
 
     return (
-        <Paper sx={{ padding: '30px' }} elevation={4}>
-            <Grid container>
-                <Grid item xs={12}>
-                    <Balance balance={balance} fiat={fiat} onChangeBalanceView={onChangeBalanceView} loading={chartDataLoading}/>
-                </Grid>
-                <Grid item xs={12} sx={{ marginBottom: '10px' }} container direction='row-reverse'>
-                    <TogglePeriod period={periodType} onChangePeriod={onChangePeriod} disabled={chartDataLoading}/>
-                </Grid>
-                <Grid item xs={12}>
-                    <AccountBalanceChart data={chartData} type={periodType} loading={chartDataLoading} fiat={fiat} height={height} />
-                </Grid>
+        <Grid container>
+            <Grid item xs={12}>
+                <Balance balance={balance} fiat={fiat} onChangeBalanceView={onChangeBalanceView} loading={chartDataLoading}/>
             </Grid>
-        </Paper>
+            <Grid item xs={12} sx={{ marginBottom: '10px' }} container direction='row-reverse'>
+                <TogglePeriod period={periodType} onChangePeriod={onChangePeriod} disabled={chartDataLoading}/>
+            </Grid>
+            <Grid item xs={12}>
+                <AccountBalanceChart data={chartData} type={periodType} loading={chartDataLoading} fiat={fiat} height={height} />
+            </Grid>
+        </Grid>
     )
 }
