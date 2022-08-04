@@ -13,12 +13,13 @@ export interface AccountBalanceProps {
     height: number
     onChangeBalanceView: () => void
     onChangePeriod: (period: 'weekly' | 'monthly' | 'yearly') => void
+    sxContainer?: any
 }
 
-export default function AccountBalance ({ balance, chartData, chartDataLoading, periodType, fiat, onChangeBalanceView, onChangePeriod, height }: AccountBalanceProps) {
+export default function AccountBalance ({ balance, chartData, chartDataLoading, periodType, fiat, onChangeBalanceView, onChangePeriod, height, sxContainer = {} }: AccountBalanceProps) {
 
     return (
-        <Grid container>
+        <Grid container sx={sxContainer}>
             <Grid item xs={12}>
                 <Balance balance={balance} fiat={fiat} onChangeBalanceView={onChangeBalanceView} loading={chartDataLoading}/>
             </Grid>
