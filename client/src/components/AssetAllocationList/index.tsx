@@ -1,10 +1,11 @@
 import React from 'react'
-import { Paper, Grid, Typography, } from '@mui/material'
+import { Paper, Grid, Skeleton, Typography, } from '@mui/material'
 import ListItem from './ListItem'
 import AssetAllocationListItem, { AssetAllocationListItemProps } from './AssetAllocationListItem'
+import _range from 'lodash/range'
 
 
-export default function AssetAllocationList ({ items }: { items: AssetAllocationListItemProps[] }) {
+export default function AssetAllocationList ({ items, loading }: { items: AssetAllocationListItemProps[], loading: boolean }) {
 
     return (
         <Paper sx={{ padding: '10px 30px' }} elevation={4}>
@@ -12,28 +13,42 @@ export default function AssetAllocationList ({ items }: { items: AssetAllocation
                 <Grid container item wrap='nowrap' spacing={3} sx={{ padding: '15px 0' }}>
                     <Grid item xs={12}>
                         <Typography noWrap variant='body1' sx={{ fontWeight: 'bold' }}>
-                            Asset Allocation ({ items.length })
+                            { loading ? (
+                                <Skeleton variant='rectangular' width={150} />
+                            ) : (
+                                `Asset Allocation (${ items.length })`
+                            )}
                         </Typography>
                     </Grid>
                 </Grid>
                 <ListItem>
                     <Typography noWrap variant='body2' color='text.secondary'>
-                        Account
+                        { loading ? <Skeleton variant='rectangular' /> : 'Account' }
                     </Typography>
                     <Typography noWrap variant='body2' color='text.secondary'>
-                        Address
+                        { loading ? <Skeleton variant='rectangular' /> : 'Address' }
                     </Typography>
                     <Typography noWrap variant='body2' color='text.secondary'>
-                        Amount
+                        { loading ? <Skeleton variant='rectangular' /> : 'Amount' }
                     </Typography>
                     <Typography noWrap variant='body2' color='text.secondary'>
-                        Value
+                        { loading ? <Skeleton variant='rectangular' /> : 'Value' }
                     </Typography>
                     <Typography noWrap variant='body2' color='text.secondary'>
-                        Allocation
+                        { loading ? <Skeleton variant='rectangular' /> : 'Allocation' }
                     </Typography>
                 </ListItem>
-                { items.length > 0 ? items.map((item, index) => (
+                { loading ? (
+                    _range(5).map(index => (
+                        <Grid key={index} container item wrap='nowrap' spacing={3} sx={{ padding: '5px 0' }}>
+                            <Grid item xs={12}>
+                                <Typography noWrap variant='body1' sx={{ fontWeight: 'bold' }}>
+                                    <Skeleton variant='rectangular' height={30} />
+                                </Typography>
+                            </Grid>
+                        </Grid>
+                    ))
+                ) : items.length > 0 ? items.map((item, index) => (
                     <AssetAllocationListItem
                         key={index}
                         account={item.account}
