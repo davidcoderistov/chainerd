@@ -2,6 +2,7 @@ import React from 'react'
 import { Typography, IconButton, Skeleton, styled } from '@mui/material'
 import { SwapVert } from '@mui/icons-material'
 import AnimatedNumbers from 'react-animated-numbers'
+import _isEqual from 'lodash/isEqual'
 
 const BalanceContainer = styled('div')({
     display: 'inline-flex',
@@ -34,7 +35,7 @@ export interface BalanceProps {
     onChangeBalanceView: () => void
 }
 
-export default function Balance ({ balance, fiat, loading, onChangeBalanceView }: BalanceProps) {
+const Balance = React.memo(({ balance, fiat, loading, onChangeBalanceView }: BalanceProps) => {
 
     const handleOnClick = () => {
         onChangeBalanceView()
@@ -80,4 +81,8 @@ export default function Balance ({ balance, fiat, loading, onChangeBalanceView }
             )}
         </React.Fragment>
     )
-}
+}, (prevProps, nextProps) => {
+    return _isEqual(prevProps.balance, nextProps.balance) && _isEqual(prevProps.fiat, nextProps.fiat) && _isEqual(prevProps.loading, nextProps.loading)
+})
+
+export default Balance
