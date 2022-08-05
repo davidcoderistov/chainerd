@@ -33,8 +33,9 @@ export default function AssetAllocationList ({ items }: { items: AssetAllocation
                         Allocation
                     </Typography>
                 </ListItem>
-                { items.length > 0 ? items.map(item => (
+                { items.length > 0 ? items.map((item, index) => (
                     <AssetAllocationListItem
+                        key={index}
                         account={item.account}
                         address={item.address}
                         amount={item.amount}
