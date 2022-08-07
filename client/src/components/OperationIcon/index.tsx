@@ -11,12 +11,12 @@ export default function OperationIcon ({ withdrawal, fontSize }: OperationIconPr
 
     return (
         <ArrowDownwardOutlined
-            color={ withdrawal ? 'error' : 'success' }
             sx={{
                 p: 1,
                 borderRadius: '50%',
                 fontSize: `${fontSize}px`,
                 backgroundColor: withdrawal ? '#ffcdd2' : '#E0F2DD',
+                color: withdrawal ? '#ef5350' : '#66be54',
                 ...withdrawal && { transform: 'rotate(180deg)' }
         }}/>
     )
