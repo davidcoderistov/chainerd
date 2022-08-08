@@ -1,34 +1,11 @@
 import React, { useState } from 'react'
-import MuiAppBar, { AppBarProps as MuiAppBarProps } from '@mui/material/AppBar'
-import { Container, Grid, Box, Drawer as MuiDrawer, Toolbar, Typography, Divider, IconButton, Button, CssBaseline } from '@mui/material'
-import { List, ListItemIcon, ListItemText, ListItemButton } from '@mui/material'
+import { Container, Grid, Box, List, Drawer as MuiDrawer, Toolbar, Divider, IconButton, CssBaseline, Typography } from '@mui/material'
 import { styled, createTheme, ThemeProvider } from '@mui/material/styles'
-import { ChevronLeft as ChevronLeftIcon, Dashboard as DashboardIcon, Menu as MenuIcon } from '@mui/icons-material'
+import { ChevronLeft as ChevronLeftIcon, ChevronRight as ChevronRightIcon } from '@mui/icons-material'
+import NavLink from './NavLink'
+import NavButton from './NavButton'
 
-
-const drawerWidth: number = 240
-
-interface AppBarProps extends MuiAppBarProps {
-    open?: boolean
-}
-
-const AppBar = styled(MuiAppBar, {
-    shouldForwardProp: (prop) => prop !== 'open',
-})<AppBarProps>(({ theme, open }) => ({
-    zIndex: theme.zIndex.drawer + 1,
-    transition: theme.transitions.create(['width', 'margin'], {
-        easing: theme.transitions.easing.sharp,
-        duration: theme.transitions.duration.leavingScreen,
-    }),
-    ...(open && {
-        marginLeft: drawerWidth,
-        width: `calc(100% - ${drawerWidth}px)`,
-        transition: theme.transitions.create(['width', 'margin'], {
-            easing: theme.transitions.easing.sharp,
-            duration: theme.transitions.duration.enteringScreen,
-        }),
-    }),
-}))
+const drawerWidth: number = 270
 
 const Drawer = styled(MuiDrawer, { shouldForwardProp: (prop) => prop !== 'open' })(
     ({ theme, open }) => ({
@@ -59,15 +36,12 @@ const Drawer = styled(MuiDrawer, { shouldForwardProp: (prop) => prop !== 'open' 
 const mdTheme = createTheme()
 
 interface DashboardProps {
-    walletExists: boolean,
-    onCreateWallet: () => void,
-    onRestoreWallet: () => void,
     onSendTransaction: () => void,
     onCloseWallet: () => void,
     children?: any
 }
 
-export default function Dashboard ({ walletExists, onCreateWallet, onRestoreWallet, onSendTransaction, onCloseWallet, children }: DashboardProps) {
+export default function Dashboard ({ onSendTransaction, onCloseWallet, children }: DashboardProps) {
 
     const [open, setOpen] = useState<boolean>(true)
 
@@ -79,76 +53,42 @@ export default function Dashboard ({ walletExists, onCreateWallet, onRestoreWall
         <ThemeProvider theme={mdTheme}>
             <Box sx={{ display: 'flex' }}>
                 <CssBaseline />
-                <AppBar position='absolute' open={open}>
-                    <MuiAppBar position='static' sx={{ backgroundColor: '#29242D' }}>
-                        <Toolbar>
-                            <IconButton
-                                edge='start'
-                                color='inherit'
-                                aria-label='open drawer'
-                                onClick={toggleDrawer}
-                                sx={{
-                                    marginRight: '36px',
-                                    ...(open && { display: 'none' }),
-                                }}
-                            >
-                                <MenuIcon />
-                            </IconButton>
-                            <Typography
-                                variant='h6'
-                                noWrap
-                                component='div'
-                                sx={{ display: { xs: 'none', sm: 'block' } }}
-                            >
-                                Chainerd
-                            </Typography>
-                            <Box sx={{ flexGrow: 1 }} />
-                            <Box sx={{ display: { xs: 'none', md: 'flex', columnGap: '10px' } }}>
-                                { walletExists ? (
-                                    <React.Fragment>
-                                        <Button color='primary' variant='outlined' onClick={onSendTransaction}>
-                                            Send Transaction
-                                        </Button>
-                                        <Button color='warning' variant='outlined' onClick={onCloseWallet}>
-                                            Close Wallet
-                                        </Button>
-                                    </React.Fragment>
-                                ) : (
-                                    <React.Fragment>
-                                        <Button color='primary' variant='outlined' onClick={onCreateWallet}>
-                                            Create Wallet
-                                        </Button>
-                                        <Button color='warning' variant='outlined' onClick={onRestoreWallet}>
-                                            Restore Wallet
-                                        </Button>
-                                    </React.Fragment>
-                                )}
-                            </Box>
-                        </Toolbar>
-                    </MuiAppBar>
-                </AppBar>
-                <Drawer variant='permanent' open={open} PaperProps={{ sx: { backgroundColor: '#29242D', color: 'white' }}}>
+                <Drawer variant='permanent' open={open} PaperProps={{ sx: { backgroundColor: '#FFFFFF' }}}>
                     <Toolbar
                         sx={{
                             display: 'flex',
                             alignItems: 'center',
-                            justifyContent: 'flex-end',
+                            justifyContent: open ? 'space-between' : 'flex-end',
                             px: [1],
                         }}
                     >
-                        <IconButton onClick={toggleDrawer} sx={{ color: '#FFFFFF' }}>
-                            <ChevronLeftIcon />
+                        { open && (
+                            <Typography noWrap variant='h6' color='primary.main'>
+                                Chainerd
+                            </Typography>
+                        )}
+                        <IconButton onClick={toggleDrawer}>
+                            { open ? <ChevronLeftIcon /> : <ChevronRightIcon /> }
                         </IconButton>
                     </Toolbar>
                     <Divider />
                     <List component='nav'>
-                        <ListItemButton>
-                            <ListItemIcon sx={{ color: '#FFFFFF' }}>
-                                <DashboardIcon />
-                            </ListItemIcon>
-                            <ListItemText primary='Accounts' />
-                        </ListItemButton>
-                        <Divider sx={{ my: 1 }} />
+                        <NavLink
+                            to='portfolio'
+                            type='portfolio'
+                            name='Portfolio' />
+                        <NavLink
+                            to='accounts'
+                            type='accounts'
+                            name='Accounts' />
+                        <NavButton
+                            type='send'
+                            name='Send'
+                            onClick={onSendTransaction} />
+                        <NavButton
+                            type='delete'
+                            name='Delete'
+                            onClick={onCloseWallet} />
                     </List>
                 </Drawer>
                 <Box
@@ -157,7 +97,7 @@ export default function Dashboard ({ walletExists, onCreateWallet, onRestoreWall
                         flexGrow: 1,
                         height: '100vh',
                         overflow: 'auto',
-                        backgroundColor: 'rgb(249, 249, 249)'
+                        backgroundColor: '#F9F9F9'
                     }}
                 >
                     <Toolbar />
