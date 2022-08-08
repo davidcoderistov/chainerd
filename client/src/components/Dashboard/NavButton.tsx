@@ -3,13 +3,12 @@ import NavItem from './NavItem'
 
 
 export interface NavButtonProps {
-    active: boolean
     type: 'send' | 'delete'
     name: string
     onClick: () => void
 }
 
-export default function NavButton ({ active, type, name, onClick }: NavButtonProps) {
+export default function NavButton ({ type, name, onClick }: NavButtonProps) {
 
     const [isHovered, setIsHovered] = useState(false)
 
@@ -29,7 +28,7 @@ export default function NavButton ({ active, type, name, onClick }: NavButtonPro
             style={{ cursor: 'pointer' }}
         >
             <NavItem
-                active={active}
+                active={false}
                 hovered={isHovered}
                 type={type}
                 name={name} />
