@@ -1,7 +1,7 @@
 import React, { useState } from 'react'
 import { styled } from '@mui/material'
 import NavItem from './NavItem'
-import { Link } from 'react-router-dom'
+import { NavLink as Link } from 'react-router-dom'
 
 
 const StyledLink = styled(Link)({
@@ -11,12 +11,11 @@ const StyledLink = styled(Link)({
 
 export interface NavLinkProps {
     to: string
-    active: boolean
     type: 'portfolio' | 'accounts'
     name: string
 }
 
-export default function NavLink ({ to, active, type, name }: NavLinkProps) {
+export default function NavLink ({ to, type, name }: NavLinkProps) {
 
     const [isHovered, setIsHovered] = useState(false)
 
@@ -34,11 +33,13 @@ export default function NavLink ({ to, active, type, name }: NavLinkProps) {
             onMouseEnter={handleOnMouseEnter}
             onMouseLeave={handleOnMouseLeave}
         >
-            <NavItem
-                active={active}
-                hovered={isHovered}
-                type={type}
-                name={name} />
+            {({ isActive }) => (
+                <NavItem
+                    active={isActive}
+                    hovered={isHovered}
+                    type={type}
+                    name={name} />
+            )}
         </StyledLink>
     )
 }
