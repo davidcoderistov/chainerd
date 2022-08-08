@@ -11,7 +11,7 @@ import {
 } from '@mui/material'
 import { Paper, Box, Typography, styled } from '@mui/material'
 import LinearProgress, { linearProgressClasses } from '@mui/material/LinearProgress'
-import _range from "lodash/range";
+import _range from 'lodash/range'
 
 const BorderLinearProgress = styled(LinearProgress)(({ theme }) => ({
     height: 10,
