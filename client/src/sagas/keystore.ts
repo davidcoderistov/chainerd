@@ -64,6 +64,7 @@ export function *restoreKeystore ({ payload }: ReturnType<typeof keystoreActions
 
 export function *loadKeystore ({ payload }: ReturnType<typeof keystoreActions.load>) {
     yield put(keystoreActions.pending())
+    yield delay(300)
     const ks = payload.keystore
     if (!ks) {
         yield put(keystoreActions.rejected({
