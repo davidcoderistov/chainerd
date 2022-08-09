@@ -22,6 +22,8 @@ import {
 } from '../../selectors/address'
 import { Box } from '@mui/material'
 import Dashboard from '../../components/Dashboard'
+import NoWalletPage from '../NoWalletPage'
+import PortfolioPage from '../PortfolioPage'
 import AccountsPage from '../AccountsPage'
 import CreateWalletModal from '../../components/CreateWalletModal'
 import RestoreWalletModal from '../../components/RestoreWalletModal'
@@ -30,6 +32,7 @@ import CloseWalletModal from '../../components/CloseWalletModal'
 import Snackbar from '../../components/Snackbar'
 import { getCurrentSerializedKeystore } from '../../localStorage'
 import { useSnackbarEffect } from '../../hooks'
+import { Routes, Route, Navigate } from 'react-router-dom'
 
 
 export default function HomePage () {
@@ -37,6 +40,7 @@ export default function HomePage () {
     const dispatch = useDispatch()
 
     const keystore = useSelector(getKeystore)
+    const walletExists = !!keystore
 
     useEffect(() => {
         const ks = getCurrentSerializedKeystore()
@@ -73,8 +77,10 @@ export default function HomePage () {
     const [sendTransactionModalKey, setSendTransactionModalKey] = useState<number>(6666)
 
     const openSendTransactionModal = () => {
-        setSendTransactionModalKey(sendTransactionModalKey + 1)
-        setIsSendTransactionModalOpen(true)
+        if (walletExists) {
+            setSendTransactionModalKey(sendTransactionModalKey + 1)
+            setIsSendTransactionModalOpen(true)
+        }
     }
 
     const closeSendTransactionModal = () => {
@@ -85,8 +91,10 @@ export default function HomePage () {
     const [closeWalletModalKey, setCloseWalletModalKey] = useState<number>(9999)
 
     const openCloseWalletModal = () => {
-        setCloseWalletModalKey(closeWalletModalKey + 1)
-        setIsCloseWalletModalOpen(true)
+        if (walletExists) {
+            setCloseWalletModalKey(closeWalletModalKey + 1)
+            setIsCloseWalletModalOpen(true)
+        }
     }
 
     const closeCloseWalletModal = () => {
@@ -155,13 +163,37 @@ export default function HomePage () {
     return (
         <Box>
             <Dashboard
-                walletExists={!!keystore}
-                onCreateWallet={openCreateWalletModal}
-                onRestoreWallet={openRestoreWalletModal}
+                walletExists={walletExists}
                 onSendTransaction={openSendTransactionModal}
                 onCloseWallet={openCloseWalletModal}
             >
-                <AccountsPage />
+                { walletExists ? (
+                    <Routes>
+                        <Route path='/' element={
+                            <PortfolioPage />
+                        } />
+                        <Route path='/portfolio' element={
+                            <PortfolioPage />
+                        } />
+                        <Route path='/accounts' element={
+                            <AccountsPage />
+                        } />
+                        <Route path='*' element={
+                            <Navigate to='/' replace />
+                        } />
+                    </Routes>
+                ): (
+                    <Routes>
+                        <Route path='/' element={
+                            <NoWalletPage
+                                onCreateWallet={openCreateWalletModal}
+                                onRestoreWallet={openRestoreWalletModal} />
+                        } />
+                        <Route path='*' element={
+                            <Navigate to='/' replace />
+                        } />
+                    </Routes>
+                )}
             </Dashboard>
             <CreateWalletModal
                 key={createWalletModalKey}
