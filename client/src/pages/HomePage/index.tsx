@@ -7,6 +7,7 @@ import {
     isError as isKeystoreError,
     getErrorMessage as getKeystoreErrorMessage,
     getSuccessMessage as getKeystoreSuccessMessage,
+    getLoading,
 } from '../../selectors/keystore'
 import {
     shouldShowSnackbar as shouldShowTransactionSnackbar,
@@ -20,7 +21,7 @@ import {
     getErrorMessage as getAddressErrorMessage,
     getSuccessMessage as getAddressSuccessMessage,
 } from '../../selectors/address'
-import { Box } from '@mui/material'
+import { Box, CircularProgress } from '@mui/material'
 import Dashboard from '../../components/Dashboard'
 import NoWalletPage from '../NoWalletPage'
 import PortfolioPage from '../PortfolioPage'
@@ -40,6 +41,7 @@ export default function HomePage () {
     const dispatch = useDispatch()
 
     const keystore = useSelector(getKeystore)
+    const loading = useSelector(getLoading)
     const walletExists = !!keystore
 
     useEffect(() => {
@@ -164,6 +166,7 @@ export default function HomePage () {
         <Box>
             <Dashboard
                 walletExists={walletExists}
+                walletLoading={loading}
                 onSendTransaction={openSendTransactionModal}
                 onCloseWallet={openCloseWalletModal}
             >
@@ -182,7 +185,18 @@ export default function HomePage () {
                             <Navigate to='/' replace />
                         } />
                     </Routes>
-                ): (
+                ): loading ? (
+                    <Routes>
+                        <Route path='/' element={
+                            <Box display='flex' flexDirection='column' height={550} alignItems='center' justifyContent='center'>
+                                <CircularProgress variant='indeterminate' />
+                            </Box>
+                        } />
+                        <Route path='*' element={
+                            <Navigate to='/' replace />
+                        } />
+                    </Routes>
+                ) : (
                     <Routes>
                         <Route path='/' element={
                             <NoWalletPage

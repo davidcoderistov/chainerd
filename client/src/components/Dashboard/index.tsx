@@ -37,12 +37,13 @@ const mdTheme = createTheme()
 
 interface DashboardProps {
     walletExists: boolean
+    walletLoading: boolean
     onSendTransaction: () => void
     onCloseWallet: () => void
     children?: any
 }
 
-export default function Dashboard ({ walletExists, onSendTransaction, onCloseWallet, children }: DashboardProps) {
+export default function Dashboard ({ walletExists, walletLoading, onSendTransaction, onCloseWallet, children }: DashboardProps) {
 
     const [open, setOpen] = useState<boolean>(true)
 
@@ -102,7 +103,7 @@ export default function Dashboard ({ walletExists, onSendTransaction, onCloseWal
                     }}
                 >
                     <Toolbar />
-                    <Container maxWidth='lg' sx={{ mt: 4, mb: 4, ...!walletExists && { width: '60%' } }}>
+                    <Container maxWidth='lg' sx={{ mt: 4, mb: 4, ...!walletExists && !walletLoading && { width: '60%' } }}>
                         <Grid container>
                             <Grid item xs={12}>
                                 { children }
