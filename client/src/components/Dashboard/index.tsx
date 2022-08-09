@@ -36,12 +36,13 @@ const Drawer = styled(MuiDrawer, { shouldForwardProp: (prop) => prop !== 'open' 
 const mdTheme = createTheme()
 
 interface DashboardProps {
-    onSendTransaction: () => void,
-    onCloseWallet: () => void,
+    walletExists: boolean
+    onSendTransaction: () => void
+    onCloseWallet: () => void
     children?: any
 }
 
-export default function Dashboard ({ onSendTransaction, onCloseWallet, children }: DashboardProps) {
+export default function Dashboard ({ walletExists, onSendTransaction, onCloseWallet, children }: DashboardProps) {
 
     const [open, setOpen] = useState<boolean>(true)
 
@@ -101,7 +102,7 @@ export default function Dashboard ({ onSendTransaction, onCloseWallet, children 
                     }}
                 >
                     <Toolbar />
-                    <Container maxWidth='lg' sx={{ mt: 4, mb: 4 }}>
+                    <Container maxWidth='lg' sx={{ mt: 4, mb: 4, ...!walletExists && { width: '60%' } }}>
                         <Grid container>
                             <Grid item xs={12}>
                                 { children }
