@@ -37,6 +37,10 @@ export function *loadAll ({ payload }: ReturnType<typeof addressActions.loadAll>
         addresses = _intersection(addresses, localStorageAddresses)
     }
     try {
+        if (addresses.length <= 0) {
+            yield put(addressActions.loadAllFulfilled({ addresses: [] }))
+            return
+        }
         const ethBalances: { [address: string]: string } = yield call(getEthBalances, addresses)
         const ethPrice: number = yield call(getEthPrice)
         yield put(addressActions.loadAllFulfilled({
