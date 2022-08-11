@@ -15,11 +15,13 @@ import { Add, Send, Edit } from '@mui/icons-material'
 import _range from 'lodash/range'
 
 
+export type Address = { name: string, alias: string | null }
+
+
 export interface Account {
-    alias: string
-    address: string
-    amount: string
-    value: string
+    address: Address
+    ethAmount: number
+    fiatAmount: number
 }
 
 export interface AccountsProps {
@@ -29,8 +31,8 @@ export interface AccountsProps {
     searchText: string
     onChangeSearchText: (searchText: string) => void
     onChangeSortBy: (index: number) => void
-    onEditAccount: (address: string) => void
-    onSendTransaction: (address: string) => void
+    onEditAccount: (address: Address) => void
+    onSendTransaction: (address: Address) => void
 }
 
 export default function Accounts ({ accounts, loading, onAddAccount, searchText, onChangeSearchText, onChangeSortBy, onEditAccount, onSendTransaction, }: AccountsProps) {
@@ -94,22 +96,22 @@ export default function Accounts ({ accounts, loading, onAddAccount, searchText,
                                 >
                                     <TableCell>
                                         <Typography noWrap variant='body2'>
-                                            { account.alias }
+                                            { account.address.alias ? account.address.alias : 'N/A' }
                                         </Typography>
                                     </TableCell>
                                     <TableCell>
                                         <Typography noWrap variant='body2'>
-                                            { account.address }
+                                            { account.address.name }
                                         </Typography>
                                     </TableCell>
                                     <TableCell>
                                         <Typography noWrap variant='body2'>
-                                            { account.amount } ETH
+                                            { account.ethAmount } ETH
                                         </Typography>
                                     </TableCell>
                                     <TableCell>
                                         <Typography noWrap variant='body2'>
-                                            ${ account.value }
+                                            ${ account.fiatAmount }
                                         </Typography>
                                     </TableCell>
                                     <TableCell sx={{ minWidth: 100 }}>
