@@ -172,9 +172,6 @@ export default function HomePage () {
             >
                 { walletExists ? (
                     <Routes>
-                        <Route path='/' element={
-                            <PortfolioPage />
-                        } />
                         <Route path='/portfolio' element={
                             <PortfolioPage />
                         } />
@@ -182,7 +179,7 @@ export default function HomePage () {
                             <AccountsPage />
                         } />
                         <Route path='*' element={
-                            <Navigate to='/' replace />
+                            <Navigate to='/portfolio' replace />
                         } />
                     </Routes>
                 ): loading ? (
