@@ -8,18 +8,11 @@ import {
     isEditAddressSuccess,
     isGenerateAddressSuccess
 } from '../../selectors/address'
-import { Button, Typography, styled } from '@mui/material'
-import AccountsList, { AccountsListProps } from '../../components/AccountsList'
+import Accounts, { Account } from '../../components/Accounts'
 import ConfirmPasswordModal from '../../components/ConfirmPasswordModal'
 import EditAccountModal from '../../components/EditAccountModal'
-import { Add } from '@mui/icons-material'
 import _orderBy from 'lodash/orderBy'
 
-const AccountsToolbar = styled('div')({
-    display: 'flex',
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-})
 
 export default function AccountsPage () {
 
@@ -60,7 +53,7 @@ export default function AccountsPage () {
         setSortBy(sortBy)
     }
 
-    const [addresses, setAddresses] = useState<AccountsListProps['addresses']>([])
+    const [addresses, setAddresses] = useState<Account[]>([])
 
     const filteredAddresses = useMemo(() => {
         let filtered = Array.from(addresses)
@@ -141,21 +134,15 @@ export default function AccountsPage () {
 
     return (
         <React.Fragment>
-            <AccountsToolbar sx={{ mb: 5 }}>
-                <Typography variant='h5' component='div'>
-                    Accounts
-                </Typography>
-                <Button variant='contained' startIcon={<Add />} sx={{ textTransform: 'none' }} onClick={handleOpenConfirmPasswordModal}>
-                    Add account
-                </Button>
-            </AccountsToolbar>
-            <AccountsList
-                addresses={filteredAddresses}
-                onEdit={handleOnEdit}
-                onSend={handleOnSend}
+            <Accounts
+                accounts={filteredAddresses}
+                loading={loading}
+                onAddAccount={handleOpenConfirmPasswordModal}
                 searchText={searchText}
                 onChangeSearchText={handleOnChangeSearchText}
-                onChangeSortBy={handleOnChangeSortBy} />
+                onChangeSortBy={handleOnChangeSortBy}
+                onEditAccount={handleOnEdit}
+                onSendTransaction={handleOnSend} />
             <ConfirmPasswordModal
                 key={confirmPasswordModalKey}
                 open={isConfirmPasswordModalOpen}
