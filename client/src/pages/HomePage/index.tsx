@@ -25,6 +25,7 @@ import { Box, CircularProgress } from '@mui/material'
 import Dashboard from '../../components/Dashboard'
 import NoWalletPage from '../NoWalletPage'
 import PortfolioPage from '../PortfolioPage'
+import AccountPage from '../AccountPage'
 import AccountsPage from '../AccountsPage'
 import CreateWalletModal from '../../components/CreateWalletModal'
 import RestoreWalletModal from '../../components/RestoreWalletModal'
@@ -177,6 +178,9 @@ export default function HomePage () {
                         } />
                         <Route path='/accounts' element={
                             <AccountsPage />
+                        } />
+                        <Route path='/accounts/:address' element={
+                            <AccountPage />
                         } />
                         <Route path='*' element={
                             <Navigate to='/portfolio' replace />
