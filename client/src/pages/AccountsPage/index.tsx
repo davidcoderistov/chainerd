@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useMemo } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
+import { useNavigate } from 'react-router-dom'
 import { addressActions } from '../../slices/address'
 import {
     getAddresses,
@@ -17,6 +18,7 @@ import _orderBy from 'lodash/orderBy'
 export default function AccountsPage () {
 
     const dispatch = useDispatch()
+    const navigate = useNavigate()
 
     const storeAddresses = useSelector(getAddresses)
     const accountCreated = useSelector(isGenerateAddressSuccess)
@@ -105,6 +107,10 @@ export default function AccountsPage () {
         setIsEditAccountModalOpen(true)
     }
 
+    const handleOnClick = (address: { name: string, alias: string | null }) => {
+        navigate(`/accounts/${address.name}`)
+    }
+
     const handleDeleteAccount = () => {
         dispatch(addressActions.delete({ address: selectedAddress ? selectedAddress.name : ''}))
     }
@@ -142,6 +148,7 @@ export default function AccountsPage () {
                 onChangeSearchText={handleOnChangeSearchText}
                 onChangeSortBy={handleOnChangeSortBy}
                 onEditAccount={handleOnEdit}
+                onClickAccount={handleOnClick}
                 onSendTransaction={handleOnSend} />
             <ConfirmPasswordModal
                 key={confirmPasswordModalKey}
