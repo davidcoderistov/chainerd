@@ -72,8 +72,8 @@ export interface Transaction {
     from: string
     to: string
     date: string
-    amount: number
-    value: number
+    amount: string
+    value: string
 }
 
 export interface TransactionsProps {
