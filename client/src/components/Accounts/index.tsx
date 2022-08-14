@@ -32,10 +32,21 @@ export interface AccountsProps {
     onChangeSearchText: (searchText: string) => void
     onChangeSortBy: (index: number) => void
     onEditAccount: (address: Address) => void
+    onClickAccount: (address: Address) => void
     onSendTransaction: (address: Address) => void
 }
 
-export default function Accounts ({ accounts, loading, onAddAccount, searchText, onChangeSearchText, onChangeSortBy, onEditAccount, onSendTransaction, }: AccountsProps) {
+export default function Accounts ({ accounts, loading, onAddAccount, searchText, onChangeSearchText, onChangeSortBy, onEditAccount, onClickAccount, onSendTransaction, }: AccountsProps) {
+
+    const handleOnEditAccount = (event: React.MouseEvent<HTMLElement>, address: Address) => {
+        event.stopPropagation()
+        onEditAccount(address)
+    }
+
+    const handleOnSendTransaction = (event: React.MouseEvent<HTMLElement>, address: Address) => {
+        event.stopPropagation()
+        onSendTransaction(address)
+    }
 
     return (
         <Paper elevation={4} sx={{ padding: '15px' }}>
@@ -92,7 +103,8 @@ export default function Accounts ({ accounts, loading, onAddAccount, searchText,
                             { accounts.map((account, index) => (
                                 <TableRow
                                     key={index}
-                                    sx={{ '&:last-child td, &:last-child th': { border: 0 } }}
+                                    sx={{ '&:last-child td, &:last-child th': { border: 0 }, '&:hover': { backgroundColor: '#F9F9F9', cursor: 'pointer' } }}
+                                    onClick={() => onClickAccount(account.address)}
                                 >
                                     <TableCell>
                                         <Typography noWrap variant='body2'>
@@ -115,10 +127,10 @@ export default function Accounts ({ accounts, loading, onAddAccount, searchText,
                                         </Typography>
                                     </TableCell>
                                     <TableCell sx={{ minWidth: 100 }}>
-                                        <IconButton color='primary' aria-label='edit' component='div' onClick={() => onEditAccount(account.address)}>
+                                        <IconButton color='primary' aria-label='edit' component='div' onClick={(event: React.MouseEvent<HTMLElement>) => handleOnEditAccount(event, account.address)}>
                                             <Edit />
                                         </IconButton>
-                                        <IconButton color='primary' aria-label='send' component='div' onClick={() => onSendTransaction(account.address)}>
+                                        <IconButton color='primary' aria-label='send' component='div' onClick={(event: React.MouseEvent<HTMLElement>) => handleOnSendTransaction(event, account.address)}>
                                             <Send />
                                         </IconButton>
                                     </TableCell>
