@@ -1,5 +1,6 @@
 import React, { useEffect } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
+import { useParams } from 'react-router-dom'
 import { portfolioActions } from '../../slices/portfolio'
 import { accountActions } from '../../slices/account'
 import {
@@ -14,6 +15,8 @@ import ViewAccountBalance from '../../components/ViewAccountBalance'
 
 
 export default function AccountPage () {
+
+    const params = useParams()
 
     const selectedAddress = useSelector(getSelectedAddress)
     const periodType = useSelector(getPeriodType)
@@ -37,8 +40,10 @@ export default function AccountPage () {
     }
 
     useEffect(() => {
-        dispatch(accountActions.setSelectedAddress({ address: '0xC7Bb73ac36c6f5c12d5d419F0e03C919a53aaBed' }))
-    }, [])
+        if (params && params.address) {
+            dispatch(accountActions.setSelectedAddress({ address: params.address }))
+        }
+    }, [params])
 
     useEffect(() => {
         if (selectedAddress && !chartData) {
