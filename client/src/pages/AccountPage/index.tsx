@@ -5,13 +5,20 @@ import { portfolioActions } from '../../slices/portfolio'
 import { accountActions } from '../../slices/account'
 import {
     getSelectedAddress,
+    getSelectedPage,
     getPeriodType,
     getIsFiat,
     getChartData,
     getBalance,
     getIsChartDataLoading,
+    getTransactionCount,
+    getTransactions,
+    getTransactionsLoading,
+    getTransactionsFetched,
 } from '../../selectors/account'
 import ViewAccountBalance from '../../components/ViewAccountBalance'
+import Transactions from '../../components/Transactions'
+import { Box } from '@mui/material'
 
 
 export default function AccountPage () {
@@ -19,11 +26,18 @@ export default function AccountPage () {
     const params = useParams()
 
     const selectedAddress = useSelector(getSelectedAddress)
+    const selectedPage = useSelector(getSelectedPage)
+
     const periodType = useSelector(getPeriodType)
     const isFiat = useSelector(getIsFiat)
     const chartData = useSelector(getChartData)
     const chartDataLoading = useSelector(getIsChartDataLoading)
     const balance = useSelector(getBalance)
+
+    const transactionCount = useSelector(getTransactionCount)
+    const transactions = useSelector(getTransactions)
+    const transactionsLoading = useSelector(getTransactionsLoading)
+    const transactionsFetched = useSelector(getTransactionsFetched)
 
     const dispatch = useDispatch()
 
@@ -37,6 +51,15 @@ export default function AccountPage () {
         if (selectedAddress) {
             dispatch(accountActions.setPeriodType({ periodType }))
         }
+    }
+
+    const handleChangePage = (event: React.MouseEvent<HTMLButtonElement> | null, page: number) => {
+        dispatch(accountActions.setSelectedPage({ page: page + 1 }))
+    }
+
+    const handleTransactionClick = (hash: string) => {
+        // TODO: Open transaction details modal
+        console.log(hash)
     }
 
     useEffect(() => {
@@ -57,15 +80,46 @@ export default function AccountPage () {
         }
     }, [selectedAddress, periodType])
 
+    useEffect(() => {
+        if (selectedAddress && !transactionsFetched) {
+            dispatch(accountActions.fetchTransactions({ address: selectedAddress, page: selectedPage }))
+        }
+    }, [selectedAddress, selectedPage, transactionsFetched])
+
+    const transactionsData = transactions.map(transaction => ({
+        withdrawal: false,
+        hash: transaction.hash,
+        from: transaction.from,
+        to: transaction.to,
+        date: transaction.timestamp,
+        value: transaction.value,
+        amount: transaction.amount
+    }))
+
     return (
-        <ViewAccountBalance
-            balance={balance}
-            chartData={Array.isArray(chartData) ? chartData : []}
-            chartDataLoading={chartDataLoading}
-            fiat={isFiat}
-            periodType={periodType}
-            height={300}
-            onChangeBalanceView={handleChangeBalanceView}
-            onChangePeriod={handleChangePeriodType} />
+        <React.Fragment>
+            <ViewAccountBalance
+                balance={balance}
+                chartData={Array.isArray(chartData) ? chartData : []}
+                chartDataLoading={chartDataLoading}
+                fiat={isFiat}
+                periodType={periodType}
+                height={300}
+                onChangeBalanceView={handleChangeBalanceView}
+                onChangePeriod={handleChangePeriodType} />
+            <Box marginTop='100px' />
+            <Transactions
+                transactions={transactionsData}
+                loading={transactionsLoading}
+                latest={false}
+                onClickTransaction={handleTransactionClick}
+                paginationProps={{
+                    rowsPerPageOptions: [5],
+                    count: transactionCount,
+                    rowsPerPage: 5,
+                    page: selectedPage - 1,
+                    onPageChange: handleChangePage,
+                }} />
+        </React.Fragment>
     )
 }
