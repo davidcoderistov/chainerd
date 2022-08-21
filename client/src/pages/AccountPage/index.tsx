@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react'
+import React, { useState, useEffect } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { useParams } from 'react-router-dom'
 import { portfolioActions } from '../../slices/portfolio'
@@ -12,12 +12,13 @@ import {
     getBalance,
     getIsChartDataLoading,
     getTransactionCount,
-    getTransactions,
+    getTransactionsData,
     getTransactionsLoading,
     getTransactionsFetched,
 } from '../../selectors/account'
 import ViewAccountBalance from '../../components/ViewAccountBalance'
 import Transactions from '../../components/Transactions'
+import TransactionDetailsModal, { Transaction } from '../../components/TransactionDetailsModal'
 import { Box } from '@mui/material'
 
 
@@ -35,9 +36,11 @@ export default function AccountPage () {
     const balance = useSelector(getBalance)
 
     const transactionCount = useSelector(getTransactionCount)
-    const transactions = useSelector(getTransactions)
+    const transactionsData = useSelector(getTransactionsData)
     const transactionsLoading = useSelector(getTransactionsLoading)
     const transactionsFetched = useSelector(getTransactionsFetched)
+
+    const [selectedTransaction, setSelectedTransaction] = useState<Transaction | null>(null)
 
     const dispatch = useDispatch()
 
@@ -58,8 +61,12 @@ export default function AccountPage () {
     }
 
     const handleTransactionClick = (hash: string) => {
-        // TODO: Open transaction details modal
-        console.log(hash)
+        const transaction = transactionsData.modal.find(transaction => transaction.transactionHash === hash)
+        setSelectedTransaction(transaction ? transaction : null)
+    }
+
+    const handleCloseTransactionDetailsModal = () => {
+        setSelectedTransaction(null)
     }
 
     useEffect(() => {
@@ -86,16 +93,6 @@ export default function AccountPage () {
         }
     }, [selectedAddress, selectedPage, transactionsFetched])
 
-    const transactionsData = transactions.map(transaction => ({
-        withdrawal: false,
-        hash: transaction.hash,
-        from: transaction.from,
-        to: transaction.to,
-        date: transaction.timestamp,
-        value: transaction.value,
-        amount: transaction.amount
-    }))
-
     return (
         <React.Fragment>
             <ViewAccountBalance
@@ -109,7 +106,7 @@ export default function AccountPage () {
                 onChangePeriod={handleChangePeriodType} />
             <Box marginTop='100px' />
             <Transactions
-                transactions={transactionsData}
+                transactions={transactionsData.table}
                 loading={transactionsLoading}
                 latest={false}
                 onClickTransaction={handleTransactionClick}
@@ -120,6 +117,22 @@ export default function AccountPage () {
                     page: selectedPage - 1,
                     onPageChange: handleChangePage,
                 }} />
+            { selectedTransaction && (
+                <TransactionDetailsModal
+                    open={true}
+                    onClose={handleCloseTransactionDetailsModal}
+                    withdrawal={selectedTransaction.withdrawal}
+                    ethAmount={selectedTransaction.ethAmount}
+                    fiatAmount={selectedTransaction.fiatAmount}
+                    account={selectedTransaction.account}
+                    timestamp={selectedTransaction.timestamp}
+                    fee={selectedTransaction.fee}
+                    status={selectedTransaction.status}
+                    blockNumber={selectedTransaction.blockNumber}
+                    transactionHash={selectedTransaction.transactionHash}
+                    from={selectedTransaction.from}
+                    to={selectedTransaction.to} />
+            )}
         </React.Fragment>
     )
 }
