@@ -50,7 +50,6 @@ export interface Transaction {
 export type TransactionDetailsModalProps = {
     open: boolean
     onClose: () => void
-    onViewInExplorer: () => void
 } & Transaction
 
 export default function TransactionDetailsModal (props: TransactionDetailsModalProps) {
@@ -149,7 +148,10 @@ export default function TransactionDetailsModal (props: TransactionDetailsModalP
                 </Box>
             </DialogContent>
             <DialogActions>
-                <Button variant='contained' sx={{ mr: 2, textTransform: 'none' }} onClick={props.onViewInExplorer}>
+                <Button
+                    variant='contained'
+                    href={`https://kovan.etherscan.io/tx/${props.transactionHash}`}
+                    sx={{ mr: 2, textTransform: 'none' }}>
                     View in explorer
                 </Button>
             </DialogActions>
