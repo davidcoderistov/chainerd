@@ -33,9 +33,28 @@ export type PortfolioDataByAddress = {
     }
 }
 
+interface Transaction {
+    hash: string
+    from: string
+    to: string
+    timestamp: string
+    value: string
+    amount: string
+    blockNumber: string
+    status: string
+    fee: string
+}
+
+interface LatestTransactions {
+    data: Transaction[]
+    loading: boolean
+    fetched: boolean
+}
+
 interface PortfolioState {
     chartDataByAddress: ChartDataByAddress
     portfolioDataByAddress: PortfolioDataByAddress
+    latestTransactions: LatestTransactions
     selectedPortfolioAddress: string | null
     errorMessage: string | null
 }
@@ -43,6 +62,11 @@ interface PortfolioState {
 const initialState: PortfolioState = {
     chartDataByAddress: {},
     portfolioDataByAddress: {},
+    latestTransactions: {
+        data: [],
+        loading: false,
+        fetched: false,
+    },
     selectedPortfolioAddress: null,
     errorMessage: null,
 }
@@ -67,6 +91,9 @@ const portfolioActions = {
         data: { eth: PortfolioPoints, fiat: PortfolioPoints }
     }>('portfolio/fetchYearlyFulfilled'),
     fetchRejected: createAction<{ address: string, errorMessage: string }>('portfolio/fetchRejected'),
+    fetchLatestTransactions: createAction<{ addresses: string[] }>('portfolio/fetchLatestTransactions'),
+    fetchLatestTransactionsFulfilled: createAction<{ transactions: Transaction[] }>('portfolio/fetchLatestTransactionsFulfilled'),
+    fetchLatestTransactionsRejected: createAction('portfolio/fetchLatestTransactionsRejected'),
 }
 
 const portfolioSlice = createSlice({
@@ -234,6 +261,27 @@ const portfolioSlice = createSlice({
                     loading: false,
                 }
                 state.errorMessage = action.payload.errorMessage
+            })
+            .addCase(portfolioActions.fetchLatestTransactions, state => {
+                state.latestTransactions = {
+                    ...state.latestTransactions,
+                    loading: true,
+                }
+            })
+            .addCase(portfolioActions.fetchLatestTransactionsFulfilled, (state, action) => {
+                const transactions = action.payload.transactions
+                state.latestTransactions = {
+                    data: transactions,
+                    loading: false,
+                    fetched: true,
+                }
+            })
+            .addCase(portfolioActions.fetchLatestTransactionsRejected, (state) => {
+                state.latestTransactions = {
+                    data: [],
+                    loading: false,
+                    fetched: false,
+                }
             })
 })
 
