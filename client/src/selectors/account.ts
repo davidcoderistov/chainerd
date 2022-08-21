@@ -1,8 +1,21 @@
 import { RootState } from '../app/store'
+import { getAddresses } from './address'
 import { getChartDataByAddress } from './portfolio'
+import { Transaction as TableTransaction } from '../components/Transactions'
+import { Transaction as ModalTransaction } from '../components/TransactionDetailsModal'
 
 export function getSelectedAddress (state: RootState) {
     return state.account.selectedAddress
+}
+
+export function getSelectedAccount (state: RootState): string {
+    const selectedAddress = getSelectedAddress(state)
+    if (selectedAddress) {
+        const addresses = getAddresses(state)
+        const selectedAccount = addresses.find(address => address.address.trim().toLowerCase() === selectedAddress.trim().toLowerCase())
+        return selectedAccount ? selectedAccount.alias ? selectedAccount.alias : 'N/A' : 'N/A'
+    }
+    return 'N/A'
 }
 
 export function getSelectedPage (state: RootState) {
@@ -113,4 +126,48 @@ export function getTransactionsFetched (state: RootState): boolean {
         return false
     }
     return false
+}
+
+type TransactionsData = {
+    table: TableTransaction[]
+    modal: ModalTransaction[]
+}
+
+export function getTransactionsData (state: RootState): TransactionsData {
+    const selectedAddress = getSelectedAddress(state)
+    const selectedAccount = getSelectedAccount(state)
+    const transactions = getTransactions(state)
+    return transactions.reduce((transactions: TransactionsData, transaction) => {
+        const withdrawal = selectedAddress ? selectedAddress.trim().toLowerCase() === transaction.from : false
+        return {
+            table: [
+                ...transactions.table,
+                {
+                    withdrawal,
+                    hash: transaction.hash,
+                    from: transaction.from,
+                    to: transaction.to,
+                    date: transaction.timestamp,
+                    value: transaction.value,
+                    amount: transaction.amount
+                }
+            ],
+            modal: [
+                ...transactions.modal,
+                {
+                    withdrawal,
+                    ethAmount: transaction.value,
+                    fiatAmount: transaction.amount,
+                    account: selectedAccount,
+                    timestamp: transaction.timestamp,
+                    fee: transaction.fee,
+                    status: transaction.status,
+                    blockNumber: transaction.blockNumber,
+                    transactionHash: transaction.hash,
+                    from: transaction.from,
+                    to: transaction.to,
+                }
+            ]
+        }
+    }, { table: [], modal: [] })
 }
