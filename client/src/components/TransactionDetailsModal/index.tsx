@@ -3,6 +3,7 @@ import  { Dialog, DialogContent, DialogActions } from '@mui/material'
 import { Box, Grid, Typography, Button, Divider as DividerMUI } from '@mui/material'
 import DialogTitle  from '../DialogTitle'
 import OperationIcon from '../OperationIcon'
+import moment from 'moment'
 
 
 const Title = ({ children }: { children: any }) => {
@@ -32,23 +33,25 @@ const Divider = () => {
     )
 }
 
-export interface TransactionDetailsModalProps {
-    open: boolean
+export interface Transaction {
     withdrawal: boolean
     ethAmount: string
     fiatAmount: string
     account: string
-    date: string
+    timestamp: string
     fee: string
     status: string
-    blockNumber?: string
+    blockNumber: string
     transactionHash: string
     from: string
     to: string
-    onClose: () => void
-    onViewInExplorer: () => void
 }
 
+export type TransactionDetailsModalProps = {
+    open: boolean
+    onClose: () => void
+    onViewInExplorer: () => void
+} & Transaction
 
 export default function TransactionDetailsModal (props: TransactionDetailsModalProps) {
 
@@ -66,7 +69,7 @@ export default function TransactionDetailsModal (props: TransactionDetailsModalP
                 <Box sx={{ height: '550px' }}>
                     <Grid container>
                         <Grid item container xs={12} justifyContent='center' marginTop='15px'>
-                            <OperationIcon withdrawal={props.withdrawal} fontSize={20} />
+                            <OperationIcon withdrawal={props.withdrawal} fontSize={34} />
                         </Grid>
                         <Grid item container xs={12} justifyContent='center' marginTop='15px'>
                             <Typography color={props.withdrawal ? '#ef5350' : '#66be54'} fontSize={22}>
@@ -92,7 +95,7 @@ export default function TransactionDetailsModal (props: TransactionDetailsModalP
                                     Date
                                 </Title>
                                 <Subtitle>
-                                    {props.date}
+                                    {moment.unix(Number(props.timestamp)).format('DD-MM-YYYY')}
                                 </Subtitle>
                             </Grid>
                         </Grid>
