@@ -5,6 +5,7 @@ import { portfolioActions } from '../../slices/portfolio'
 import { accountActions } from '../../slices/account'
 import {
     getSelectedAddress,
+    getSelectedAccount,
     getSelectedPage,
     getPeriodType,
     getIsFiat,
@@ -19,14 +20,20 @@ import {
 import ViewAccountBalance from '../../components/ViewAccountBalance'
 import Transactions from '../../components/Transactions'
 import TransactionDetailsModal, { Transaction } from '../../components/TransactionDetailsModal'
-import { Box } from '@mui/material'
+import { Box, Breadcrumbs, Typography, styled } from '@mui/material'
+import { NavLink as Link } from 'react-router-dom'
 
+
+const StyledLink = styled(Link)({
+    textDecoration: 'none',
+})
 
 export default function AccountPage () {
 
     const params = useParams()
 
     const selectedAddress = useSelector(getSelectedAddress)
+    const selectedAccount = useSelector(getSelectedAccount)
     const selectedPage = useSelector(getSelectedPage)
 
     const periodType = useSelector(getPeriodType)
@@ -95,6 +102,17 @@ export default function AccountPage () {
 
     return (
         <React.Fragment>
+            <Breadcrumbs sx={{ fontSize: 22 }}>
+                <StyledLink to='/accounts'>
+                    <Typography color='primary.main' fontSize={22}>
+                        Accounts
+                    </Typography>
+                </StyledLink>
+                <Typography fontSize={22}>
+                    { selectedAccount !== 'N/A' ? selectedAccount : selectedAddress ? selectedAddress.trim().toLowerCase() : 'N/A' }
+                </Typography>
+            </Breadcrumbs>
+            <Box marginTop='50px' />
             <ViewAccountBalance
                 balance={balance}
                 chartData={Array.isArray(chartData) ? chartData : []}
@@ -104,7 +122,7 @@ export default function AccountPage () {
                 height={300}
                 onChangeBalanceView={handleChangeBalanceView}
                 onChangePeriod={handleChangePeriodType} />
-            <Box marginTop='100px' />
+            <Box marginTop='50px' />
             <Transactions
                 transactions={transactionsData.table}
                 loading={transactionsLoading}
