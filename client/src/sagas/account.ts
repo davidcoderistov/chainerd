@@ -37,8 +37,8 @@ export function *fetchTransactions ({ payload }: ReturnType<typeof accountAction
                     from: transaction.from,
                     to: transaction.to,
                     timestamp: transaction.timestamp,
-                    value: ethAmount,
-                    amount: toRoundedFiat(Number(ethPrices[index]) * Number(ethAmount)),
+                    value: toRoundedFiat(Number(ethPrices[index]) * Number(ethAmount)),
+                    amount: ethAmount,
                     blockNumber: transaction.blockNumber,
                     status: transaction.status,
                     fee: toRoundedEth(
