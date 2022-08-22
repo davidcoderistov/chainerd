@@ -183,7 +183,7 @@ export default function HomePage () {
                             <AccountPage />
                         } />
                         <Route path='*' element={
-                            <Navigate to='/portfolio' replace />
+                            <Navigate to='/accounts' replace />
                         } />
                     </Routes>
                 ): loading ? (
