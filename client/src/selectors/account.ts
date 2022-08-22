@@ -45,6 +45,18 @@ export function getChartData (state: RootState) {
 }
 
 export function getBalance (state: RootState): number {
+    const isFiat = getIsFiat(state)
+    if (isFiat) {
+        const selectedAddress = getSelectedAddress(state)
+        if (selectedAddress) {
+            const addresses = getAddresses(state)
+            const address = addresses.find(address => address.address === selectedAddress)
+            if (address) {
+                return address.fiatAmount
+            }
+        }
+        return 0
+    }
     const chartData = getChartData(state)
     if (Array.isArray(chartData) && chartData.length > 0) {
         return Number(chartData[chartData.length - 1].y)
