@@ -168,8 +168,8 @@ export function getTransactionsData (state: RootState): TransactionsData {
                 ...transactions.modal,
                 {
                     withdrawal,
-                    ethAmount: transaction.value,
-                    fiatAmount: transaction.amount,
+                    ethAmount: transaction.amount,
+                    fiatAmount: transaction.value,
                     account: selectedAccount,
                     timestamp: transaction.timestamp,
                     fee: transaction.fee,
