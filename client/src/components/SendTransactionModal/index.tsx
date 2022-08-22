@@ -53,7 +53,7 @@ export default function SendTransactionModal ({ open, onClose, onConfirm } : Sen
 
     const addresses = useSelector(getAddresses)
     const showAddresses = addresses.map(({ address, alias }) => alias ? alias : address)
-    const [fromAddress, setFromAddress] = useState<string>(addresses.length > 0 ? addresses[0].address : '')
+    const [fromAddress, setFromAddress] = useState<string>(addresses.length > 0 ? addresses[0].alias ? addresses[0].alias : addresses[0].address : '')
     const [toAddress, setToAddress] = useState<string>('')
 
     const loading = useSelector(getLoading)
@@ -93,11 +93,14 @@ export default function SendTransactionModal ({ open, onClose, onConfirm } : Sen
 
     const handleConfirmPassword = (password: string) => {
         setIsConfirmPasswordModalOpen(false)
-        dispatch(transactionActions.sendTransaction({
-            fromAddress,
-            toAddress,
-            password,
-        }))
+        const from = addresses.find(address => address.address === fromAddress || address.alias === fromAddress)
+        if (from) {
+            dispatch(transactionActions.sendTransaction({
+                fromAddress: from.address,
+                toAddress,
+                password,
+            }))
+        }
     }
 
     const handleOnContinue = () => {
