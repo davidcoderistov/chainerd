@@ -21,6 +21,7 @@ import {
     distributePercentages,
 } from '../utils'
 import _intersection from 'lodash/intersection'
+import { ethers } from 'ethers'
 
 export const STATUS_CODES = {
     LOAD_ALL: 1,
@@ -45,13 +46,13 @@ export function *loadAll ({ payload }: ReturnType<typeof addressActions.loadAll>
         const ethBalances: { [address: string]: string } = yield call(getEthBalances, addresses)
         const ethPrice: number = yield call(getEthPrice)
         const mappedAddresses = addresses.map(address => {
-            const ethAmount = Number(ethBalances[address])
+            const ethAmount = toRoundedEth(Number(ethers.utils.formatEther(ethers.BigNumber.from(ethBalances[address]))))
             return {
                 address,
                 alias: localStorageAddressAliases && localStorageAddressAliases.hasOwnProperty(address) ?
                     localStorageAddressAliases[address] : null,
-                ethAmount: ethBalances.hasOwnProperty(address) ? Number(toRoundedEth(ethAmount)) : 0,
-                fiatAmount: Number(toRoundedFiat(ethAmount * ethPrice)),
+                ethAmount: ethBalances.hasOwnProperty(address) ? Number(ethAmount) : 0,
+                fiatAmount: Number(toRoundedFiat(Number(ethAmount) * ethPrice)),
                 loading: false,
             }
         })
