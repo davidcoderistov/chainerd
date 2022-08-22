@@ -245,18 +245,32 @@ export default function AccountBalanceChart ({ data, type, loading, fiat, height
             }
             const upperBound = max * 1.4
             if (upperBound < 1) {
-                return upperBound
+                if (upperBound > 0) {
+                    return upperBound
+                }
+                return 100
             } else {
                 const maxRounded = Math.round(upperBound)
                 const numDigits = Math.max(Math.floor(Math.log10(Math.abs(maxRounded))), 0) + 1
                 if (numDigits > 2) {
                     const squareBy = Math.pow(10, numDigits - 2)
-                    return Math.ceil(maxRounded / squareBy) * squareBy
+                    const max = Math.ceil(maxRounded / squareBy) * squareBy
+                    if (max > 0) {
+                        return max
+                    }
+                    return 100
                 }
                 if (maxRounded % 2) {
-                    return maxRounded + 1
+                    const max = maxRounded + 1
+                    if (max > 0) {
+                        return max
+                    }
+                    return 100
                 }
-                return maxRounded
+                if (maxRounded > 0) {
+                    return maxRounded
+                }
+                return 100
             }
         }
 
