@@ -54,6 +54,18 @@ export function getChartDataByPortfolioAddress (state: RootState): PortfolioPoin
 }
 
 export function getBalanceByPortfolioAddress (state: RootState): number {
+    const isFiat = getIsFiat(state)
+    if (isFiat) {
+        const selectedAddress = getSelectedPortfolioAddress(state)
+        if (selectedAddress) {
+            const addresses = getAddresses(state)
+            const address = addresses.find(address => address.address === selectedAddress)
+            if (address) {
+                return address.fiatAmount
+            }
+        }
+        return 0
+    }
     const chartData = getChartDataByPortfolioAddress(state)
     if (Array.isArray(chartData) && chartData.length > 0) {
         return Number(chartData[chartData.length - 1].y)
