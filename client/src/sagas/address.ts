@@ -18,6 +18,7 @@ import {
     getErrorMessage,
     toRoundedEth,
     toRoundedFiat,
+    distributePercentages,
 } from '../utils'
 import _intersection from 'lodash/intersection'
 
@@ -43,17 +44,23 @@ export function *loadAll ({ payload }: ReturnType<typeof addressActions.loadAll>
         }
         const ethBalances: { [address: string]: string } = yield call(getEthBalances, addresses)
         const ethPrice: number = yield call(getEthPrice)
+        const mappedAddresses = addresses.map(address => {
+            const ethAmount = Number(ethBalances[address])
+            return {
+                address,
+                alias: localStorageAddressAliases && localStorageAddressAliases.hasOwnProperty(address) ?
+                    localStorageAddressAliases[address] : null,
+                ethAmount: ethBalances.hasOwnProperty(address) ? Number(toRoundedEth(ethAmount)) : 0,
+                fiatAmount: Number(toRoundedFiat(ethAmount * ethPrice)),
+                loading: false,
+            }
+        })
+        const percentages = distributePercentages(mappedAddresses.map(address => address.ethAmount))
         yield put(addressActions.loadAllFulfilled({
-            addresses: addresses.map(address => {
-                const ethAmount = Number(ethBalances[address])
-                return {
-                    address,
-                    alias: localStorageAddressAliases && localStorageAddressAliases.hasOwnProperty(address) ?
-                        localStorageAddressAliases[address] : null,
-                    ethAmount: ethBalances.hasOwnProperty(address) ? Number(toRoundedEth(ethAmount)) : 0,
-                    fiatAmount: Number(toRoundedFiat(ethAmount * ethPrice)),
-                    loading: false,
-            }})
+            addresses: mappedAddresses.map((address, index) => ({
+                ...address,
+                percentage: percentages[index]
+            }))
         }))
     } catch (error: any) {
         yield put(addressActions.rejected({

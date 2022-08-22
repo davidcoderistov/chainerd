@@ -5,6 +5,7 @@ export interface AddressType {
     alias: string | null
     ethAmount: number
     fiatAmount: number
+    percentage: number
     loading: boolean
 }
 
@@ -62,6 +63,7 @@ const addressSlice = createSlice({
                     alias: null,
                     ethAmount: 0,
                     fiatAmount: 0,
+                    percentage: 0,
                     loading: false,
                 }],
                 statusCode: action.payload.statusCode,
