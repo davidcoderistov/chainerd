@@ -28,8 +28,8 @@ const BorderLinearProgress = styled(LinearProgress)(({ theme }) => ({
 interface AssetAllocationItem {
     account: string
     address: string
-    amount: number
-    value: number
+    amount: string
+    value: string
     allocation: number
 }
 
