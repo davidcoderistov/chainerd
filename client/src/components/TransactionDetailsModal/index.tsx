@@ -72,12 +72,12 @@ export default function TransactionDetailsModal (props: TransactionDetailsModalP
                         </Grid>
                         <Grid item container xs={12} justifyContent='center' marginTop='15px'>
                             <Typography color={props.withdrawal ? '#ef5350' : '#66be54'} fontSize={22}>
-                                +{props.ethAmount} ETH
+                                {props.withdrawal ? '-' : '+'}{props.ethAmount} ETH
                             </Typography>
                         </Grid>
                         <Grid item container xs={12} justifyContent='center'>
                             <Typography color='#6c757d' fontSize={16}>
-                                +${props.fiatAmount}
+                                {props.withdrawal ? '-' : '+'}${props.fiatAmount}
                             </Typography>
                         </Grid>
                         <Grid item container xs={12} marginTop='35px'>
