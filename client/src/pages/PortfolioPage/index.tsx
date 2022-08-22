@@ -134,7 +134,7 @@ export default function PortfolioPage () {
                         onSlideLeft={handleSlideLeft}
                         onSlideRight={handleSlideRight}
                         leftDisabled={selectedIndex <= 0}
-                        rightDisabled={selectedIndex >= addresses.length}
+                        rightDisabled={selectedIndex + 1 >= addresses.length}
                         balance={balance}
                         chartData={Array.isArray(chartData) ? chartData : []}
                         chartDataLoading={addressesLoading || chartDataLoading}
