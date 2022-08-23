@@ -1,6 +1,7 @@
 import { call, put, select, delay, takeLatest } from 'redux-saga/effects'
 import { keystoreActions } from '../slices/keystore'
-import { addressActions } from '../slices/address'
+import { addressActions, AddressType } from '../slices/address'
+import { getAddresses } from '../selectors/address'
 import { getSerializedKeystore } from '../selectors/keystore'
 import { keystore } from 'eth-lightwallet'
 import { getEthPrice, getEthBalances } from '../services'
@@ -148,6 +149,15 @@ export function *deleteAddress ({ payload }: ReturnType<typeof addressActions.de
             address: payload.address,
             statusCode: STATUS_CODES.DELETE_ADDRESS,
             successMessage: 'Address successfully deleted',
+        }))
+        const addresses: AddressType[] = yield select(getAddresses)
+        const filteredAddresses = addresses.filter(address => address.address !== payload.address)
+        const percentages = distributePercentages(filteredAddresses.map(address => address.ethAmount))
+        yield put(addressActions.loadAllFulfilled({
+            addresses: filteredAddresses.map((address, index) => ({
+                ...address,
+                percentage: percentages[index]
+            }))
         }))
     } catch (error: any) {
         yield put(addressActions.rejected({
