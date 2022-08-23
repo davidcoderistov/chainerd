@@ -5,6 +5,7 @@ import { addressActions } from '../../slices/address'
 import {
     getAddresses,
     getLoading,
+    getAddressesLoading,
     isDeleteAddressSuccess,
     isEditAddressSuccess,
     isGenerateAddressSuccess
@@ -25,6 +26,7 @@ export default function AccountsPage () {
     const accountEdited = useSelector(isEditAddressSuccess)
     const accountDeleted = useSelector(isDeleteAddressSuccess)
     const loading = useSelector(getLoading)
+    const addressesLoading = useSelector(getAddressesLoading)
 
     const [searchText, setSearchText] = useState<string>('')
 
@@ -142,7 +144,7 @@ export default function AccountsPage () {
         <React.Fragment>
             <Accounts
                 accounts={filteredAddresses}
-                loading={loading}
+                loading={addressesLoading}
                 onAddAccount={handleOpenConfirmPasswordModal}
                 searchText={searchText}
                 onChangeSearchText={handleOnChangeSearchText}

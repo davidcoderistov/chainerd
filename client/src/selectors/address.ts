@@ -5,6 +5,8 @@ export const getAddresses = (state: RootState) => state.address.addresses
 
 export const getLoading = (state: RootState) => state.address.loading
 
+export const getAddressesLoading = (state: RootState) => state.address.addressesLoading
+
 export const getStatusCode = (state: RootState) => state.address.statusCode
 
 export const getErrorMessage = (state: RootState) => state.address.errorMessage
