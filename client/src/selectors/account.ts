@@ -3,6 +3,7 @@ import { getAddresses } from './address'
 import { getChartDataByAddress } from './portfolio'
 import { Transaction as TableTransaction } from '../components/Transactions'
 import { Transaction as ModalTransaction } from '../components/TransactionDetailsModal'
+import { getAgo } from '../utils'
 
 export function getSelectedAddress (state: RootState) {
     return state.account.selectedAddress
@@ -159,7 +160,7 @@ export function getTransactionsData (state: RootState): TransactionsData {
                     hash: transaction.hash,
                     from: transaction.from,
                     to: transaction.to,
-                    date: transaction.timestamp,
+                    date: getAgo(transaction.timestamp),
                     value: transaction.value,
                     amount: transaction.amount
                 }

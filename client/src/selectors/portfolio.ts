@@ -4,6 +4,7 @@ import { PeriodType, PortfolioPoints } from '../slices/portfolio'
 import { AddressType } from '../slices/address'
 import { Transaction as TableTransaction } from '../components/Transactions'
 import { Transaction as ModalTransaction } from '../components/TransactionDetailsModal'
+import { getAgo } from '../utils'
 
 export function getChartDataByAddress (state: RootState) {
     return state.portfolio.chartDataByAddress
@@ -127,7 +128,7 @@ export function getLatestTransactionsData (state: RootState) {
                     hash: transaction.hash,
                     from,
                     to,
-                    date: transaction.timestamp,
+                    date: getAgo(transaction.timestamp),
                     value: transaction.value,
                     amount: transaction.amount
                 }
