@@ -2,6 +2,7 @@ import React, { useState, useEffect, useMemo } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { useNavigate } from 'react-router-dom'
 import { addressActions } from '../../slices/address'
+import { portfolioActions } from '../../slices/portfolio'
 import {
     getAddresses,
     getLoading,
@@ -120,6 +121,9 @@ export default function AccountsPage () {
     useEffect(() => {
         if (accountDeleted) {
             setIsEditAccountModalOpen(false)
+            dispatch(portfolioActions.fetchLatestTransactions({
+                addresses: storeAddresses.map(address => address.address),
+            }))
         }
     }, [accountDeleted])
 
