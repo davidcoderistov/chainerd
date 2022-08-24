@@ -2,6 +2,8 @@ import { RootState } from '../app/store'
 import { roundedWeiToGwei, getNetworkFees } from '../utils'
 import { STATUS_CODES } from '../sagas/transaction'
 
+export const getActiveStep = (state: RootState): number => state.transaction.activeStep
+
 export const getEthAmount = (state: RootState): string => state.transaction.ethAmount
 
 export const getFiatAmount = (state: RootState): string => state.transaction.fiatAmount
