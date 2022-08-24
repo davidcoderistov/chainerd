@@ -7,6 +7,7 @@ interface TransactionState {
         errorMessage: string | null
         successMessage: string | null
     }
+    activeStep: number
     ethAmount: string
     fiatAmount: string
     ethPrice: number
@@ -24,6 +25,7 @@ const initialState: TransactionState = {
         errorMessage: null,
         successMessage: null,
     },
+    activeStep: 0,
     ethAmount: '',
     fiatAmount: '',
     ethPrice: 0,
@@ -35,10 +37,12 @@ const initialState: TransactionState = {
 }
 
 const transactionActions = {
+    setActiveStep: createAction<{ step: number }>('transaction/setActiveStep'),
     setEthAmount: createAction<{ ethAmount: string }>('transaction/setEthAmount'),
     setFiatAmount: createAction<{ fiatAmount: string }>('transaction/setFiatAmount'),
     setGasInfo: createAction('transaction/setGasInfo'),
     setGasPrice: createAction<{ gasPrice: number }>('transaction/setGasPrice'),
+    clearAll: createAction('transaction/clearAll'),
     setAmountFulfilled: createAction<{
         statusCode: number,
         successMessage: string,
@@ -65,6 +69,10 @@ const transactionSlice = createSlice({
     reducers: {},
     extraReducers: builder =>
         builder
+            .addCase(transactionActions.setActiveStep, (state, action) => ({
+                ...state,
+                activeStep: action.payload.step,
+            }))
             .addCase(transactionActions.setEthAmount, (state, action) => ({
                 ...state,
                 request: {
@@ -90,6 +98,9 @@ const transactionSlice = createSlice({
                     }
                 })
             })
+            .addCase(transactionActions.clearAll, () => ({
+                ...initialState,
+            }))
             .addCase(transactionActions.pending, state => ({
                 ...state,
                 request: {
