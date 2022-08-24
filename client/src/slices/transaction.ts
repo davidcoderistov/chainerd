@@ -16,6 +16,7 @@ interface TransactionState {
         highGasPrice: number
         gasPrice: number
     }
+    hash: string | null
 }
 
 const initialState: TransactionState = {
@@ -33,7 +34,8 @@ const initialState: TransactionState = {
         lowGasPrice: 0,
         highGasPrice: 100,
         gasPrice: 50,
-    }
+    },
+    hash: null
 }
 
 const transactionActions = {
@@ -42,6 +44,7 @@ const transactionActions = {
     setFiatAmount: createAction<{ fiatAmount: string }>('transaction/setFiatAmount'),
     setGasInfo: createAction('transaction/setGasInfo'),
     setGasPrice: createAction<{ gasPrice: number }>('transaction/setGasPrice'),
+    setHash: createAction<{ hash: string | null }>('transaction/setHash'),
     clearAll: createAction('transaction/clearAll'),
     setAmountFulfilled: createAction<{
         statusCode: number,
@@ -98,6 +101,10 @@ const transactionSlice = createSlice({
                     }
                 })
             })
+            .addCase(transactionActions.setHash, (state, action) => ({
+                ...state,
+                hash: action.payload.hash,
+            }))
             .addCase(transactionActions.clearAll, () => ({
                 ...initialState,
             }))
