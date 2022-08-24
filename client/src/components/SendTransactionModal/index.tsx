@@ -3,6 +3,7 @@ import { useDispatch, useSelector } from 'react-redux'
 import { transactionActions } from '../../slices/transaction'
 import { getAddresses } from '../../selectors/address'
 import {
+    getActiveStep,
     getEthAmount,
     getFiatAmount,
     getLowGasPrice,
@@ -13,10 +14,11 @@ import {
     getFiatNetworkFees,
     getEthTotalAmount,
     getFiatTotalAmount,
+    isSendTransactionError,
 } from '../../selectors/transaction'
 import { Dialog, DialogTitle, DialogContent, DialogActions } from '@mui/material'
 import { Stepper, Step, StepLabel } from '@mui/material'
-import { Grid, IconButton, styled } from '@mui/material'
+import { Grid, IconButton, CircularProgress, styled } from '@mui/material'
 import { LoadingButton } from '@mui/lab'
 import { Close } from '@mui/icons-material'
 import RecipientStep from './RecipientStep'
@@ -33,11 +35,19 @@ const steps = [
     'Summary',
 ]
 
+const transactionSteps = [
+    'Initiating',
+    'Waiting for confirmation',
+    'Transaction mined',
+]
+
 const DialogTitleStyled = styled(DialogTitle)({
     display: 'flex',
     flexDirection: 'row',
     justifyContent: 'space-between',
 })
+
+const CustomCircularProgress = () => <CircularProgress size={22} />
 
 interface SendTransactionModalProps {
     open: boolean,
@@ -49,16 +59,22 @@ export default function SendTransactionModal ({ open, onClose, onConfirm } : Sen
 
     const dispatch = useDispatch()
 
-    const [activeStep, setActiveStep] = useState<number>(0)
+    const [transactionInitiated, setTransactionInitiated] = useState<boolean>(false)
 
+    const activeStep = useSelector(getActiveStep)
     const addresses = useSelector(getAddresses)
     const showAddresses = addresses.map(({ address, alias }) => alias ? alias : address)
     const [fromAddress, setFromAddress] = useState<string>(addresses.length > 0 ? addresses[0].alias ? addresses[0].alias : addresses[0].address : '')
     const [toAddress, setToAddress] = useState<string>('')
 
     const loading = useSelector(getLoading)
+    const error = useSelector(isSendTransactionError)
     const ethAmount = useSelector(getEthAmount)
     const fiatAmount = useSelector(getFiatAmount)
+
+    const setActiveStep = (step: number) => {
+        dispatch(transactionActions.setActiveStep({ step }))
+    }
 
     const handleChangeEthAmount = (ethAmount: string) => {
         dispatch(transactionActions.setEthAmount({ ethAmount }))
@@ -95,6 +111,8 @@ export default function SendTransactionModal ({ open, onClose, onConfirm } : Sen
         setIsConfirmPasswordModalOpen(false)
         const from = addresses.find(address => address.address === fromAddress || address.alias === fromAddress)
         if (from) {
+            setActiveStep(0)
+            setTransactionInitiated(true)
             dispatch(transactionActions.sendTransaction({
                 fromAddress: from.address,
                 toAddress,
@@ -102,6 +120,18 @@ export default function SendTransactionModal ({ open, onClose, onConfirm } : Sen
             }))
         }
     }
+
+    const handleCloseSendTransactionModal = () => {
+        dispatch(transactionActions.clearAll())
+        onClose()
+    }
+
+    useEffect(() => {
+        if (error) {
+            setActiveStep(2)
+            setTransactionInitiated(false)
+        }
+    }, [error])
 
     const handleOnContinue = () => {
         if (activeStep < 2) {
@@ -126,7 +156,7 @@ export default function SendTransactionModal ({ open, onClose, onConfirm } : Sen
                         sx={{
                             color: (theme) => theme.palette.grey[500],
                         }}
-                        onClick={onClose}
+                        onClick={handleCloseSendTransactionModal}
                     >
                         <Close />
                     </IconButton>
@@ -136,34 +166,25 @@ export default function SendTransactionModal ({ open, onClose, onConfirm } : Sen
                         <Grid container spacing={2}>
                             <Grid item xs={12}>
                                 <Stepper activeStep={activeStep} alternativeLabel>
-                                    {steps.map((label) => (
-                                        <Step key={label}>
-                                            <StepLabel>{ label }</StepLabel>
-                                        </Step>
-                                    ))}
+                                    { transactionInitiated ?
+                                        transactionSteps.map((label, index) => (
+                                            <Step key={label}>
+                                                { index === activeStep ? (
+                                                    <StepLabel StepIconComponent={CustomCircularProgress}>{ label }</StepLabel>
+                                                ) : (
+                                                    <StepLabel>{ label }</StepLabel>
+                                                )}
+                                            </Step>
+                                        )) :
+                                        steps.map((label) => (
+                                            <Step key={label}>
+                                                <StepLabel>{ label }</StepLabel>
+                                            </Step>
+                                        ))}
                                 </Stepper>
                             </Grid>
                             <Grid item xs={12} sx={{ mt: 1, mx: 1 }}>
-                                { activeStep === 0 && (
-                                    <RecipientStep
-                                        addresses={showAddresses}
-                                        fromAddress={fromAddress}
-                                        onChangeFromAddress={setFromAddress}
-                                        toAddress={toAddress}
-                                        onChangeToAddress={setToAddress} />
-                                )}
-                                { activeStep === 1 && (
-                                    <AmountStep
-                                        cryptoAmount={ethAmount}
-                                        onChangeCryptoAmount={handleChangeEthAmount}
-                                        fiatAmount={fiatAmount}
-                                        onChangeFiatAmount={handleChangeFiatAmount}
-                                        lowGasPrice={lowGasPrice}
-                                        highGasPrice={highGasPrice}
-                                        gasPrice={gasPrice}
-                                        onChangeGasPrice={handleChangeGasPrice} />
-                                )}
-                                { activeStep === 2 && (
+                                { transactionInitiated ? (
                                     <SummaryStep
                                         fromAddress={fromAddress}
                                         toAddress={toAddress}
@@ -173,19 +194,54 @@ export default function SendTransactionModal ({ open, onClose, onConfirm } : Sen
                                         fiatFees={toRoundedFiat(fiatFee)}
                                         cryptoTotalAmount={toRoundedEth(ethTotal)}
                                         fiatTotalAmount={toRoundedFiat(fiatTotal)}  />
+                                ): (
+                                    <React.Fragment>
+                                        { activeStep === 0 && (
+                                            <RecipientStep
+                                                addresses={showAddresses}
+                                                fromAddress={fromAddress}
+                                                onChangeFromAddress={setFromAddress}
+                                                toAddress={toAddress}
+                                                onChangeToAddress={setToAddress} />
+                                        )}
+                                        { activeStep === 1 && (
+                                            <AmountStep
+                                                cryptoAmount={ethAmount}
+                                                onChangeCryptoAmount={handleChangeEthAmount}
+                                                fiatAmount={fiatAmount}
+                                                onChangeFiatAmount={handleChangeFiatAmount}
+                                                lowGasPrice={lowGasPrice}
+                                                highGasPrice={highGasPrice}
+                                                gasPrice={gasPrice}
+                                                onChangeGasPrice={handleChangeGasPrice} />
+                                        )}
+                                        { activeStep === 2 && (
+                                            <SummaryStep
+                                                fromAddress={fromAddress}
+                                                toAddress={toAddress}
+                                                cryptoWithdrawAmount={ethAmount}
+                                                fiatWithdrawAmount={fiatAmount}
+                                                cryptoFees={toRoundedEth(ethFee)}
+                                                fiatFees={toRoundedFiat(fiatFee)}
+                                                cryptoTotalAmount={toRoundedEth(ethTotal)}
+                                                fiatTotalAmount={toRoundedFiat(fiatTotal)}  />
+                                        )}
+                                    </React.Fragment>
                                 )}
                             </Grid>
                         </Grid>
                     </div>
                 </DialogContent>
                 <DialogActions>
-                    <LoadingButton
-                        sx={{ mr:1 }}
-                        disabled={buttonDisabled}
-                        loading={loading}
-                        onClick={handleOnContinue}>
-                        { activeStep < 2 ? 'Continue' : 'Confirm' }
-                    </LoadingButton>
+                    { !transactionInitiated && (
+                        <LoadingButton
+                            sx={{ mr:1 }}
+                            disabled={buttonDisabled}
+                            loading={loading}
+                            onClick={handleOnContinue}>
+                            { activeStep < 2 ? 'Continue' : 'Confirm' }
+                        </LoadingButton>
+                    )}
                 </DialogActions>
             </Dialog>
             <ConfirmPasswordModal
