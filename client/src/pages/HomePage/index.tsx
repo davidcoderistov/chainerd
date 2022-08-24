@@ -223,8 +223,7 @@ export default function HomePage () {
             <SendTransactionModal
                 key={sendTransactionModalKey}
                 open={isSendTransactionModalOpen}
-                onClose={closeSendTransactionModal}
-                onConfirm={closeSendTransactionModal} />
+                onClose={closeSendTransactionModal} />
             <CloseWalletModal
                 key={closeWalletModalKey}
                 open={isCloseWalletModalOpen}

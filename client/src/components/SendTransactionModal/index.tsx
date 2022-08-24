@@ -53,10 +53,9 @@ const CustomCircularProgress = () => <CircularProgress size={22} />
 interface SendTransactionModalProps {
     open: boolean,
     onClose: () => void,
-    onConfirm: () => void,
 }
 
-export default function SendTransactionModal ({ open, onClose, onConfirm } : SendTransactionModalProps) {
+export default function SendTransactionModal ({ open, onClose } : SendTransactionModalProps) {
 
     const dispatch = useDispatch()
 
