@@ -14,6 +14,8 @@ export const getHighGasPrice = (state: RootState): number => roundedWeiToGwei(st
 
 export const getGasPrice = (state: RootState): number => state.transaction.gasInfo.gasPrice
 
+export const getHash = (state: RootState) => state.transaction.hash
+
 export const getLoading = (state: RootState): boolean => state.transaction.request.loading
 
 export const getEthNetworkFees = (state: RootState): number => getNetworkFees(state.transaction.gasInfo.gasPrice)
