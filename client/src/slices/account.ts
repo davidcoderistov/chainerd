@@ -37,7 +37,7 @@ const initialState: AccountState = {
     selectedAddress: null,
     selectedPage: 1,
     chartData: {
-        periodType: 'weekly',
+        periodType: 'yearly',
         isFiat: true
     },
     transactions: {},
@@ -48,8 +48,9 @@ const accountActions = {
     setSelectedPage: createAction<{ page: number }>('account/setSelectedPage'),
     setPeriodType: createAction<{ periodType: PeriodType }>('account/setPeriodType'),
     setIsFiat: createAction<{ isFiat: boolean }>('account/setIsFiat'),
+    setTransactionCount: createAction<{ address: string, count: number }>('account/setTransactionCount'),
     fetchTransactions: createAction<{ address: string, page: number }>('account/fetchTransactions'),
-    fetchTransactionsFulfilled: createAction<{ address: string, page: number, data: Transaction[], count?: number }>('account/fetchTransactionsFulfilled'),
+    fetchTransactionsFulfilled: createAction<{ address: string, page: number, data: Transaction[] }>('account/fetchTransactionsFulfilled'),
 }
 
 const accountSlice = createSlice({
@@ -70,24 +71,34 @@ const accountSlice = createSlice({
             .addCase(accountActions.setIsFiat, (state, action) => {
                 state.chartData.isFiat = action.payload.isFiat
             })
-            .addCase(accountActions.fetchTransactions, (state, action) => {
-                const { address, page } = action.payload
-                if (page <= 1) {
+            .addCase(accountActions.setTransactionCount, (state, action) => {
+                const { address, count } = action.payload
+                if (state.transactions.hasOwnProperty(address)) {
                     state.transactions[address] = {
-                        count: 0,
+                        ...state.transactions[address],
+                        count,
+                    }
+                } else {
+                    state.transactions[address] = {
+                        count,
                     }
                 }
-                state.transactions[address][page] = {
-                    data: [],
-                    loading: true,
-                    fetched: false,
+            })
+            .addCase(accountActions.fetchTransactions, (state, action) => {
+                const { address, page } = action.payload
+                state.transactions[address] = {
+                    count: state.transactions.hasOwnProperty(address) ? state.transactions[address].count : 0,
+                    [page]: {
+                        data: [],
+                        loading: true,
+                        fetched: false,
+                    },
                 }
             })
             .addCase(accountActions.fetchTransactionsFulfilled, (state, action) => {
-                const { address, page, data, count } = action.payload
+                const { address, page, data } = action.payload
                 state.transactions[address] = {
                     ...state.transactions[address],
-                    count: page > 1 ? state.transactions[address].count : count ? count : 0,
                     [page]: {
                         data,
                         loading: false,

@@ -13,6 +13,7 @@ import {
     getBalance,
     getIsChartDataLoading,
     getTransactionCount,
+    getTransactionCountLoading,
     getTransactionsData,
     getTransactionsLoading,
     getTransactionsFetched,
@@ -43,6 +44,7 @@ export default function AccountPage () {
     const balance = useSelector(getBalance)
 
     const transactionCount = useSelector(getTransactionCount)
+    const transactionCountLoading = useSelector(getTransactionCountLoading)
     const transactionsData = useSelector(getTransactionsData)
     const transactionsLoading = useSelector(getTransactionsLoading)
     const transactionsFetched = useSelector(getTransactionsFetched)
@@ -125,7 +127,7 @@ export default function AccountPage () {
             <Box marginTop='50px' />
             <Transactions
                 transactions={transactionsData.table}
-                loading={transactionsLoading}
+                loading={transactionCountLoading || transactionsLoading}
                 latest={false}
                 onClickTransaction={handleTransactionClick}
                 paginationProps={{

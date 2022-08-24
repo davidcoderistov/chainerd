@@ -1,5 +1,6 @@
 import { call, all, put, takeLatest } from 'redux-saga/effects'
 import { portfolioActions } from '../slices/portfolio'
+import { accountActions } from '../slices/account'
 import {
     getBlockNumber,
     getEthBalance,
@@ -154,6 +155,7 @@ export function *generateYearlyData ({ payload }: ReturnType<typeof portfolioAct
             generateBalances,
             { address, startBlock, endBlock }
         )
+        yield put(accountActions.setTransactionCount({ address, count: balances.length }))
         const ethData = getYearlyData(start, end, balances, '0')
         const portfolioData: {
             ethData: Array<{ x: string, y: string }>,

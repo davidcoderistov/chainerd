@@ -3,7 +3,6 @@ import { accountActions } from '../slices/account'
 import {
     getTransactions,
     getEthPriceAt,
-    getTransactionCount,
     Transaction,
 } from '../services'
 import { toRoundedEth, toRoundedFiat } from '../utils'
@@ -14,7 +13,6 @@ import { ethers } from 'ethers'
 export function *fetchTransactions ({ payload }: ReturnType<typeof accountActions.fetchTransactions>) {
     const { address, page } = payload
     try {
-        let count = -1
         const transactions: Transaction[] = yield call(
             getTransactions,
             { address, page, offset: 5, sort: 'desc' }
@@ -24,9 +22,6 @@ export function *fetchTransactions ({ payload }: ReturnType<typeof accountAction
                 return call(getEthPriceAt, moment.unix(Number(timestamp)).format('DD-MM-YYYY'))
             })
         )
-        if (page <= 1) {
-            count = yield call(getTransactionCount, address)
-        }
         yield put(accountActions.fetchTransactionsFulfilled({
             address,
             page,
@@ -46,7 +41,6 @@ export function *fetchTransactions ({ payload }: ReturnType<typeof accountAction
                     )
                 }
             }),
-            ...count >= 0 && { count }
         }))
     } catch (error: any) {
         yield put(accountActions.fetchTransactionsFulfilled({

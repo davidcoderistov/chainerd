@@ -93,6 +93,12 @@ export function getTransactionCount (state: RootState): number {
     return 0
 }
 
+export function getTransactionCountLoading (state: RootState): boolean {
+    const periodType = getPeriodType(state)
+    const chartDataLoading = getIsChartDataLoading(state)
+    return periodType === 'yearly' && chartDataLoading
+}
+
 export function getTransactions (state: RootState) {
     const selectedAddress = getSelectedAddress(state)
     const transactions = getAllTransactions(state)
