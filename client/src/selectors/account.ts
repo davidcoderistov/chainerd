@@ -81,38 +81,28 @@ export function getAllTransactions (state: RootState) {
     return state.account.transactions
 }
 
-export function getTransactionCount (state: RootState): number {
-    const selectedAddress = getSelectedAddress(state)
-    const transactions = getAllTransactions(state)
-    if (selectedAddress) {
-        if (transactions.hasOwnProperty(selectedAddress)) {
-            return transactions[selectedAddress].count
-        }
-        return 0
-    }
-    return 0
-}
-
-export function getTransactionCountLoading (state: RootState): boolean {
-    const periodType = getPeriodType(state)
-    const chartDataLoading = getIsChartDataLoading(state)
-    return periodType === 'yearly' && chartDataLoading
-}
-
 export function getTransactions (state: RootState) {
     const selectedAddress = getSelectedAddress(state)
     const transactions = getAllTransactions(state)
     if (selectedAddress) {
         if (transactions.hasOwnProperty(selectedAddress)) {
             const selectedPage = getSelectedPage(state)
-            if (transactions[selectedAddress].hasOwnProperty(selectedPage)) {
-                return transactions[selectedAddress][selectedPage].data
-            }
-            return []
+            const start = (selectedPage-1) * 5
+            return Array.from(transactions[selectedAddress].data).slice(start, start + 5)
         }
-        return []
     }
     return []
+}
+
+export function getTransactionCount (state: RootState): number {
+    const selectedAddress = getSelectedAddress(state)
+    const transactions = getAllTransactions(state)
+    if (selectedAddress) {
+        if (transactions.hasOwnProperty(selectedAddress)) {
+            return transactions[selectedAddress].data.length
+        }
+    }
+    return 0
 }
 
 export function getTransactionsLoading (state: RootState): boolean {
@@ -120,13 +110,8 @@ export function getTransactionsLoading (state: RootState): boolean {
     const transactions = getAllTransactions(state)
     if (selectedAddress) {
         if (transactions.hasOwnProperty(selectedAddress)) {
-            const selectedPage = getSelectedPage(state)
-            if (transactions[selectedAddress].hasOwnProperty(selectedPage)) {
-                return transactions[selectedAddress][selectedPage].loading
-            }
-            return false
+            return transactions[selectedAddress].loading
         }
-        return false
     }
     return false
 }
@@ -136,13 +121,8 @@ export function getTransactionsFetched (state: RootState): boolean {
     const transactions = getAllTransactions(state)
     if (selectedAddress) {
         if (transactions.hasOwnProperty(selectedAddress)) {
-            const selectedPage = getSelectedPage(state)
-            if (transactions[selectedAddress].hasOwnProperty(selectedPage)) {
-                return transactions[selectedAddress][selectedPage].fetched
-            }
-            return false
+            return transactions[selectedAddress].fetched
         }
-        return false
     }
     return false
 }

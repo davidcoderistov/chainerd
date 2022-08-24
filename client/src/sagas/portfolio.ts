@@ -17,6 +17,7 @@ import {
     toRoundedFiat
 } from '../utils'
 import _flattenDeep from 'lodash/flattenDeep'
+import _orderBy from 'lodash/orderBy'
 import { ethers } from 'ethers'
 import moment from 'moment'
 
@@ -29,23 +30,21 @@ export function *generateBalances ({ address, startBlock, endBlock }: { address:
     const balances: string[] = yield all(
         transactions.map(transaction => call(getEthBalance, address, ethers.BigNumber.from(transaction.blockNumber).toHexString()))
     )
-    return balances.map((balance, index) => ({
-        balance: ethers.utils.formatEther(ethers.BigNumber.from(balance)),
-        timestamp: transactions[index].timestamp,
-    }))
+    return {
+        transactions,
+        balances: balances.map((balance, index) => ({
+            balance: ethers.utils.formatEther(ethers.BigNumber.from(balance)),
+            timestamp: transactions[index].timestamp,
+        }))
+    }
 }
 
-export function *generatePortfolioData ({ ethData, hasBalances, address }: {
+export function *generatePortfolioData ({ ethData, ethPrices, hasBalances, address }: {
     ethData: Array<{ x: string, y: string }>
+    ethPrices: string[]
     hasBalances: boolean
     address: string
 }) {
-    const ethPrices: string[] = yield all(
-        ethData.map(({ x }) => {
-            const [year, month, day] = x.split('-')
-            return call(getEthPriceAt, `${day}-${month}-${year}`)
-        })
-    )
     if (hasBalances) {
         return {
             ethData: ethData.map(({ x, y }) => ({
@@ -81,17 +80,23 @@ export function *generateWeeklyData ({ payload }: ReturnType<typeof portfolioAct
     try {
         const startBlock: string = yield call(getBlockNumber, start.unix())
         const endBlock: string = yield call(getBlockNumber, end.unix())
-        const balances: Array<{ balance: string, timestamp: string }> = yield call(
+        const { balances }: { balances: Array<{ balance: string, timestamp: string }> } = yield call(
             generateBalances,
             { address, startBlock, endBlock }
         )
         const ethData = getWeeklyData(start, end, balances, '0')
+        const ethPrices: string[] = yield all(
+            ethData.map(({ x }) => {
+                const [year, month, day] = x.split('-')
+                return call(getEthPriceAt, `${day}-${month}-${year}`)
+            })
+        )
         const portfolioData: {
             ethData: Array<{ x: string, y: string }>,
             fiatData: Array<{ x: string, y: string }>,
         } = yield call(
             generatePortfolioData,
-            { ethData, hasBalances: balances.length > 0, address, }
+            { ethData, ethPrices, hasBalances: balances.length > 0, address, }
         )
         yield put(portfolioActions.fetchWeeklyFulfilled({
             address,
@@ -116,17 +121,23 @@ export function *generateMonthlyData ({ payload }: ReturnType<typeof portfolioAc
     try {
         const startBlock: string = yield call(getBlockNumber, start.unix())
         const endBlock: string = yield call(getBlockNumber, end.unix())
-        const balances: Array<{ balance: string, timestamp: string }> = yield call(
+        const { balances }: { balances: Array<{ balance: string, timestamp: string }> } = yield call(
             generateBalances,
             { address, startBlock, endBlock }
         )
         const ethData = getMonthlyData(start, end, balances, '0')
+        const ethPrices: string[] = yield all(
+            ethData.map(({ x }) => {
+                const [year, month, day] = x.split('-')
+                return call(getEthPriceAt, `${day}-${month}-${year}`)
+            })
+        )
         const portfolioData: {
             ethData: Array<{ x: string, y: string }>,
             fiatData: Array<{ x: string, y: string }>,
         } = yield call(
             generatePortfolioData,
-            { ethData, hasBalances: balances.length > 0, address, }
+            { ethData, ethPrices, hasBalances: balances.length > 0, address, }
         )
         yield put(portfolioActions.fetchMonthlyFulfilled({
             address,
@@ -151,18 +162,42 @@ export function *generateYearlyData ({ payload }: ReturnType<typeof portfolioAct
     try {
         const startBlock: string = yield call(getBlockNumber, start.unix())
         const endBlock: string = yield call(getBlockNumber, end.unix())
-        const balances: Array<{ balance: string, timestamp: string }> = yield call(
+        const { balances, transactions }: { balances: Array<{ balance: string, timestamp: string }>, transactions: Transaction[] } = yield call(
             generateBalances,
             { address, startBlock, endBlock }
         )
-        yield put(accountActions.setTransactionCount({ address, count: balances.length }))
         const ethData = getYearlyData(start, end, balances, '0')
+        const ethPrices: string[] = yield all(
+            ethData.map(({ x }) => {
+                const [year, month, day] = x.split('-')
+                return call(getEthPriceAt, `${day}-${month}-${year}`)
+            })
+        )
+        yield put(accountActions.fetchTransactionsFulfilled({
+            address,
+            data: _orderBy(transactions.map((transaction, index) => {
+                const ethAmount = toRoundedEth(Number(ethers.utils.formatEther(ethers.BigNumber.from(transaction.value))))
+                return {
+                    hash: transaction.hash,
+                    from: transaction.from,
+                    to: transaction.to,
+                    timestamp: transaction.timestamp,
+                    value: toRoundedFiat(Number(ethPrices[index]) * Number(ethAmount)),
+                    amount: ethAmount,
+                    blockNumber: transaction.blockNumber,
+                    status: transaction.status,
+                    fee: toRoundedEth(
+                        Number(ethers.utils.formatEther(ethers.BigNumber.from(transaction.gasUsed).mul(ethers.BigNumber.from(transaction.gasPrice))))
+                    )
+                }
+            }), 'timestamp', 'desc'),
+        }))
         const portfolioData: {
             ethData: Array<{ x: string, y: string }>,
             fiatData: Array<{ x: string, y: string }>,
         } = yield call(
             generatePortfolioData,
-            { ethData, hasBalances: balances.length > 0, address, }
+            { ethData, ethPrices, hasBalances: balances.length > 0, address, }
         )
         yield put(portfolioActions.fetchYearlyFulfilled({
             address,
@@ -172,6 +207,10 @@ export function *generateYearlyData ({ payload }: ReturnType<typeof portfolioAct
             }
         }))
     } catch (error: any) {
+        yield put(accountActions.fetchTransactionsFulfilled({
+            address,
+            data: [],
+        }))
         yield put(portfolioActions.fetchRejected({
             address,
             errorMessage: getErrorMessage(error, 'Yearly data not available')})
