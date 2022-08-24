@@ -15,6 +15,7 @@ import {
     getEthTotalAmount,
     getFiatTotalAmount,
     isSendTransactionError,
+    getHash,
 } from '../../selectors/transaction'
 import { Dialog, DialogTitle, DialogContent, DialogActions } from '@mui/material'
 import { Stepper, Step, StepLabel } from '@mui/material'
@@ -71,6 +72,7 @@ export default function SendTransactionModal ({ open, onClose, onConfirm } : Sen
     const error = useSelector(isSendTransactionError)
     const ethAmount = useSelector(getEthAmount)
     const fiatAmount = useSelector(getFiatAmount)
+    const transactionHash = useSelector(getHash)
 
     const setActiveStep = (step: number) => {
         dispatch(transactionActions.setActiveStep({ step }))
@@ -193,7 +195,8 @@ export default function SendTransactionModal ({ open, onClose, onConfirm } : Sen
                                         cryptoFees={toRoundedEth(ethFee)}
                                         fiatFees={toRoundedFiat(fiatFee)}
                                         cryptoTotalAmount={toRoundedEth(ethTotal)}
-                                        fiatTotalAmount={toRoundedFiat(fiatTotal)}  />
+                                        fiatTotalAmount={toRoundedFiat(fiatTotal)}
+                                        transactionHash={transactionHash} />
                                 ): (
                                     <React.Fragment>
                                         { activeStep === 0 && (

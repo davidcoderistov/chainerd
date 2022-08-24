@@ -1,6 +1,6 @@
 import React from 'react'
 import Label from '../Label'
-import { Grid, Divider, Typography, styled } from '@mui/material'
+import { Grid, Divider, Typography, Tooltip, Link, Box, styled } from '@mui/material'
 import { GridView } from '@mui/icons-material'
 
 const AddressContainer = styled(Grid)({
@@ -36,14 +36,28 @@ const InfoContent = styled('div')({
     alignItems: 'end',
 })
 
-const Info = ({ title, subtitle, caption } : { title: string, subtitle: string, caption: string }) => (
+const Info = ({ title, subtitle, caption } : { title: string, subtitle: string, caption?: string }) => (
     <InfoContainer item xs={12}>
         <Label value={title} />
         <InfoContent>
-            <Typography variant='subtitle2'>
-                { subtitle }
-            </Typography>
-            <Label value={caption} />
+            { caption ? (
+                <React.Fragment>
+                    <Typography variant='subtitle2'>
+                        { subtitle }
+                    </Typography>
+                    <Label value={caption} />
+                </React.Fragment>
+            ) : (
+                <Tooltip title={subtitle} placement='top' arrow>
+                    <Typography variant='subtitle2'>
+                        <Link
+                            href={`https://kovan.etherscan.io/tx/${subtitle}`}
+                            underline='none'>
+                            { `${subtitle.slice(0, 40)}...` }
+                        </Link>
+                    </Typography>
+                </Tooltip>
+            )}
         </InfoContent>
     </InfoContainer>
 )
@@ -57,6 +71,7 @@ export interface SummaryStepProps {
     fiatFees: string,
     cryptoTotalAmount: string,
     fiatTotalAmount: string,
+    transactionHash?: string | null,
 }
 
 const toEth = (eth: string) => `${eth} ETH`
@@ -72,7 +87,8 @@ export default function SummaryStep (props: SummaryStepProps) {
         cryptoFees,
         fiatFees,
         cryptoTotalAmount,
-        fiatTotalAmount
+        fiatTotalAmount,
+        transactionHash,
     } = props
 
     return (
@@ -101,6 +117,14 @@ export default function SummaryStep (props: SummaryStepProps) {
                 </div>
             </AddressContainer>
             <Divider sx={{ mt: 1, mb: 2 }}/>
+            { transactionHash && (
+                <React.Fragment>
+                    <Info
+                        title='Transaction Hash'
+                        subtitle={transactionHash} />
+                    <Box sx={{ my: 1 }} />
+                </React.Fragment>
+            )}
             <Info
                 title='Amount'
                 subtitle={toEth(cryptoWithdrawAmount)}
