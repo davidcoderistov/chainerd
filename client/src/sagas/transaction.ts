@@ -123,12 +123,17 @@ export function *sendTransaction ({ payload }: ReturnType<typeof transactionActi
             gasLimit: 21000,
         })
         const signedTx = signing.signTx(ks, pwDerivedKey, rawTx, payload.fromAddress)
+        yield put(transactionActions.setActiveStep({ step: 1 }))
         const { hash } = yield call([ethersProvider, ethersProvider.sendTransaction], `0x${signedTx}`)
+        yield put(transactionActions.setHash({ hash: hash || null }))
+        yield put(transactionActions.setActiveStep({ step: 2 }))
+        const { status } = yield call([ethersProvider, ethersProvider.waitForTransaction], hash)
         incrementNonce(payload.fromAddress)
-        if (hash) {
+        if (hash && status) {
+            yield put(transactionActions.setActiveStep({ step: 3 }))
             yield put(transactionActions.fulfilled({
                 statusCode: STATUS_CODES.SEND_TRANSACTION,
-                successMessage: `Transaction ${hash} successfully sent`,
+                successMessage: 'Transaction successfully mined',
             }))
         } else {
             yield put(transactionActions.rejected({
