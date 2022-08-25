@@ -1,4 +1,5 @@
-import React from 'react'
+import React, { useContext } from 'react'
+import { ThemeContext } from '../../config'
 import { Box, ListItemIcon, Typography, styled } from '@mui/material'
 import { BarChartOutlined, AccountBalanceWalletOutlined, ArrowDownwardOutlined, DeleteOutline } from '@mui/icons-material'
 
@@ -18,23 +19,26 @@ export interface NavItemProps {
 
 export default function NavItem ({ active, hovered, type, name }: NavItemProps) {
 
+    const { theme } = useContext(ThemeContext)
+
     return (
-        <Container sx={{ backgroundColor: active ? '#EFF4FE' : hovered ? '#F9F9F9' : '#FFFFFF' }}>
+        <Container sx={{ backgroundColor: active ? theme.menu.link.background.active :
+                hovered ? theme.menu.link.background.hovered : theme.menu.link.background.main }}>
             <ListItemIcon sx={{ minWidth: '40px' }}>
                 { type === 'portfolio' && (
-                    <BarChartOutlined sx={{ color: active || hovered ? '#1976d2' : '#9f9f9f' }} />
+                    <BarChartOutlined sx={{ color: active || hovered ? theme.menu.link.icon.active : theme.menu.link.icon.main }} />
                 )}
                 { type === 'accounts' && (
-                    <AccountBalanceWalletOutlined sx={{ color: active || hovered ? '#1976d2' : '#9f9f9f' }} />
+                    <AccountBalanceWalletOutlined sx={{ color: active || hovered ? theme.menu.link.icon.active : theme.menu.link.icon.main }} />
                 )}
                 { type === 'send' && (
-                    <ArrowDownwardOutlined sx={{ color: active || hovered ? '#1976d2' : '#9f9f9f', transform: 'rotate(180deg)' }} />
+                    <ArrowDownwardOutlined sx={{ color: active || hovered ? theme.menu.link.icon.active : theme.menu.link.icon.main, transform: 'rotate(180deg)' }} />
                 )}
                 { type === 'delete' && (
-                    <DeleteOutline sx={{ color: active || hovered ? '#1976d2' : '#9f9f9f' }}/>
+                    <DeleteOutline sx={{ color: active || hovered ? theme.menu.link.icon.active : theme.menu.link.icon.main }}/>
                 )}
             </ListItemIcon>
-            <Typography noWrap variant='body1' marginY='4px' sx={{ color: active ? '#1976d2' : 'black' }}>
+            <Typography noWrap variant='body1' marginY='4px' sx={{ color: active ? theme.menu.link.text.active : theme.menu.link.text.main }}>
                 { name }
             </Typography>
         </Container>
