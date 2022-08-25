@@ -48,7 +48,21 @@ export function getChartDataByPortfolioAddress (state: RootState): PortfolioPoin
             const periodType = getPeriodType(state)
             const isFiat = getIsFiat(state)
             const chartData = chartDataByAddress[selectedAddress][periodType].data
-            return chartData ? isFiat ? chartData.fiat : chartData.eth : null
+            const data = chartData ? isFiat ? chartData.fiat : chartData.eth : null
+            const addresses = getAddresses(state)
+            const address = addresses.find(address => address.address === selectedAddress)
+            if (Array.isArray(data) && data.length > 0 && address) {
+                const lastIndex = data.length - 1
+                const last = data[lastIndex]
+                return [
+                    ...Array.from(data).slice(0, lastIndex),
+                    {
+                        ...last,
+                        y: isFiat ? address.fiatAmount.toString() : address.ethAmount.toString()
+                    }
+                ]
+            }
+            return data
         }
     }
     return null
