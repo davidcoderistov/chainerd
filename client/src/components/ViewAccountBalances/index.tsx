@@ -60,7 +60,7 @@ export default function ViewAccountBalances (props: ViewAccountBalancesProps) {
     }
 
     return (
-        <Paper sx={{ paddingTop: '30px', paddingBottom: '30px' }} elevation={4} ref={containerRef}>
+        <Paper sx={{ paddingTop: '30px', paddingBottom: '30px', minWidth: 750 }} elevation={4} ref={containerRef}>
             <Slide key={slideKey} direction={slideDirection} ref={containerRef.current} in>
                 <div>
                     <SlideView

@@ -6,7 +6,7 @@ import AccountBalance, { AccountBalanceProps } from '../AccountBalance'
 export default function ViewAccountBalance (props: AccountBalanceProps) {
 
     return (
-        <Paper sx={{ padding: '30px' }} elevation={4}>
+        <Paper sx={{ padding: '30px', minWidth: 750 }} elevation={4}>
             <AccountBalance
                 balance={props.balance}
                 chartData={props.chartData}
