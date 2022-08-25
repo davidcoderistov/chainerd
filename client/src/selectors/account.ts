@@ -81,6 +81,17 @@ export function getAllTransactions (state: RootState) {
     return state.account.transactions
 }
 
+export function getAllTransactionsByAddress (state: RootState) {
+    const selectedAddress = getSelectedAddress(state)
+    const transactions = getAllTransactions(state)
+    if (selectedAddress) {
+        if (transactions.hasOwnProperty(selectedAddress)) {
+            return transactions[selectedAddress].data
+        }
+    }
+    return []
+}
+
 export function getTransactions (state: RootState) {
     const selectedAddress = getSelectedAddress(state)
     const transactions = getAllTransactions(state)

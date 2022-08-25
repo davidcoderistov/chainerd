@@ -33,7 +33,7 @@ export type PortfolioDataByAddress = {
     }
 }
 
-interface Transaction {
+export interface Transaction {
     hash: string
     from: string
     to: string

@@ -1,6 +1,14 @@
-import { call, put, debounce, select, takeLatest } from 'redux-saga/effects'
+import { call, put, debounce, select, delay, takeLatest } from 'redux-saga/effects'
 import { transactionActions } from '../slices/transaction'
+import { accountActions } from '../slices/account'
+import { portfolioActions } from '../slices/portfolio'
+import { addressActions, AddressType } from '../slices/address'
 import { getKeystore } from '../selectors/keystore'
+import { getAddresses } from '../selectors/address'
+import { getAllTransactionsByAddress, getTransactionsFetched } from '../selectors/account'
+import { Transaction as AccountTransaction } from '../slices/account'
+import { getLatestTransactions, getLatestTransactionsFetched } from '../selectors/portfolio'
+import { Transaction as LatestTransaction } from '../slices/portfolio'
 import { getEthAmount, getGasPrice } from '../selectors/transaction'
 import { getEthPrice, getGasInfo } from '../services'
 import {
@@ -11,11 +19,13 @@ import {
     getAxiosErrorMessage,
     getGenericErrorMessage,
     getRawTransaction,
+    distributePercentages,
 } from '../utils'
 import { getNonce, incrementNonce } from '../localStorage'
 import { keystore, signing } from 'eth-lightwallet'
 import { ethersProvider } from '../providers'
 import { ethers } from 'ethers'
+import _orderBy from 'lodash/orderBy'
 
 export const STATUS_CODES = {
     GET_ETH_PRICE: 1,
@@ -124,17 +134,69 @@ export function *sendTransaction ({ payload }: ReturnType<typeof transactionActi
         })
         const signedTx = signing.signTx(ks, pwDerivedKey, rawTx, payload.fromAddress)
         yield put(transactionActions.setActiveStep({ step: 1 }))
-        const { hash } = yield call([ethersProvider, ethersProvider.sendTransaction], `0x${signedTx}`)
-        yield put(transactionActions.setHash({ hash: hash || null }))
+        const txResponse: ethers.providers.TransactionResponse = yield call([ethersProvider, ethersProvider.sendTransaction], `0x${signedTx}`)
+        yield put(transactionActions.setHash({ hash: txResponse.hash || null }))
         yield put(transactionActions.setActiveStep({ step: 2 }))
-        const { status } = yield call([ethersProvider, ethersProvider.waitForTransaction], hash)
+        const txReceipt: ethers.providers.TransactionReceipt = yield call([ethersProvider, ethersProvider.waitForTransaction], txResponse.hash)
+        yield delay(3000)
         incrementNonce(payload.fromAddress)
-        if (hash && status) {
+        if (txResponse.hash && txReceipt.status) {
             yield put(transactionActions.setActiveStep({ step: 3 }))
             yield put(transactionActions.fulfilled({
                 statusCode: STATUS_CODES.SEND_TRANSACTION,
                 successMessage: 'Transaction successfully mined',
             }))
+            if (txReceipt.blockNumber) {
+                const ethPrice: number = yield call(getEthPrice)
+                const { timestamp }: ethers.providers.Block = yield call([ethersProvider, ethersProvider.getBlock], txReceipt.blockNumber)
+                const ethAmount = toRoundedEth(Number(ethers.utils.formatEther(ethers.BigNumber.from(txResponse.value))))
+                const transaction = {
+                    from: payload.fromAddress,
+                    to: payload.toAddress,
+                    hash: txResponse.hash,
+                    timestamp: timestamp.toString(),
+                    value: toRoundedFiat(ethPrice * Number(ethAmount)),
+                    amount: ethAmount,
+                    blockNumber: txReceipt.blockNumber.toString(),
+                    status: '1',
+                    fee: toRoundedEth(
+                        Number(ethers.utils.formatEther(ethers.BigNumber.from(txReceipt.gasUsed).mul(ethers.BigNumber.from(txResponse.gasPrice))))
+                    )
+                }
+                const addresses: AddressType[] = yield select(getAddresses)
+                const totalAmount = Number(transaction.amount) + Number(transaction.fee)
+                const newAddresses = addresses.map((address, index) => {
+                    const ethAmount = Number(toRoundedEth(address.ethAmount - totalAmount))
+                    return {
+                        ...address,
+                        ethAmount,
+                        fiatAmount: Number(toRoundedFiat(Number(ethAmount) * ethPrice)),
+                    }
+                })
+                const percentages = distributePercentages(newAddresses.map(address => address.ethAmount))
+                yield put(addressActions.loadAllFulfilled({
+                    addresses: newAddresses.map((address, index) => ({
+                        ...address,
+                        percentage: percentages[index]
+                    }))
+                }))
+                const accountTxsFetched: boolean = yield select(getTransactionsFetched)
+                const latestTxsFetched: boolean = yield select(getLatestTransactionsFetched)
+                if (accountTxsFetched) {
+                    const transactions: AccountTransaction[] = yield select(getAllTransactionsByAddress)
+                    yield put(accountActions.fetchTransactionsFulfilled({
+                        address: payload.fromAddress,
+                        data: _orderBy([...transactions, transaction], 'timestamp', 'desc')
+                    }))
+                }
+                if (latestTxsFetched) {
+                    const transactions: LatestTransaction[] = yield select(getLatestTransactions)
+                    const newTxs = transactions.length >= 5 ? Array.from(transactions).slice(0, transactions.length - 1) : transactions
+                    yield put(portfolioActions.fetchLatestTransactionsFulfilled({
+                        transactions: [transaction, ...newTxs]
+                    }))
+                }
+            }
         } else {
             yield put(transactionActions.rejected({
                 statusCode: STATUS_CODES.SEND_TRANSACTION,
@@ -142,6 +204,7 @@ export function *sendTransaction ({ payload }: ReturnType<typeof transactionActi
             }))
         }
     } catch(error: any) {
+        console.log(error)
         yield put(transactionActions.rejected({
             statusCode: STATUS_CODES.SEND_TRANSACTION,
             errorMessage: getGenericErrorMessage(error, 'Something went wrong while trying to send the transaction')

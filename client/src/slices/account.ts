@@ -2,7 +2,7 @@ import { createAction, createSlice } from '@reduxjs/toolkit'
 import { PeriodType } from './portfolio'
 
 
-interface Transaction {
+export interface Transaction {
     hash: string
     from: string
     to: string
