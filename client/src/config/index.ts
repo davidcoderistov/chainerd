@@ -21,7 +21,18 @@ export const themes = {
             }
         },
         main: {
-            background: '#F9F9F9'
+            background: '#F9F9F9',
+            paper: {
+                background: '#FFFFFF',
+                text: {
+                    primary: '#000000',
+                    secondary: 'text.secondary',
+                },
+                hover: {
+                    background: '#F9F9F9'
+                },
+                icon: 'text.secondary'
+            }
         }
     },
     dark: {
@@ -44,7 +55,18 @@ export const themes = {
             }
         },
         main: {
-            background: '#222430'
+            background: '#222430',
+            paper: {
+                background: '#323546',
+                text: {
+                    primary: '#FFFFFF',
+                    secondary: '#99A7BB',
+                },
+                hover: {
+                    background: '#222430'
+                },
+                icon: '#FFFFFF'
+            }
         }
     }
 }
