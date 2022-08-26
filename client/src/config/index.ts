@@ -22,6 +22,7 @@ export const themes = {
         },
         main: {
             background: '#F9F9F9',
+            link: 'text.secondary',
             paper: {
                 background: '#FFFFFF',
                 text: {
@@ -57,6 +58,7 @@ export const themes = {
         },
         main: {
             background: '#222430',
+            link: '#FFFFFF',
             paper: {
                 background: '#323546',
                 text: {

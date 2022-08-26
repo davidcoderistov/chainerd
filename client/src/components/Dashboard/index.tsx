@@ -123,7 +123,7 @@ export default function Dashboard ({ walletExists, walletLoading, onSendTransact
                                 Chainerd
                             </Typography>
                         )}
-                        <IconButton onClick={toggleDrawer}>
+                        <IconButton onClick={toggleDrawer} sx={{ color: theme.main.paper.text.primary }}>
                             { open ? <ChevronLeftIcon /> : <ChevronRightIcon /> }
                         </IconButton>
                     </Toolbar>

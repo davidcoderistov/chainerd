@@ -1,4 +1,5 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useContext } from 'react'
+import { ThemeContext } from '../../config'
 import { useDispatch, useSelector } from 'react-redux'
 import { useParams } from 'react-router-dom'
 import { portfolioActions } from '../../slices/portfolio'
@@ -29,6 +30,8 @@ const StyledLink = styled(Link)({
 })
 
 export default function AccountPage () {
+
+    const { theme } = useContext(ThemeContext)
 
     const params = useParams()
 
@@ -102,7 +105,7 @@ export default function AccountPage () {
 
     return (
         <React.Fragment>
-            <Breadcrumbs sx={{ fontSize: 22 }}>
+            <Breadcrumbs sx={{ fontSize: 22, color: theme.main.link }}>
                 <StyledLink to='/accounts'>
                     <Typography color='primary.main' fontSize={22}>
                         Accounts
