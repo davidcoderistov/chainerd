@@ -27,6 +27,7 @@ export const themes = {
                 text: {
                     primary: '#000000',
                     secondary: 'text.secondary',
+                    disabled: '#D3D3D3',
                 },
                 hover: {
                     background: '#F9F9F9'
@@ -61,6 +62,7 @@ export const themes = {
                 text: {
                     primary: '#FFFFFF',
                     secondary: '#99A7BB',
+                    disabled: '#222430',
                 },
                 hover: {
                     background: '#222430'
