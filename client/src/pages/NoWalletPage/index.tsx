@@ -1,4 +1,5 @@
-import React from 'react'
+import React, { useContext } from 'react'
+import { ThemeContext } from '../../config'
 import { Box, Typography, Button } from '@mui/material'
 
 
@@ -9,15 +10,17 @@ export interface NoWalletPageProps {
 
 export default function NoWalletPage ({ onCreateWallet, onRestoreWallet }: NoWalletPageProps) {
 
+    const { theme } = useContext(ThemeContext)
+
     return (
-        <Box display='flex' flexDirection='column' justifyContent='center' alignItems='center'>
+        <Box display='flex' flexDirection='column' justifyContent='center' alignItems='center' sx={{ color: theme.main.paper.text.primary }}>
             <Typography variant='h5'>
                 Welcome to Chainerd
             </Typography>
             <Typography variant='h5'>
                 To begin, create or restore Ethereum wallet
             </Typography>
-            <Typography variant='body1' color='text.secondary' marginTop='40px'>
+            <Typography variant='body1' color={theme.main.paper.text.secondary} marginTop='40px'>
                 Chainerd is a zero-client. Connection to Ethereum network is made via Infura / local node. Keystore
                 is encrypted using the password. All keys are saved inside the browser and never sent.
             </Typography>
