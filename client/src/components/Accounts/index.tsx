@@ -1,4 +1,5 @@
-import React from 'react'
+import React, { useContext } from 'react'
+import { ThemeContext } from '../../config'
 import {
     TableContainer,
     Table,
@@ -38,6 +39,8 @@ export interface AccountsProps {
 
 export default function Accounts ({ accounts, loading, onAddAccount, searchText, onChangeSearchText, onChangeSortBy, onEditAccount, onClickAccount, onSendTransaction, }: AccountsProps) {
 
+    const { theme } = useContext(ThemeContext)
+
     const handleOnEditAccount = (event: React.MouseEvent<HTMLElement>, address: Address) => {
         event.stopPropagation()
         onEditAccount(address)
@@ -49,10 +52,10 @@ export default function Accounts ({ accounts, loading, onAddAccount, searchText,
     }
 
     return (
-        <Paper elevation={4} sx={{ padding: '15px' }}>
+        <Paper elevation={4} sx={{ padding: '15px', backgroundColor: theme.main.paper.background }}>
             <TableContainer>
                 <Grid container justifyContent='space-between' sx={{ padding: '16px', minWidth: 750 }}>
-                    <Typography noWrap variant='body1' sx={{ fontWeight: 'bold' }}>
+                    <Typography noWrap variant='body1' sx={{ fontWeight: 'bold' }} color={theme.main.paper.text.primary}>
                         { loading ? (
                             <Skeleton variant='rectangular' width={150} />
                         ) : (
@@ -72,27 +75,27 @@ export default function Accounts ({ accounts, loading, onAddAccount, searchText,
                     <TableHead>
                         <TableRow>
                             <TableCell>
-                                <Typography noWrap variant='body2' color='text.secondary'>
+                                <Typography noWrap variant='body2' color={theme.main.paper.text.secondary}>
                                     { loading ? <Skeleton variant='rectangular' /> : 'Account' }
                                 </Typography>
                             </TableCell>
                             <TableCell>
-                                <Typography noWrap variant='body2' color='text.secondary'>
+                                <Typography noWrap variant='body2' color={theme.main.paper.text.secondary}>
                                     { loading ? <Skeleton variant='rectangular' /> : 'Address' }
                                 </Typography>
                             </TableCell>
                             <TableCell>
-                                <Typography noWrap variant='body2' color='text.secondary'>
+                                <Typography noWrap variant='body2' color={theme.main.paper.text.secondary}>
                                     { loading ? <Skeleton variant='rectangular' /> : 'Amount' }
                                 </Typography>
                             </TableCell>
                             <TableCell>
-                                <Typography noWrap variant='body2' color='text.secondary'>
+                                <Typography noWrap variant='body2' color={theme.main.paper.text.secondary}>
                                     { loading ? <Skeleton variant='rectangular' /> : 'Value' }
                                 </Typography>
                             </TableCell>
                             <TableCell>
-                                <Typography noWrap variant='body2' color='text.secondary'>
+                                <Typography noWrap variant='body2' color={theme.main.paper.text.secondary}>
                                     { loading ? <Skeleton variant='rectangular' /> : 'Actions' }
                                 </Typography>
                             </TableCell>
@@ -103,26 +106,26 @@ export default function Accounts ({ accounts, loading, onAddAccount, searchText,
                             { accounts.map((account, index) => (
                                 <TableRow
                                     key={index}
-                                    sx={{ '&:last-child td, &:last-child th': { border: 0 }, '&:hover': { backgroundColor: '#F9F9F9', cursor: 'pointer' } }}
+                                    sx={{ '&:last-child td, &:last-child th': { border: 0 }, '&:hover': { backgroundColor: theme.main.paper.hover.background, cursor: 'pointer' } }}
                                     onClick={() => onClickAccount(account.address)}
                                 >
                                     <TableCell>
-                                        <Typography noWrap variant='body2'>
+                                        <Typography noWrap variant='body2' color={theme.main.paper.text.primary}>
                                             { account.address.alias ? account.address.alias : 'N/A' }
                                         </Typography>
                                     </TableCell>
                                     <TableCell>
-                                        <Typography noWrap variant='body2'>
+                                        <Typography noWrap variant='body2' color={theme.main.paper.text.primary}>
                                             { account.address.name }
                                         </Typography>
                                     </TableCell>
                                     <TableCell>
-                                        <Typography noWrap variant='body2'>
+                                        <Typography noWrap variant='body2' color={theme.main.paper.text.primary}>
                                             { account.ethAmount } ETH
                                         </Typography>
                                     </TableCell>
                                     <TableCell>
-                                        <Typography noWrap variant='body2'>
+                                        <Typography noWrap variant='body2' color={theme.main.paper.text.primary}>
                                             ${ account.fiatAmount }
                                         </Typography>
                                     </TableCell>
@@ -147,7 +150,7 @@ export default function Accounts ({ accounts, loading, onAddAccount, searchText,
                     ))
                 ) : accounts.length <= 0 ? (
                     <div style={{ padding: '5px 16px', textAlign: 'center' }}>
-                        <Typography noWrap variant='body2' color='text.secondary'>
+                        <Typography noWrap variant='body2' color={theme.main.paper.text.secondary}>
                             No data available
                         </Typography>
                     </div>

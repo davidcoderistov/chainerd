@@ -1,4 +1,5 @@
-import React, { useState, useCallback } from 'react'
+import React, { useState, useCallback, useContext } from 'react'
+import { ThemeContext } from '../../config'
 import { Box, Grid, Button, IconButton, Menu, MenuItem, InputAdornment } from '@mui/material'
 import { Search, KeyboardArrowDown, KeyboardArrowUp } from '@mui/icons-material'
 import TextInput from '../TextInput'
@@ -19,6 +20,8 @@ export interface AccountsActionProps {
 }
 
 export default function AccountsAction ({ searchText, loading, onChangeSearchText, onChangeSortBy } : AccountsActionProps) {
+
+    const { theme } = useContext(ThemeContext)
 
     const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null)
     const open = Boolean(anchorEl)
@@ -52,6 +55,7 @@ export default function AccountsAction ({ searchText, loading, onChangeSearchTex
         <Grid container sx={{ padding: '8px 16px', minWidth: 750 }}>
             <Box display='flex' flex='1 1 auto'>
                 <TextInput
+                    sx={{ input: { color: theme.main.paper.text.primary }}}
                     value={searchText}
                     onChange={handleOnChangeSearchText}
                     variant='standard'
@@ -61,6 +65,7 @@ export default function AccountsAction ({ searchText, loading, onChangeSearchTex
                         startAdornment: (
                             <InputAdornment position='start'>
                                 <IconButton
+                                    sx={{ color: theme.main.paper.icon }}
                                     aria-label='toggle password visibility'
                                     edge='start'>
                                     <Search />
@@ -78,7 +83,7 @@ export default function AccountsAction ({ searchText, loading, onChangeSearchTex
                     onClick={handleClick}
                     endIcon={open ? <KeyboardArrowUp /> : <KeyboardArrowDown />}
                 >
-                    <span style={{ color: '#909090', marginRight: '5px' }}>Sort by</span>
+                    <span style={{ color: theme.main.paper.text.secondary, marginRight: '5px' }}>Sort by</span>
                     <span>{ selectedItem }</span>
                 </Button>
                 <Menu
