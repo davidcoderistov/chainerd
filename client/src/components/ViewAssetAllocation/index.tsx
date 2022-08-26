@@ -1,4 +1,5 @@
-import React from 'react'
+import React, { useContext } from 'react'
+import { ThemeContext } from '../../config'
 import {
     TableContainer,
     Table,
@@ -40,14 +41,16 @@ export interface ViewAssetAllocationProps {
 
 export default function ViewAssetAllocation ({ items, loading }: ViewAssetAllocationProps) {
 
+    const { theme } = useContext(ThemeContext)
+
     return (
-        <Paper elevation={4} sx={{ padding: '15px' }}>
+        <Paper elevation={4} sx={{ padding: '15px', backgroundColor: theme.main.paper.background }}>
             <TableContainer>
                 <Table sx={{ minWidth: 650, [`& .${tableCellClasses.root}`]: { borderBottom: 'none' } }}>
                     <TableHead>
                         <TableRow>
                             <TableCell>
-                                <Typography noWrap variant='body1' sx={{ fontWeight: 'bold' }}>
+                                <Typography noWrap variant='body1' sx={{ fontWeight: 'bold' }} color={theme.main.paper.text.primary}>
                                     { loading ? (
                                         <Skeleton variant='rectangular' width={150} />
                                     ) : (
@@ -60,27 +63,27 @@ export default function ViewAssetAllocation ({ items, loading }: ViewAssetAlloca
                     <TableHead>
                         <TableRow>
                             <TableCell>
-                                <Typography noWrap variant='body2' color='text.secondary'>
+                                <Typography noWrap variant='body2' color={theme.main.paper.text.secondary}>
                                     { loading ? <Skeleton variant='rectangular' /> : 'Account' }
                                 </Typography>
                             </TableCell>
                             <TableCell>
-                                <Typography noWrap variant='body2' color='text.secondary'>
+                                <Typography noWrap variant='body2' color={theme.main.paper.text.secondary}>
                                     { loading ? <Skeleton variant='rectangular' /> : 'Address' }
                                 </Typography>
                             </TableCell>
                             <TableCell>
-                                <Typography noWrap variant='body2' color='text.secondary'>
+                                <Typography noWrap variant='body2' color={theme.main.paper.text.secondary}>
                                     { loading ? <Skeleton variant='rectangular' /> : 'Amount' }
                                 </Typography>
                             </TableCell>
                             <TableCell>
-                                <Typography noWrap variant='body2' color='text.secondary'>
+                                <Typography noWrap variant='body2' color={theme.main.paper.text.secondary}>
                                     { loading ? <Skeleton variant='rectangular' /> : 'Value' }
                                 </Typography>
                             </TableCell>
                             <TableCell sx={{ width: '30%', minWidth: 250 }}>
-                                <Typography noWrap variant='body2' color='text.secondary'>
+                                <Typography noWrap variant='body2' color={theme.main.paper.text.secondary}>
                                     { loading ? <Skeleton variant='rectangular' /> : 'Allocation' }
                                 </Typography>
                             </TableCell>
@@ -94,29 +97,29 @@ export default function ViewAssetAllocation ({ items, loading }: ViewAssetAlloca
                                     sx={{ '&:last-child td, &:last-child th': { border: 0 } }}
                                 >
                                     <TableCell>
-                                        <Typography noWrap variant='body2'>
+                                        <Typography noWrap variant='body2' color={theme.main.paper.text.primary}>
                                             { item.account }
                                         </Typography>
                                     </TableCell>
                                     <TableCell>
-                                        <Typography noWrap variant='body2'>
+                                        <Typography noWrap variant='body2' color={theme.main.paper.text.primary}>
                                             { item.address }
                                         </Typography>
                                     </TableCell>
                                     <TableCell>
-                                        <Typography noWrap variant='body2'>
+                                        <Typography noWrap variant='body2' color={theme.main.paper.text.primary}>
                                             { item.amount } ETH
                                         </Typography>
                                     </TableCell>
                                     <TableCell>
-                                        <Typography noWrap variant='body2'>
+                                        <Typography noWrap variant='body2' color={theme.main.paper.text.primary}>
                                             ${ item.value }
                                         </Typography>
                                     </TableCell>
                                     <TableCell>
                                         <div style={{ display: 'flex', alignItems: 'center' }}>
                                             <Box sx={{ minWidth: 50, textAlign: 'end' }}>
-                                                <Typography noWrap variant='body2'>
+                                                <Typography noWrap variant='body2' color={theme.main.paper.text.primary}>
                                                     { item.allocation }%
                                                 </Typography>
                                             </Box>
@@ -138,7 +141,7 @@ export default function ViewAssetAllocation ({ items, loading }: ViewAssetAlloca
                     ))
                 ) : items.length <= 0 ? (
                     <div style={{ padding: '5px 16px', textAlign: 'center' }}>
-                        <Typography noWrap variant='body2' color='text.secondary'>
+                        <Typography noWrap variant='body2' color={theme.main.paper.text.secondary}>
                             No data available
                         </Typography>
                     </div>
