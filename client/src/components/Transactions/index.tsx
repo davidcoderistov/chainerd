@@ -1,4 +1,5 @@
-import React from 'react'
+import React, { useContext } from 'react'
+import { ThemeContext } from '../../config'
 import {
     TableContainer,
     Table,
@@ -21,6 +22,8 @@ import _range from 'lodash/range'
 
 const OperationInfo = ({ withdrawal }: { withdrawal: boolean }) => {
 
+    const { theme } = useContext(ThemeContext)
+
     return (
         <Box sx={{ display: 'flex', flexDirection: 'row', alignItems: 'center', columnGap: '10px' }}>
             <Typography noWrap variant='body2'>
@@ -28,7 +31,7 @@ const OperationInfo = ({ withdrawal }: { withdrawal: boolean }) => {
                     withdrawal={withdrawal}
                     fontSize={28} />
             </Typography>
-            <Typography noWrap variant='body2' fontWeight='bold'>
+            <Typography noWrap variant='body2' fontWeight='bold' color={theme.main.paper.text.primary}>
                 { withdrawal ? 'Sent' : 'Received' }
             </Typography>
         </Box>
@@ -37,9 +40,11 @@ const OperationInfo = ({ withdrawal }: { withdrawal: boolean }) => {
 
 const TableHeaderCell = ({ text, loading }: { text: string, loading: boolean }) => {
 
+    const { theme } = useContext(ThemeContext)
+
     return (
         <TableCell sx={{ padding: '12px' }}>
-            <Typography noWrap variant='body2' color='text.secondary'>
+            <Typography noWrap variant='body2' color={theme.main.paper.text.secondary}>
                 { loading ? <Skeleton variant='rectangular' /> : text }
             </Typography>
         </TableCell>
@@ -48,17 +53,19 @@ const TableHeaderCell = ({ text, loading }: { text: string, loading: boolean }) 
 
 const TableInfoCell = ({ text, short }: { text: string, short?: boolean }) => {
 
+    const { theme } = useContext(ThemeContext)
+
     return short ? (
         <TableCell sx={{ padding: '12px' }}>
             <Tooltip title={text} placement='top' arrow>
-                <Typography noWrap variant='body2'>
+                <Typography noWrap variant='body2' color={theme.main.paper.text.primary}>
                     { `${text.slice(0, 25)}...` }
                 </Typography>
             </Tooltip>
         </TableCell>
     ) : (
         <TableCell sx={{ padding: '12px' }}>
-            <Typography noWrap variant='body2'>
+            <Typography noWrap variant='body2' color={theme.main.paper.text.primary}>
                 { text }
             </Typography>
         </TableCell>
@@ -86,18 +93,20 @@ export interface TransactionsProps {
 
 export default function Transactions ({ transactions, latest, loading, paginationProps, onClickTransaction }: TransactionsProps) {
 
+    const { theme } = useContext(ThemeContext)
+
     const handleTransactionClick = (hash: string) => {
         onClickTransaction(hash)
     }
 
     return (
-        <Paper elevation={4} sx={{ padding: '15px' }}>
+        <Paper elevation={4} sx={{ padding: '15px', backgroundColor: theme.main.paper.background }}>
             <TableContainer>
                 <Table sx={{ minWidth: 650, [`& .${tableCellClasses.root}`]: { borderBottom: 'none' } }}>
                     <TableHead>
                         <TableRow>
                             <TableCell sx={{ padding: '12px' }}>
-                                <Typography noWrap variant='body1' sx={{ fontWeight: 'bold' }}>
+                                <Typography noWrap variant='body1' sx={{ fontWeight: 'bold' }} color={theme.main.paper.text.primary}>
                                     { loading ? (
                                         <Skeleton variant='rectangular' width={150} />
                                     ) : (
@@ -136,7 +145,7 @@ export default function Transactions ({ transactions, latest, loading, paginatio
                             { transactions.map((transaction, index) => (
                                 <TableRow
                                     key={index}
-                                    sx={{ '&:last-child td, &:last-child th': { border: 0 }, '&:hover': { backgroundColor: '#F9F9F9', cursor: 'pointer' } }}
+                                    sx={{ '&:last-child td, &:last-child th': { border: 0 }, '&:hover': { backgroundColor: theme.main.paper.hover, cursor: 'pointer' } }}
                                     onClick={() => handleTransactionClick(transaction.hash)}
                                 >
                                     <TableCell sx={{ padding: '12px' }}>
@@ -162,7 +171,7 @@ export default function Transactions ({ transactions, latest, loading, paginatio
                     ))
                 ) : transactions.length <= 0 ? (
                     <div style={{ padding: '5px 16px', textAlign: 'center' }}>
-                        <Typography noWrap variant='body2' color='text.secondary'>
+                        <Typography noWrap variant='body2' color={theme.main.paper.text.secondary}>
                             No data available
                         </Typography>
                     </div>
@@ -170,6 +179,7 @@ export default function Transactions ({ transactions, latest, loading, paginatio
             </TableContainer>
             { (!latest && paginationProps) && (
                 <TablePagination
+                    sx={{ color: theme.main.paper.text.primary }}
                     component='div'
                     {...paginationProps} />
             )}
