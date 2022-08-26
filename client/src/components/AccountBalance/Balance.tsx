@@ -1,4 +1,5 @@
-import React from 'react'
+import React, { useContext } from 'react'
+import { ThemeContext } from '../../config'
 import { Typography, IconButton, Skeleton, styled } from '@mui/material'
 import { SwapVert } from '@mui/icons-material'
 import AnimatedNumbers from 'react-animated-numbers'
@@ -22,7 +23,6 @@ const IconContainer = styled('div')({
 })
 
 const SwapButton = styled(IconButton)({
-    color: '#adb5bd',
     '&:hover': {
         color: '#1976D9',
     }
@@ -37,6 +37,8 @@ export interface BalanceProps {
 
 const Balance = React.memo(({ balance, fiat, loading, onChangeBalanceView }: BalanceProps) => {
 
+    const { theme } = useContext(ThemeContext)
+
     const handleOnClick = () => {
         onChangeBalanceView()
     }
@@ -48,12 +50,12 @@ const Balance = React.memo(({ balance, fiat, loading, onChangeBalanceView }: Bal
             ) : (
                 <BalanceContainer onClick={handleOnClick}>
                     <IconContainer>
-                        <SwapButton size='small'>
+                        <SwapButton size='small' sx={{ color: theme.main.paper.text.secondary }}>
                             <SwapVert />
                         </SwapButton>
                     </IconContainer>
                     <div>
-                        <div style={{ display: 'flex', flexDirection: 'row', alignItems: 'center', columnGap: fiat ? '1px' : '5px' }}>
+                        <div style={{ display: 'flex', flexDirection: 'row', alignItems: 'center', columnGap: fiat ? '1px' : '5px', color: theme.main.paper.text.primary }}>
                             { fiat && (
                                 <span style={{ fontSize: 32, fontWeight: 'bold' }}>$</span>
                             )}
@@ -73,7 +75,7 @@ const Balance = React.memo(({ balance, fiat, loading, onChangeBalanceView }: Bal
                                 <div style={{ fontSize: 22, fontWeight: 'bold' }}>ETH</div>
                             )}
                         </div>
-                        <Typography variant='subtitle2' color='#adb5bd'>
+                        <Typography variant='subtitle2' color={theme.main.paper.text.secondary}>
                             total balance
                         </Typography>
                     </div>
