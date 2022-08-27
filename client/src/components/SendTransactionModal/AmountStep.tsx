@@ -4,6 +4,7 @@ import Label from '../Label'
 import  { Grid, Slider, Typography, InputAdornment, styled } from '@mui/material'
 import { SliderProps } from '@mui/material'
 import { ArrowRightAlt } from '@mui/icons-material'
+import { ErrorType } from '../../hooks'
 
 
 const ArrowsContainer = styled('div')({
@@ -26,14 +27,20 @@ const LeftArrow = styled(ArrowRightAlt)({
     color: '#909090',
 })
 
+export const ethAmountRules = [
+    ([current, total]: string[]) => parseFloat(current) > parseFloat(total) && 'Sorry, insufficient funds'
+]
+
 interface AmountProps {
     cryptoAmount: string,
     onChangeCryptoAmount: (cryptoAmount: string) => void,
+    onBlurCryptoAmount: () => void,
+    cryptoAmountError: ErrorType,
     fiatAmount: string,
     onChangeFiatAmount: (fiatAmount: string) => void,
 }
 
-const Amount = ({ cryptoAmount, onChangeCryptoAmount, fiatAmount, onChangeFiatAmount } : AmountProps) => {
+const Amount = ({ cryptoAmount, onChangeCryptoAmount, onBlurCryptoAmount, cryptoAmountError, fiatAmount, onChangeFiatAmount } : AmountProps) => {
 
     const [isCryptoAmountActive, setIsCryptoAmountActive] = useState<boolean>(false)
     const [isFiatAmountActive, setIsFiatAmountActive] = useState<boolean>(false)
@@ -44,6 +51,7 @@ const Amount = ({ cryptoAmount, onChangeCryptoAmount, fiatAmount, onChangeFiatAm
 
     const handleOnBlurCryptoAmount = () => {
         setIsCryptoAmountActive(false)
+        onBlurCryptoAmount()
     }
 
     const handleOnFocusFiatAmount = () => {
@@ -69,11 +77,13 @@ const Amount = ({ cryptoAmount, onChangeCryptoAmount, fiatAmount, onChangeFiatAm
     )
 
     return (
-        <Grid container spacing={2} sx={{ alignItems: 'end' }}>
+        <Grid container spacing={2} sx={{ alignItems: cryptoAmountError.has ? 'center' : 'end' }}>
             <Grid item md xs={12}>
                 <TextInput
                     value={cryptoAmount}
                     onChange={handleOnChangeCryptoAmount}
+                    error={cryptoAmountError.has}
+                    helperText={cryptoAmountError.message}
                     inputLabel='Amount'
                     placeholder='0'
                     type='number'
@@ -196,12 +206,14 @@ const GasLimit = () => (
 
 export type AmountStepProps = AmountProps & GasPriceProps
 
-export default function AmountStep ({ cryptoAmount, onChangeCryptoAmount, fiatAmount, onChangeFiatAmount, lowGasPrice, highGasPrice, gasPrice, onChangeGasPrice } : AmountStepProps) {
+export default function AmountStep ({ cryptoAmount, onChangeCryptoAmount, onBlurCryptoAmount, cryptoAmountError, fiatAmount, onChangeFiatAmount, lowGasPrice, highGasPrice, gasPrice, onChangeGasPrice } : AmountStepProps) {
     return (
         <React.Fragment>
             <Amount
                 cryptoAmount={cryptoAmount}
                 onChangeCryptoAmount={onChangeCryptoAmount}
+                onBlurCryptoAmount={onBlurCryptoAmount}
+                cryptoAmountError={cryptoAmountError}
                 fiatAmount={fiatAmount}
                 onChangeFiatAmount={onChangeFiatAmount} />
             <GasPrice

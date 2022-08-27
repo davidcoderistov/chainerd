@@ -1,4 +1,5 @@
 import { RootState } from '../app/store'
+import { getAddresses } from './address'
 import { roundedWeiToGwei, getNetworkFees } from '../utils'
 import { STATUS_CODES } from '../sagas/transaction'
 
@@ -29,6 +30,16 @@ export const getFiatNetworkFees = (state: RootState): number => (getEthNetworkFe
 export const getEthTotalAmount = (state: RootState): number => Number(getEthAmount(state)) + getEthNetworkFees(state)
 
 export const getFiatTotalAmount = (state: RootState): number => Number(getFiatAmount(state)) + getFiatNetworkFees(state)
+
+export const getAddressEthAmount = (state: RootState): number => {
+    const fromAddress = getFromAddress(state)
+    const addresses = getAddresses(state)
+    const address = addresses.find(address => address.address === fromAddress || address.alias === fromAddress)
+    if (address) {
+        return address.ethAmount
+    }
+    return 0
+}
 
 export const getStatusCode = (state: RootState): number | null => state.transaction.request.statusCode
 

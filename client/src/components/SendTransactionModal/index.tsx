@@ -16,6 +16,7 @@ import {
     getFiatNetworkFees,
     getEthTotalAmount,
     getFiatTotalAmount,
+    getAddressEthAmount,
     isSendTransactionError,
     getHash,
 } from '../../selectors/transaction'
@@ -25,10 +26,11 @@ import { Grid, IconButton, CircularProgress, styled } from '@mui/material'
 import { LoadingButton } from '@mui/lab'
 import { Close } from '@mui/icons-material'
 import RecipientStep from './RecipientStep'
-import AmountStep, { AmountStepProps } from './AmountStep'
+import AmountStep, { AmountStepProps, ethAmountRules } from './AmountStep'
 import SummaryStep from './SummaryStep'
 import ConfirmPasswordModal from '../ConfirmPasswordModal'
 import { toRoundedEth, toRoundedFiat } from '../../utils'
+import { useFormInputValidator } from '../../hooks'
 import { ethers } from 'ethers'
 
 
@@ -111,6 +113,9 @@ export default function SendTransactionModal ({ open, onClose } : SendTransactio
     const fiatFee = useSelector(getFiatNetworkFees)
     const ethTotal = useSelector(getEthTotalAmount)
     const fiatTotal = useSelector(getFiatTotalAmount)
+    const addressEthTotal = useSelector(getAddressEthAmount)
+
+    const [, errorEthAmount, handleBlurEthAmount] = useFormInputValidator(ethAmountRules, [ethTotal.toString(), addressEthTotal.toString()], [ethTotal])
 
     const [isConfirmPasswordModalOpen, setIsConfirmPasswordModalOpen] = useState<boolean>(false)
 
@@ -153,7 +158,7 @@ export default function SendTransactionModal ({ open, onClose } : SendTransactio
     }
 
     const buttonDisabled = activeStep > 1 ? false :
-        activeStep > 0 ? (ethAmount.trim().length <=0 && fiatAmount.trim().length <= 0) :
+        activeStep > 0 ? (ethAmount.trim().length <=0 && fiatAmount.trim().length <= 0) || errorEthAmount.has :
             (addresses.length <= 0 || !ethers.utils.isAddress(toAddress))
 
     return (
@@ -220,6 +225,8 @@ export default function SendTransactionModal ({ open, onClose } : SendTransactio
                                             <AmountStep
                                                 cryptoAmount={ethAmount}
                                                 onChangeCryptoAmount={handleChangeEthAmount}
+                                                onBlurCryptoAmount={handleBlurEthAmount}
+                                                cryptoAmountError={errorEthAmount}
                                                 fiatAmount={fiatAmount}
                                                 onChangeFiatAmount={handleChangeFiatAmount}
                                                 lowGasPrice={lowGasPrice}
