@@ -4,6 +4,10 @@ import { STATUS_CODES } from '../sagas/transaction'
 
 export const getActiveStep = (state: RootState): number => state.transaction.activeStep
 
+export const getFromAddress = (state: RootState): string => state.transaction.fromAddress
+
+export const getToAddress = (state: RootState): string => state.transaction.toAddress
+
 export const getEthAmount = (state: RootState): string => state.transaction.ethAmount
 
 export const getFiatAmount = (state: RootState): string => state.transaction.fiatAmount

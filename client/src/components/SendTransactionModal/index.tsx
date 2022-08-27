@@ -4,6 +4,8 @@ import { transactionActions } from '../../slices/transaction'
 import { getAddresses } from '../../selectors/address'
 import {
     getActiveStep,
+    getFromAddress,
+    getToAddress,
     getEthAmount,
     getFiatAmount,
     getLowGasPrice,
@@ -62,10 +64,10 @@ export default function SendTransactionModal ({ open, onClose } : SendTransactio
     const [transactionInitiated, setTransactionInitiated] = useState<boolean>(false)
 
     const activeStep = useSelector(getActiveStep)
+    const fromAddress = useSelector(getFromAddress)
+    const toAddress = useSelector(getToAddress)
     const addresses = useSelector(getAddresses)
     const showAddresses = addresses.map(({ address, alias }) => alias ? alias : address)
-    const [fromAddress, setFromAddress] = useState<string>(addresses.length > 0 ? addresses[0].alias ? addresses[0].alias : addresses[0].address : '')
-    const [toAddress, setToAddress] = useState<string>('')
 
     const loading = useSelector(getLoading)
     const error = useSelector(isSendTransactionError)
@@ -75,6 +77,14 @@ export default function SendTransactionModal ({ open, onClose } : SendTransactio
 
     const setActiveStep = (step: number) => {
         dispatch(transactionActions.setActiveStep({ step }))
+    }
+
+    const setFromAddress = (address: string) => {
+        dispatch(transactionActions.setFromAddress({ address }))
+    }
+
+    const setToAddress = (address: string) => {
+        dispatch(transactionActions.setToAddress({ address }))
     }
 
     const handleChangeEthAmount = (ethAmount: string) => {

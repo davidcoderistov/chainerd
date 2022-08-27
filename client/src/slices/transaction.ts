@@ -8,6 +8,8 @@ interface TransactionState {
         successMessage: string | null
     }
     activeStep: number
+    fromAddress: string
+    toAddress: string
     ethAmount: string
     fiatAmount: string
     ethPrice: number
@@ -27,6 +29,8 @@ const initialState: TransactionState = {
         successMessage: null,
     },
     activeStep: 0,
+    fromAddress: '',
+    toAddress: '',
     ethAmount: '',
     fiatAmount: '',
     ethPrice: 0,
@@ -40,6 +44,8 @@ const initialState: TransactionState = {
 
 const transactionActions = {
     setActiveStep: createAction<{ step: number }>('transaction/setActiveStep'),
+    setFromAddress: createAction<{ address: string }>('transaction/setFromAddress'),
+    setToAddress: createAction<{ address: string }>('transaction/setToAddress'),
     setEthAmount: createAction<{ ethAmount: string }>('transaction/setEthAmount'),
     setFiatAmount: createAction<{ fiatAmount: string }>('transaction/setFiatAmount'),
     setGasInfo: createAction('transaction/setGasInfo'),
@@ -76,6 +82,12 @@ const transactionSlice = createSlice({
                 ...state,
                 activeStep: action.payload.step,
             }))
+            .addCase(transactionActions.setFromAddress, (state, action) => {
+                state.fromAddress = action.payload.address
+            })
+            .addCase(transactionActions.setToAddress, (state, action) => {
+                state.toAddress = action.payload.address
+            })
             .addCase(transactionActions.setEthAmount, (state, action) => ({
                 ...state,
                 request: {
