@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { keystoreActions } from '../../slices/keystore'
+import { transactionActions } from '../../slices/transaction'
 import {
     getKeystore,
     shouldShowSnackbar as shouldShowKeystoreSnackbar,
@@ -90,6 +91,11 @@ export default function HomePage () {
         setIsSendTransactionModalOpen(false)
     }
 
+    const handleOnSendTransaction = (address: string) => {
+        dispatch(transactionActions.setFromAddress({ address }))
+        openSendTransactionModal()
+    }
+
     const [isCloseWalletModalOpen, setIsCloseWalletModalOpen] = useState<boolean>(false)
     const [closeWalletModalKey, setCloseWalletModalKey] = useState<number>(9999)
 
@@ -177,7 +183,7 @@ export default function HomePage () {
                             <PortfolioPage />
                         } />
                         <Route path='/accounts' element={
-                            <AccountsPage />
+                            <AccountsPage onSendTransaction={handleOnSendTransaction} />
                         } />
                         <Route path='/accounts/:address' element={
                             <AccountPage />

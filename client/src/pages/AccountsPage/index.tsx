@@ -17,7 +17,11 @@ import EditAccountModal from '../../components/EditAccountModal'
 import _orderBy from 'lodash/orderBy'
 
 
-export default function AccountsPage () {
+interface AccountsPageProps {
+    onSendTransaction: (address: string) => void
+}
+
+export default function AccountsPage ({ onSendTransaction }: AccountsPageProps) {
 
     const dispatch = useDispatch()
     const navigate = useNavigate()
@@ -142,6 +146,7 @@ export default function AccountsPage () {
 
     const handleOnSend = (address: { name: string, alias: string | null }) => {
         setSelectedAddress(address)
+        onSendTransaction(address.alias ? address.alias : address.name)
     }
 
     return (
