@@ -27,7 +27,7 @@ export default function TogglePeriod ({ period, onChangePeriod, disabled }: Togg
             onChange={handleChange}
             disabled={disabled}
         >
-            <ToggleButton value='weekly' sx={{ ...period !== 'monthly' && { color: theme.main.paper.text.primary }, '&:hover': { backgroundColor: theme.main.paper.hover }}}>1W</ToggleButton>
+            <ToggleButton value='weekly' sx={{ ...period !== 'weekly' && { color: theme.main.paper.text.primary }, '&:hover': { backgroundColor: theme.main.paper.hover }}}>1W</ToggleButton>
             <ToggleButton value='monthly' sx={{ ...period !== 'monthly' && { color: theme.main.paper.text.primary }, '&:hover': { backgroundColor: theme.main.paper.hover }}}>1M</ToggleButton>
             <ToggleButton value='yearly' sx={{ ...period !== 'yearly' && { color: theme.main.paper.text.primary }, '&:hover': { backgroundColor: theme.main.paper.hover }}}>1Y</ToggleButton>
         </ToggleButtonGroup>
