@@ -34,7 +34,8 @@ export const themes = {
                     background: '#F9F9F9'
                 },
                 icon: 'text.secondary'
-            }
+            },
+            sync: 'primary.main',
         }
     },
     dark: {
@@ -70,7 +71,8 @@ export const themes = {
                     background: '#222430'
                 },
                 icon: '#FFFFFF'
-            }
+            },
+            sync: '#FFFFFF'
         }
     }
 }

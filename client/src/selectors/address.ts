@@ -7,6 +7,8 @@ export const getLoading = (state: RootState) => state.address.loading
 
 export const getAddressesLoading = (state: RootState) => state.address.addressesLoading
 
+export const getSyncing = (state: RootState) => state.address.syncing
+
 export const getStatusCode = (state: RootState) => state.address.statusCode
 
 export const getErrorMessage = (state: RootState) => state.address.errorMessage
@@ -45,8 +47,17 @@ export const isDeleteAddressError = (state: RootState) => {
     return getStatusCode(state) === STATUS_CODES.DELETE_ADDRESS && isError(state)
 }
 
+export const isSyncPriceSuccess = (state: RootState) => {
+    return getStatusCode(state) === STATUS_CODES.SYNC_ETH_PRICE && !getSyncing(state) && !getErrorMessage(state) && !!getSuccessMessage(state)
+}
+
+export const isSyncPriceError = (state: RootState) => {
+    return getStatusCode(state) === STATUS_CODES.SYNC_ETH_PRICE && !getSyncing(state) && !getSuccessMessage(state) && !!getErrorMessage(state)
+}
+
 export const shouldShowSnackbar = (state: RootState) => {
     return isGenerateAddressSuccess(state) || isGenerateAddressError(state) ||
         isEditAddressSuccess(state) || isEditAddressError(state) ||
-        isDeleteAddressSuccess(state) || isDeleteAddressError(state) || isLoadAddressesError(state)
+        isDeleteAddressSuccess(state) || isDeleteAddressError(state) || isLoadAddressesError(state) ||
+        isSyncPriceSuccess(state) || isSyncPriceError(state)
 }

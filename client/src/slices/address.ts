@@ -16,6 +16,7 @@ interface AddressState {
     statusCode: number | null
     successMessage: string | null
     errorMessage: string | null
+    syncing: boolean
 }
 
 const initialState: AddressState = {
@@ -25,6 +26,7 @@ const initialState: AddressState = {
     statusCode: null,
     successMessage: null,
     errorMessage: null,
+    syncing: false,
 }
 
 const addressActions = {
@@ -39,6 +41,8 @@ const addressActions = {
     pending: createAction('address/pending'),
     fulfilled: createAction<{ statusCode: number, successMessage: string }>('address/fulfilled'),
     rejected: createAction<{ statusCode: number, errorMessage: string }>('address/rejected'),
+    syncEthPrice: createAction('address/syncEthPrice'),
+    syncFulfilled: createAction<{ addresses: Array<AddressType>, successMessage: string, statusCode: number }>('address/syncFulfilled'),
 }
 
 const addressSlice = createSlice({
@@ -113,6 +117,17 @@ const addressSlice = createSlice({
                 statusCode: action.payload.statusCode,
                 successMessage: null,
                 errorMessage: action.payload.errorMessage,
+                syncing: false,
+            }))
+            .addCase(addressActions.syncEthPrice, state => {
+                state.syncing = true
+            })
+            .addCase(addressActions.syncFulfilled, (state, action) => ({
+                ...state,
+                syncing: false,
+                addresses: action.payload.addresses,
+                successMessage: action.payload.successMessage,
+                statusCode: action.payload.statusCode
             }))
 })
 

@@ -1,8 +1,12 @@
 import React, { useState, useContext } from 'react'
+import { useSelector, useDispatch } from 'react-redux'
+import { addressActions } from '../../slices/address'
+import { getSyncing, getAddressesLoading } from '../../selectors/address'
 import { ThemeContext } from '../../config'
-import { Container, Grid, Box, List, Drawer as MuiDrawer, Toolbar, Divider, IconButton, CssBaseline, Typography, Switch } from '@mui/material'
+import { Container, Grid, Box, List, Drawer as MuiDrawer, Toolbar, Divider, Tooltip, CssBaseline, Typography, Switch, IconButton } from '@mui/material'
+import { LoadingButton } from '@mui/lab'
 import { styled, createTheme, ThemeProvider } from '@mui/material/styles'
-import { ChevronLeft as ChevronLeftIcon, ChevronRight as ChevronRightIcon } from '@mui/icons-material'
+import { ChevronLeft as ChevronLeftIcon, ChevronRight as ChevronRightIcon, Sync } from '@mui/icons-material'
 import NavLink from './NavLink'
 import NavButton from './NavButton'
 
@@ -93,9 +97,14 @@ interface DashboardProps {
 
 export default function Dashboard ({ walletExists, walletLoading, onSendTransaction, onCloseWallet, children }: DashboardProps) {
 
+    const dispatch = useDispatch()
+
     const { theme, changeTheme } = useContext(ThemeContext)
 
     const [open, setOpen] = useState<boolean>(true)
+
+    const isSyncing = useSelector(getSyncing)
+    const addressesLoading = useSelector(getAddressesLoading)
 
     const toggleDrawer = () => {
         setOpen(!open)
@@ -103,6 +112,10 @@ export default function Dashboard ({ walletExists, walletLoading, onSendTransact
 
     const handleSwitchMode = (event: React.ChangeEvent<HTMLInputElement>) => {
         changeTheme(event.target.checked)
+    }
+
+    const handleSyncEthPrice = () => {
+        dispatch(addressActions.syncEthPrice())
     }
 
     return (
@@ -156,11 +169,24 @@ export default function Dashboard ({ walletExists, walletLoading, onSendTransact
                         backgroundColor: theme.main.background
                     }}
                 >
-                    <Box display='flex' flexDirection='row' justifyContent='end' paddingX='24px' paddingTop='12px'>
-                        <SwitchMode onChange={handleSwitchMode} defaultChecked />
-                    </Box>
                     <Container maxWidth='lg' sx={{ mt: 4, mb: 4, ...!walletExists && !walletLoading && { width: '60%' } }}>
                         <Grid container>
+                            <Grid container item xs={12} sx={{ mb: 3 }} justifyContent='end' alignItems='center'>
+                                { walletExists && (
+                                    <Tooltip title='Sync eth price' placement='left' arrow>
+                                        <span>
+                                            <LoadingButton
+                                                sx={{ color: theme.main.sync }}
+                                                onClick={handleSyncEthPrice}
+                                                loading={isSyncing}
+                                                disabled={walletLoading || addressesLoading}>
+                                                <Sync />
+                                        </LoadingButton>
+                                        </span>
+                                    </Tooltip>
+                                )}
+                                <SwitchMode onChange={handleSwitchMode} defaultChecked />
+                            </Grid>
                             <Grid item xs={12}>
                                 { children }
                             </Grid>

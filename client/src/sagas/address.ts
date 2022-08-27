@@ -29,6 +29,7 @@ export const STATUS_CODES = {
     GENERATE_ADDRESS: 2,
     EDIT_ADDRESS: 3,
     DELETE_ADDRESS: 4,
+    SYNC_ETH_PRICE: 5,
 }
 
 export function *loadAll ({ payload }: ReturnType<typeof addressActions.loadAll>) {
@@ -167,10 +168,31 @@ export function *deleteAddress ({ payload }: ReturnType<typeof addressActions.de
     }
 }
 
+export function *syncEthPrice () {
+    try {
+        const ethPrice: number = yield call(getEthPrice)
+        const addresses: AddressType[] = yield select(getAddresses)
+        yield put(addressActions.syncFulfilled({
+            addresses: addresses.map(address => ({
+                ...address,
+                fiatAmount: Number(toRoundedFiat(address.ethAmount * ethPrice))
+            })),
+            successMessage: 'Eth price synced',
+            statusCode: STATUS_CODES.SYNC_ETH_PRICE,
+        }))
+    } catch (error: any) {
+        yield put(addressActions.rejected({
+            statusCode: STATUS_CODES.SYNC_ETH_PRICE,
+            errorMessage: getErrorMessage(error, 'Eth price could not be synced. Please try again later')
+        }))
+    }
+}
+
 export default function *watchAddress () {
     yield takeLatest(addressActions.loadAll.type, loadAll)
     yield takeLatest(addressActions.generate.type, generateAddress)
     yield takeLatest(addressActions.edit.type, editAddress)
     yield takeLatest(addressActions.delete.type, deleteAddress)
+    yield takeLatest(addressActions.syncEthPrice.type, syncEthPrice)
 }
 
