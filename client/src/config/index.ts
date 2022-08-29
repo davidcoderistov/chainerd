@@ -36,6 +36,12 @@ export const themes = {
                 icon: 'text.secondary'
             },
             sync: 'primary.main',
+            menu: {
+                background: '#FFFFFF',
+                text: '#000000',
+                hover: '#F9F9F9'
+            },
+            button: 'primary.main',
         }
     },
     dark: {
@@ -48,11 +54,11 @@ export const themes = {
                     main: '#17171A',
                 },
                 icon: {
-                    active: '#1976d2',
+                    active: '#4B61D1',
                     main: '#FFFFFF',
                 },
                 text: {
-                    active: '#1976d2',
+                    active: '#4B61D1',
                     main: '#FFFFFF'
                 }
             }
@@ -72,12 +78,18 @@ export const themes = {
                 },
                 icon: '#FFFFFF'
             },
-            sync: '#FFFFFF'
+            sync: '#FFFFFF',
+            menu: {
+                background: '#222430',
+                text: '#FFFFFF',
+                hover: '#17171A'
+            },
+            button: '#4B61D1'
         }
     }
 }
 
-export const ThemeContext = React.createContext({ theme: themes.light, changeTheme: (dark: boolean) => {} })
+export const ThemeContext = React.createContext({ theme: themes.light, changeTheme: (dark: boolean) => {}, dark: true })
 
 export type NETWORK = 'mainnet' | 'goerli' | 'kovan' | 'rinkeby' | 'ropsten' | 'sepolia'
 
