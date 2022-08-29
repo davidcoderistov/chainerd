@@ -1,14 +1,22 @@
 import axios from 'axios'
+import { NETWORK } from '../config'
 
 const ETHERSCAN_API_KEY = process.env.REACT_APP_ETHERSCAN_API_KEY
 
-const axiosInstance = axios.create({
-    baseURL: 'https://api-kovan.etherscan.io/api'
-})
+export function getAxiosInstance (network: NETWORK) {
+    if (network === 'mainnet') {
+        return axios.create({
+            baseURL: 'https://api.etherscan.io/api'
+        })
+    }
+    return axios.create({
+        baseURL: `https://api-${network}.etherscan.io/api`
+    })
+}
 
-export function getEthBalances (addresses: string[]): Promise<{ [address: string]: string }> {
+export function getEthBalances (addresses: string[], network: NETWORK): Promise<{ [address: string]: string }> {
     return new Promise((resolve, reject) => {
-        axiosInstance.get('', {
+        getAxiosInstance(network).get('', {
             params: {
                 module: 'account',
                 action: 'balancemulti',
@@ -36,9 +44,9 @@ export function getEthBalances (addresses: string[]): Promise<{ [address: string
     })
 }
 
-export function getBlockNumber (timestamp: number): Promise<string> {
+export function getBlockNumber (timestamp: number, network: NETWORK): Promise<string> {
     return new Promise((resolve, reject) => {
-        axiosInstance.get('', {
+        getAxiosInstance(network).get('', {
             params: {
                 module: 'block',
                 action: 'getblocknobytime',
@@ -83,9 +91,9 @@ export function getTransactions ({ address, page, offset, sort = 'asc', startBlo
     offset?: number,
     sort?: 'asc' | 'desc',
     startBlock?: string,
-    endBlock?: string }): Promise<Transaction[]> {
+    endBlock?: string }, network: NETWORK): Promise<Transaction[]> {
     return new Promise((resolve, reject) => {
-        axiosInstance.get('', {
+        getAxiosInstance(network).get('', {
             params: {
                 module: 'account',
                 action: 'txlist',

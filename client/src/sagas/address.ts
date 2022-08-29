@@ -2,8 +2,9 @@ import { call, put, select, delay, takeLatest } from 'redux-saga/effects'
 import { keystoreActions } from '../slices/keystore'
 import { addressActions, AddressType } from '../slices/address'
 import { getAddresses } from '../selectors/address'
-import { getSerializedKeystore } from '../selectors/keystore'
+import { getSerializedKeystore, getNetwork } from '../selectors/keystore'
 import { keystore } from 'eth-lightwallet'
+import { NETWORK } from '../config'
 import { getEthPrice, getEthBalances } from '../services'
 import {
     getCurrentSerializedKeystore,
@@ -45,7 +46,8 @@ export function *loadAll ({ payload }: ReturnType<typeof addressActions.loadAll>
             yield put(addressActions.loadAllFulfilled({ addresses: [] }))
             return
         }
-        const ethBalances: { [address: string]: string } = yield call(getEthBalances, addresses)
+        const network: NETWORK = yield select(getNetwork)
+        const ethBalances: { [address: string]: string } = yield call(getEthBalances, addresses, network)
         const ethPrice: number = yield call(getEthPrice)
         const mappedAddresses = addresses.map(address => {
             const ethAmount = toRoundedEth(Number(ethers.utils.formatEther(ethers.BigNumber.from(ethBalances[address]))))

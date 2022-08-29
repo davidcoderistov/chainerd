@@ -3,7 +3,7 @@ import { transactionActions } from '../slices/transaction'
 import { accountActions } from '../slices/account'
 import { portfolioActions } from '../slices/portfolio'
 import { addressActions, AddressType } from '../slices/address'
-import { getKeystore } from '../selectors/keystore'
+import { getKeystore, getNetwork } from '../selectors/keystore'
 import { getAddresses } from '../selectors/address'
 import { getAllTransactionsByAddress, getTransactionsFetched } from '../selectors/account'
 import { Transaction as AccountTransaction } from '../slices/account'
@@ -23,8 +23,9 @@ import {
 } from '../utils'
 import { getNonce, incrementNonce } from '../localStorage'
 import { keystore, signing } from 'eth-lightwallet'
-import { ethersProvider } from '../providers'
+import { NETWORK } from '../config'
 import { ethers } from 'ethers'
+import { sendTransaction as sendTx, waitForTransaction, getBlock } from '../services'
 import _orderBy from 'lodash/orderBy'
 
 export const STATUS_CODES = {
@@ -134,10 +135,11 @@ export function *sendTransaction ({ payload }: ReturnType<typeof transactionActi
         })
         const signedTx = signing.signTx(ks, pwDerivedKey, rawTx, payload.fromAddress)
         yield put(transactionActions.setActiveStep({ step: 1 }))
-        const txResponse: ethers.providers.TransactionResponse = yield call([ethersProvider, ethersProvider.sendTransaction], `0x${signedTx}`)
+        const network: NETWORK = yield select(getNetwork)
+        const txResponse: ethers.providers.TransactionResponse = yield call(sendTx, `0x${signedTx}`, network)
         yield put(transactionActions.setHash({ hash: txResponse.hash || null }))
         yield put(transactionActions.setActiveStep({ step: 2 }))
-        const txReceipt: ethers.providers.TransactionReceipt = yield call([ethersProvider, ethersProvider.waitForTransaction], txResponse.hash)
+        const txReceipt: ethers.providers.TransactionReceipt = yield call(waitForTransaction, txResponse.hash, network)
         yield delay(3000)
         incrementNonce(payload.fromAddress)
         if (txResponse.hash && txReceipt.status) {
@@ -148,7 +150,7 @@ export function *sendTransaction ({ payload }: ReturnType<typeof transactionActi
             }))
             if (txReceipt.blockNumber) {
                 const ethPrice: number = yield call(getEthPrice)
-                const { timestamp }: ethers.providers.Block = yield call([ethersProvider, ethersProvider.getBlock], txReceipt.blockNumber)
+                const { timestamp }: ethers.providers.Block = yield call(getBlock, txReceipt.blockNumber, network)
                 const ethAmount = toRoundedEth(Number(ethers.utils.formatEther(ethers.BigNumber.from(txResponse.value))))
                 const transaction = {
                     from: payload.fromAddress,
@@ -204,7 +206,6 @@ export function *sendTransaction ({ payload }: ReturnType<typeof transactionActi
             }))
         }
     } catch(error: any) {
-        console.log(error)
         yield put(transactionActions.rejected({
             statusCode: STATUS_CODES.SEND_TRANSACTION,
             errorMessage: getGenericErrorMessage(error, 'Something went wrong while trying to send the transaction')

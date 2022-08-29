@@ -1,6 +1,7 @@
-import { call, all, put, takeLatest } from 'redux-saga/effects'
+import { call, all, put, select, takeLatest } from 'redux-saga/effects'
 import { portfolioActions } from '../slices/portfolio'
 import { accountActions } from '../slices/account'
+import { getNetwork } from '../selectors/keystore'
 import {
     getBlockNumber,
     getEthBalance,
@@ -16,6 +17,7 @@ import {
     toRoundedEth,
     toRoundedFiat
 } from '../utils'
+import { NETWORK } from '../config'
 import _flattenDeep from 'lodash/flattenDeep'
 import _orderBy from 'lodash/orderBy'
 import { ethers } from 'ethers'
@@ -23,12 +25,14 @@ import moment from 'moment'
 
 
 export function *generateBalances ({ address, startBlock, endBlock }: { address: string, startBlock: string, endBlock: string }) {
+    const network: NETWORK = yield select(getNetwork)
     const transactions: Transaction[] = yield call(
         getTransactions,
-        { address, startBlock, endBlock }
+        { address, startBlock, endBlock },
+        network
     )
     const balances: string[] = yield all(
-        transactions.map(transaction => call(getEthBalance, address, ethers.BigNumber.from(transaction.blockNumber).toHexString()))
+        transactions.map(transaction => call(getEthBalance, address, ethers.BigNumber.from(transaction.blockNumber).toHexString(), network))
     )
     return {
         transactions,
@@ -57,7 +61,8 @@ export function *generatePortfolioData ({ ethData, ethPrices, hasBalances, addre
             }))
         }
     } else {
-        const ethBalanceWei: string = yield call(getEthBalance, address, 'latest')
+        const network: NETWORK = yield select(getNetwork)
+        const ethBalanceWei: string = yield call(getEthBalance, address, 'latest', network)
         const ethBalance: string = ethers.utils.formatEther(ethers.BigNumber.from(ethBalanceWei))
         return {
             ethData: ethData.map(({ x }) => ({
@@ -78,8 +83,9 @@ export function *generateWeeklyData ({ payload }: ReturnType<typeof portfolioAct
     const start = now.clone().subtract(1, 'week')
     const end = now.clone()
     try {
-        const startBlock: string = yield call(getBlockNumber, start.unix())
-        const endBlock: string = yield call(getBlockNumber, end.unix())
+        const network: NETWORK = yield select(getNetwork)
+        const startBlock: string = yield call(getBlockNumber, start.unix(), network)
+        const endBlock: string = yield call(getBlockNumber, end.unix(), network)
         const { balances }: { balances: Array<{ balance: string, timestamp: string }> } = yield call(
             generateBalances,
             { address, startBlock, endBlock }
@@ -119,8 +125,9 @@ export function *generateMonthlyData ({ payload }: ReturnType<typeof portfolioAc
     const start = now.clone().subtract(1, 'month')
     const end = now.clone()
     try {
-        const startBlock: string = yield call(getBlockNumber, start.unix())
-        const endBlock: string = yield call(getBlockNumber, end.unix())
+        const network: NETWORK = yield select(getNetwork)
+        const startBlock: string = yield call(getBlockNumber, start.unix(), network)
+        const endBlock: string = yield call(getBlockNumber, end.unix(), network)
         const { balances }: { balances: Array<{ balance: string, timestamp: string }> } = yield call(
             generateBalances,
             { address, startBlock, endBlock }
@@ -160,8 +167,9 @@ export function *generateYearlyData ({ payload }: ReturnType<typeof portfolioAct
     const start = now.clone().subtract(1, 'year')
     const end = now.clone()
     try {
-        const startBlock: string = yield call(getBlockNumber, start.unix())
-        const endBlock: string = yield call(getBlockNumber, end.unix())
+        const network: NETWORK = yield select(getNetwork)
+        const startBlock: string = yield call(getBlockNumber, start.unix(), network)
+        const endBlock: string = yield call(getBlockNumber, end.unix(), network)
         const { balances, transactions }: { balances: Array<{ balance: string, timestamp: string }>, transactions: Transaction[] } = yield call(
             generateBalances,
             { address, startBlock, endBlock }
@@ -223,6 +231,7 @@ export function *fetchLatestTransactions ({ payload }: ReturnType<typeof portfol
         yield put(portfolioActions.fetchLatestTransactionsFulfilled({ transactions: [] }))
     }
     try {
+        const network: NETWORK = yield select(getNetwork)
         const transactions: Transaction[] = _flattenDeep(
             yield all(
                 payload.addresses.map(address => call(getTransactions, {
@@ -230,7 +239,7 @@ export function *fetchLatestTransactions ({ payload }: ReturnType<typeof portfol
                     page: 1,
                     offset: 5,
                     sort: 'desc',
-                }))
+                }, network))
             )
         )
         const latestTransactions = Array.from(transactions).sort((a, b) => {

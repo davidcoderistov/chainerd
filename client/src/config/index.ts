@@ -78,3 +78,5 @@ export const themes = {
 }
 
 export const ThemeContext = React.createContext({ theme: themes.light, changeTheme: (dark: boolean) => {} })
+
+export type NETWORK = 'mainnet' | 'goerli' | 'kovan' | 'rinkeby' | 'ropsten' | 'sepolia'
