@@ -1,8 +1,9 @@
 import React, { useState, useCallback, useContext } from 'react'
 import { ThemeContext } from '../../config'
-import { Box, Grid, Button, IconButton, Menu, MenuItem, InputAdornment } from '@mui/material'
-import { Search, KeyboardArrowDown, KeyboardArrowUp } from '@mui/icons-material'
+import { Box, Grid, IconButton, InputAdornment } from '@mui/material'
+import { Search } from '@mui/icons-material'
 import TextInput from '../TextInput'
+import MenuButton from '../MenuButton'
 
 
 const sortByOptions = [
@@ -23,17 +24,7 @@ export default function AccountsAction ({ searchText, loading, onChangeSearchTex
 
     const { theme } = useContext(ThemeContext)
 
-    const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null)
-    const open = Boolean(anchorEl)
     const [selectedItem, setSelectedItem] = useState<string>(sortByOptions[0])
-
-    const handleClick = (event: React.MouseEvent<HTMLElement>) => {
-        setAnchorEl(event.currentTarget)
-    }
-
-    const handleClose = () => {
-        setAnchorEl(null)
-    }
 
     const handleOnChangeSearchText = useCallback(
         (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -46,7 +37,6 @@ export default function AccountsAction ({ searchText, loading, onChangeSearchTex
         (option: string, index: number) => {
             setSelectedItem(option)
             onChangeSortBy(index)
-            handleClose()
         },
         [onChangeSortBy]
     )
@@ -75,34 +65,15 @@ export default function AccountsAction ({ searchText, loading, onChangeSearchTex
                     }} />
             </Box>
             <Box display='flex' flex='0 0 250px' justifyContent='end'>
-                <Button
-                    sx={{ textTransform: 'none' }}
-                    aria-haspopup='true'
-                    aria-expanded={ open ? 'true' : undefined }
+                <MenuButton
+                    options={sortByOptions}
                     disabled={loading}
-                    onClick={handleClick}
-                    endIcon={open ? <KeyboardArrowUp /> : <KeyboardArrowDown />}
-                >
-                    <span style={{ color: theme.main.paper.text.secondary, marginRight: '5px' }}>Sort by</span>
-                    <span>{ selectedItem }</span>
-                </Button>
-                <Menu
-                    anchorEl={anchorEl}
-                    open={open}
-                    onClose={handleClose}
-                    anchorOrigin={{
-                        vertical: 'bottom',
-                        horizontal: 'right',
-                    }}
-                    transformOrigin={{
-                        vertical: 'top',
-                        horizontal: 'right',
-                    }}
-                >
-                    { sortByOptions.map((option, index) => (
-                        <MenuItem key={index} onClick={() => handleOnChangeSortBy(option, index)}>{ option }</MenuItem>
-                    ))}
-                </Menu>
+                    onChange={handleOnChangeSortBy}>
+                        <React.Fragment>
+                            <span style={{ color: theme.main.paper.text.secondary, marginRight: '5px' }}>Sort by</span>
+                            <span>{ selectedItem }</span>
+                        </React.Fragment>
+                </MenuButton>
             </Box>
         </Grid>
     )
