@@ -1,7 +1,7 @@
 import { call, all, put, select, takeLatest } from 'redux-saga/effects'
 import { portfolioActions } from '../slices/portfolio'
 import { accountActions } from '../slices/account'
-import { getNetwork } from '../selectors/keystore'
+import { getNetwork } from '../selectors/network'
 import {
     getBlockNumber,
     getEthBalance,

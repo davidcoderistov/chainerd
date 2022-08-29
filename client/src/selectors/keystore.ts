@@ -13,8 +13,6 @@ export const getKeystore = (state: RootState): keystore | null => {
 
 export const getSerializedKeystore = (state: RootState): string | null => state.keystore.keystore
 
-export const getNetwork = (state: RootState) => state.keystore.network
-
 export const getLoading = (state: RootState) => state.keystore.loading
 
 export const getStatusCode = (state: RootState) => state.keystore.statusCode

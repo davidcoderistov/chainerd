@@ -1,10 +1,8 @@
 import { createAction, createSlice } from '@reduxjs/toolkit'
 import { VaultOptions } from 'eth-lightwallet'
-import { NETWORK } from '../config'
 
 interface KeystoreState {
     keystore: string | null,
-    network: NETWORK
     loading: boolean,
     statusCode: number | null,
     errorMessage: string | null,
@@ -13,7 +11,6 @@ interface KeystoreState {
 
 const initialState: KeystoreState = {
     keystore: null,
-    network: 'mainnet',
     loading: false,
     statusCode: null,
     errorMessage: null,
@@ -26,7 +23,6 @@ const keystoreActions = {
     load: createAction<{ keystore: string }>('keystore/load'),
     set: createAction<{ keystore: string }>('keystore/set'),
     destroy: createAction('keystore/destroy'),
-    setNetwork: createAction<{ network: NETWORK }>('keystore/setNetwork'),
     pending: createAction('keystore/pending'),
     fulfilled: createAction<{ keystore: string | null, statusCode: number, successMessage: string }>('keystore/fulfilled'),
     rejected: createAction<{ errorMessage: string, statusCode: number }>('keystore/rejected'),
@@ -67,9 +63,6 @@ const keystoreSlice = createSlice({
                     loading: false,
                     successMessage: null,
                 }
-            })
-            .addCase(keystoreActions.setNetwork, (state, action) => {
-                state.network = action.payload.network
             })
 })
 
