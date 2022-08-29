@@ -3,11 +3,16 @@ import { Button, Menu, MenuItem } from '@mui/material'
 import { KeyboardArrowDown, KeyboardArrowUp } from '@mui/icons-material'
 
 
+export interface Option {
+    id: string
+    name: string
+}
+
 interface MenuButtonProps {
     children: any
-    options: string[]
+    options: Option[]
     disabled: boolean
-    onChange: (option: string, index: number) => void
+    onChange: (option: Option, index: number) => void
 }
 
 export default function MenuButton ({ children, options, disabled, onChange }: MenuButtonProps) {
@@ -24,7 +29,7 @@ export default function MenuButton ({ children, options, disabled, onChange }: M
     }
 
     const handleChange = useCallback(
-        (option: string, index: number) => {
+        (option: Option, index: number) => {
             onChange(option, index)
             handleClose()
         },
@@ -57,7 +62,7 @@ export default function MenuButton ({ children, options, disabled, onChange }: M
                 }}
             >
                 { options.map((option, index) => (
-                    <MenuItem key={index} onClick={() => handleChange(option, index)}>{ option }</MenuItem>
+                    <MenuItem key={index} onClick={() => handleChange(option, index)}>{ option.name }</MenuItem>
                 ))}
             </Menu>
         </React.Fragment>
