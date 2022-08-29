@@ -1,6 +1,6 @@
 import React, { useContext } from 'react'
 import { ThemeContext } from '../../config'
-import { ToggleButtonGroup, ToggleButton } from '@mui/material'
+import { ToggleButtonGroup, ToggleButton, ThemeProvider, createTheme } from '@mui/material'
 
 export interface TogglePeriodProps {
     period: 'weekly' | 'monthly' | 'yearly'
@@ -8,9 +8,17 @@ export interface TogglePeriodProps {
     disabled: boolean
 }
 
+const customTheme = createTheme({
+    palette: {
+        primary: {
+            main: "#4B61D1"
+        }
+    }
+})
+
 export default function TogglePeriod ({ period, onChangePeriod, disabled }: TogglePeriodProps) {
 
-    const { theme } = useContext(ThemeContext)
+    const { theme, dark } = useContext(ThemeContext)
 
     const handleChange = (event: React.MouseEvent<HTMLElement>, period: 'weekly' | 'monthly' | 'yearly' | null) => {
         if (period) {
@@ -18,7 +26,7 @@ export default function TogglePeriod ({ period, onChangePeriod, disabled }: Togg
         }
     }
 
-    return (
+    const content = (
         <ToggleButtonGroup
             color='primary'
             size='small'
@@ -32,4 +40,10 @@ export default function TogglePeriod ({ period, onChangePeriod, disabled }: Togg
             <ToggleButton value='yearly' sx={{ ...period !== 'yearly' && { color: theme.main.paper.text.primary }, '&:hover': { backgroundColor: theme.main.paper.hover }}}>1Y</ToggleButton>
         </ToggleButtonGroup>
     )
+
+    return dark ? (
+        <ThemeProvider theme={customTheme}>
+            { content }
+        </ThemeProvider>
+    ) : content
 }
