@@ -1,9 +1,9 @@
 import { createAction, createSlice } from '@reduxjs/toolkit'
-import { NETWORK } from '../config'
+import { NETWORK, NETWORKS } from '../config'
 
 
 const initialState = {
-    network: 'mainnet'
+    network: NETWORKS.MAINNET
 }
 
 const networkActions = {
