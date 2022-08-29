@@ -1,5 +1,6 @@
-import React, { useState, useCallback } from 'react'
-import { Button, Menu, MenuItem } from '@mui/material'
+import React, { useState, useCallback, useContext } from 'react'
+import { ThemeContext } from '../../config'
+import { Button, Menu, MenuItem, ButtonProps } from '@mui/material'
 import { KeyboardArrowDown, KeyboardArrowUp } from '@mui/icons-material'
 
 
@@ -12,10 +13,14 @@ interface MenuButtonProps {
     children: any
     options: Option[]
     disabled: boolean
+    size?: ButtonProps['size']
+    sxProps?: any
     onChange: (option: Option, index: number) => void
 }
 
-export default function MenuButton ({ children, options, disabled, onChange }: MenuButtonProps) {
+export default function MenuButton ({ children, options, disabled, sxProps, size, onChange }: MenuButtonProps) {
+
+    const { theme } = useContext(ThemeContext)
 
     const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null)
     const open = Boolean(anchorEl)
@@ -39,16 +44,18 @@ export default function MenuButton ({ children, options, disabled, onChange }: M
     return (
         <React.Fragment>
             <Button
-                sx={{ textTransform: 'none' }}
+                sx={{ textTransform: 'none', color: theme.main.button, ...sxProps && { ...sxProps }}}
                 aria-haspopup='true'
                 aria-expanded={ open ? 'true' : undefined }
                 disabled={disabled}
                 onClick={handleClick}
                 endIcon={open ? <KeyboardArrowUp /> : <KeyboardArrowDown />}
+                {...size && { size }}
             >
                 { children }
             </Button>
             <Menu
+                sx={{ '.MuiMenu-paper': { backgroundColor: theme.main.menu.background, color: theme.main.menu.text }}}
                 anchorEl={anchorEl}
                 open={open}
                 onClose={handleClose}
@@ -62,7 +69,12 @@ export default function MenuButton ({ children, options, disabled, onChange }: M
                 }}
             >
                 { options.map((option, index) => (
-                    <MenuItem key={index} onClick={() => handleChange(option, index)}>{ option.name }</MenuItem>
+                    <MenuItem
+                        sx={{ '&:hover': { backgroundColor: theme.main.menu.hover }}}
+                        key={index}
+                        onClick={() => handleChange(option, index)}>
+                        { option.name }
+                    </MenuItem>
                 ))}
             </Menu>
         </React.Fragment>
