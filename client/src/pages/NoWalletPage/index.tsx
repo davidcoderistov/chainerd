@@ -10,7 +10,7 @@ export interface NoWalletPageProps {
 
 export default function NoWalletPage ({ onCreateWallet, onRestoreWallet }: NoWalletPageProps) {
 
-    const { theme } = useContext(ThemeContext)
+    const { theme, dark } = useContext(ThemeContext)
 
     return (
         <Box display='flex' flexDirection='column' justifyContent='center' alignItems='center' sx={{ color: theme.main.paper.text.primary }}>
@@ -25,10 +25,10 @@ export default function NoWalletPage ({ onCreateWallet, onRestoreWallet }: NoWal
                 is encrypted using the password. All keys are saved inside the browser and never sent.
             </Typography>
             <Box display='flex' flexDirection='row' justifyContent='center' columnGap='20px' marginTop='30px'>
-                <Button sx={{ textTransform: 'none' }} size='large' onClick={onCreateWallet}>
+                <Button sx={{ textTransform: 'none', color: theme.main.button }} size='large' onClick={onCreateWallet}>
                     Create wallet
                 </Button>
-                <Button sx={{ textTransform: 'none' }} size='large' onClick={onRestoreWallet}>
+                <Button sx={{ textTransform: 'none', color: theme.main.button }} size='large' onClick={onRestoreWallet}>
                     Restore wallet
                 </Button>
             </Box>
