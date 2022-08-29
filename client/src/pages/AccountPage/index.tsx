@@ -107,7 +107,7 @@ export default function AccountPage () {
         <React.Fragment>
             <Breadcrumbs sx={{ fontSize: 22, color: theme.main.link }}>
                 <StyledLink to='/accounts'>
-                    <Typography color='primary.main' fontSize={22}>
+                    <Typography color={theme.main.button} fontSize={22}>
                         Accounts
                     </Typography>
                 </StyledLink>
