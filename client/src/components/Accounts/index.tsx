@@ -39,7 +39,7 @@ export interface AccountsProps {
 
 export default function Accounts ({ accounts, loading, onAddAccount, searchText, onChangeSearchText, onChangeSortBy, onEditAccount, onClickAccount, onSendTransaction, }: AccountsProps) {
 
-    const { theme } = useContext(ThemeContext)
+    const { theme, dark } = useContext(ThemeContext)
 
     const handleOnEditAccount = (event: React.MouseEvent<HTMLElement>, address: Address) => {
         event.stopPropagation()
@@ -62,7 +62,7 @@ export default function Accounts ({ accounts, loading, onAddAccount, searchText,
                             `Accounts (${ accounts.length })`
                         )}
                     </Typography>
-                    <Button variant='contained' startIcon={<Add />} sx={{ textTransform: 'none' }} disabled={loading} onClick={onAddAccount}>
+                    <Button variant='contained' startIcon={<Add />} sx={{ textTransform: 'none', backgroundColor: theme.main.button, ...dark && { '&:hover': { backgroundColor: '#4C516D' }} }} disabled={loading} onClick={onAddAccount}>
                         Add account
                     </Button>
                 </Grid>
@@ -130,10 +130,10 @@ export default function Accounts ({ accounts, loading, onAddAccount, searchText,
                                         </Typography>
                                     </TableCell>
                                     <TableCell sx={{ minWidth: 100 }}>
-                                        <IconButton color='primary' aria-label='edit' component='div' onClick={(event: React.MouseEvent<HTMLElement>) => handleOnEditAccount(event, account.address)}>
+                                        <IconButton sx={{ color: theme.main.button }} aria-label='edit' component='div' onClick={(event: React.MouseEvent<HTMLElement>) => handleOnEditAccount(event, account.address)}>
                                             <Edit />
                                         </IconButton>
-                                        <IconButton color='primary' aria-label='send' component='div' onClick={(event: React.MouseEvent<HTMLElement>) => handleOnSendTransaction(event, account.address)}>
+                                        <IconButton sx={{ color: theme.main.button }} aria-label='send' component='div' onClick={(event: React.MouseEvent<HTMLElement>) => handleOnSendTransaction(event, account.address)}>
                                             <Send />
                                         </IconButton>
                                     </TableCell>
