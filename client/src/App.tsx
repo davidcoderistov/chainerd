@@ -12,7 +12,7 @@ function App() {
   }
 
   return (
-      <ThemeContext.Provider value={{ theme: darkTheme ? themes.dark : themes.light, changeTheme: handleChangeTheme }}>
+      <ThemeContext.Provider value={{ theme: darkTheme ? themes.dark : themes.light, changeTheme: handleChangeTheme, dark: darkTheme }}>
           <Router>
               <HomePage />
           </Router>
