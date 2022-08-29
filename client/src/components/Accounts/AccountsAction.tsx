@@ -3,14 +3,26 @@ import { ThemeContext } from '../../config'
 import { Box, Grid, IconButton, InputAdornment } from '@mui/material'
 import { Search } from '@mui/icons-material'
 import TextInput from '../TextInput'
-import MenuButton from '../MenuButton'
+import MenuButton, { Option } from '../MenuButton'
 
 
 const sortByOptions = [
-    'Highest Balance',
-    'Lowest Balance',
-    'Name A-Z',
-    'Name Z-A',
+    {
+        id: 'balanceDesc',
+        name: 'Highest Balance'
+    },
+    {
+        id: 'balanceAsc',
+        name: 'Lowest Balance'
+    },
+    {
+        id: 'nameAsc',
+        name: 'Name A-Z'
+    },
+    {
+        id: 'nameDesc',
+        name: 'Name Z-A'
+    },
 ]
 
 export interface AccountsActionProps {
@@ -24,7 +36,7 @@ export default function AccountsAction ({ searchText, loading, onChangeSearchTex
 
     const { theme } = useContext(ThemeContext)
 
-    const [selectedItem, setSelectedItem] = useState<string>(sortByOptions[0])
+    const [selectedItem, setSelectedItem] = useState<string>(sortByOptions[0].name)
 
     const handleOnChangeSearchText = useCallback(
         (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -34,8 +46,8 @@ export default function AccountsAction ({ searchText, loading, onChangeSearchTex
     )
 
     const handleOnChangeSortBy = useCallback(
-        (option: string, index: number) => {
-            setSelectedItem(option)
+        (option: Option, index: number) => {
+            setSelectedItem(option.name)
             onChangeSortBy(index)
         },
         [onChangeSortBy]
