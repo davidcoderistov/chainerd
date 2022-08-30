@@ -46,7 +46,7 @@ export default function AccountsAction ({ searchText, loading, onChangeSearchTex
     )
 
     const handleOnChangeSortBy = useCallback(
-        (option: Option, index: number) => {
+        (option: Option<string, string>, index: number) => {
             setSelectedItem(option.name)
             onChangeSortBy(index)
         },
