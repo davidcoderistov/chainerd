@@ -1,19 +1,20 @@
 import React, { useState, useRef, useContext } from 'react'
 import { ThemeContext } from '../../config'
-import { Paper, Slide, Grid, IconButton, Typography } from '@mui/material'
+import { Paper, Slide, Grid, IconButton, Typography, Skeleton, Box } from '@mui/material'
 import AccountBalance, { AccountBalanceProps } from '../AccountBalance'
 import { ChevronLeft, ChevronRight } from '@mui/icons-material'
+import address from "../../slices/address";
 
 
 interface SlideViewProps {
-    address: string
+    address: string | null
     onSlideLeft: () => void
     onSlideRight: () => void
     leftDisabled: boolean
     rightDisabled: boolean
 }
 
-function SlideView ({ address, onSlideLeft, onSlideRight, leftDisabled, rightDisabled, disabled }: SlideViewProps & { disabled: boolean }) {
+function SlideView ({ address, onSlideLeft, onSlideRight, leftDisabled, rightDisabled, disabled, loading }: SlideViewProps & { disabled: boolean, loading: boolean }) {
 
     const { theme } = useContext(ThemeContext)
 
@@ -23,14 +24,14 @@ function SlideView ({ address, onSlideLeft, onSlideRight, leftDisabled, rightDis
                 <IconButton color='primary' size='large' onClick={onSlideLeft} disabled={leftDisabled || disabled} sx={{ color: theme.main.paper.text.primary, '&.Mui-disabled': { color: theme.main.paper.text.disabled }}}>
                     <ChevronLeft />
                 </IconButton>
-                <div>
+                <Box {...loading && { width: 600 }}>
                     <Typography variant='h5' fontWeight='bold' color={theme.main.paper.text.primary}>
-                        { address }
+                        { loading ? <Skeleton variant='rectangular' /> : address }
                     </Typography>
                     <Typography variant='subtitle2' color={theme.main.paper.text.secondary} sx={{ textAlign: 'center' }}>
-                        address
+                        { loading ? <Skeleton variant='rectangular' /> : address ? 'address' : null }
                     </Typography>
-                </div>
+                </Box>
                 <IconButton color='primary' size='large' onClick={onSlideRight} disabled={rightDisabled || disabled}  sx={{ color: theme.main.paper.text.primary, '&.Mui-disabled': { color: theme.main.paper.text.disabled }}}>
                     <ChevronRight />
                 </IconButton>
@@ -73,6 +74,7 @@ export default function ViewAccountBalances (props: ViewAccountBalancesProps) {
                         leftDisabled={props.leftDisabled}
                         rightDisabled={props.rightDisabled}
                         disabled={props.chartDataLoading}
+                        loading={props.chartDataLoading}
                         onSlideLeft={handleSlideLeft}
                         onSlideRight={handleSlideRight} />
                     <AccountBalance
@@ -80,6 +82,7 @@ export default function ViewAccountBalances (props: ViewAccountBalancesProps) {
                         balance={props.balance}
                         chartData={props.chartData}
                         chartDataLoading={props.chartDataLoading}
+                        disabled={props.chartDataLoading || !props.address}
                         fiat={props.fiat}
                         periodType={props.periodType}
                         height={props.height}

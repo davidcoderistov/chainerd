@@ -120,6 +120,7 @@ export default function AccountPage () {
                 balance={balance}
                 chartData={Array.isArray(chartData) ? chartData : []}
                 chartDataLoading={chartDataLoading}
+                disabled={chartDataLoading}
                 fiat={isFiat}
                 periodType={periodType}
                 height={300}

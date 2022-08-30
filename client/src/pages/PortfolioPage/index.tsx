@@ -127,25 +127,22 @@ export default function PortfolioPage () {
 
     return (
         <React.Fragment>
-            { addresses.length > 0 && (
-                <React.Fragment>
-                    <ViewAccountBalances
-                        address={selectedAddress ? selectedAddress : 'N/A'}
-                        onSlideLeft={handleSlideLeft}
-                        onSlideRight={handleSlideRight}
-                        leftDisabled={selectedIndex <= 0}
-                        rightDisabled={selectedIndex + 1 >= addresses.length}
-                        balance={balance}
-                        chartData={Array.isArray(chartData) ? chartData : []}
-                        chartDataLoading={addressesLoading || chartDataLoading}
-                        fiat={fiat}
-                        periodType={periodType}
-                        onChangeBalanceView={handleChangeBalanceView}
-                        onChangePeriod={handleChangePeriodType}
-                        height={300} />
-                    <Box marginTop='50px' />
-                </React.Fragment>
-            )}
+            <ViewAccountBalances
+                address={selectedAddress}
+                onSlideLeft={handleSlideLeft}
+                onSlideRight={handleSlideRight}
+                leftDisabled={selectedIndex <= 0}
+                rightDisabled={selectedIndex + 1 >= addresses.length}
+                balance={balance}
+                chartData={Array.isArray(chartData) ? chartData : []}
+                chartDataLoading={addressesLoading || chartDataLoading}
+                disabled={addressesLoading || chartDataLoading}
+                fiat={fiat}
+                periodType={periodType}
+                onChangeBalanceView={handleChangeBalanceView}
+                onChangePeriod={handleChangePeriodType}
+                height={300} />
+            <Box marginTop='50px' />
             <ViewAssetAllocation
                 items={allocations}
                 loading={addressesLoading} />

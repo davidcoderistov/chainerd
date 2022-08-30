@@ -1,5 +1,4 @@
 import React, { useState, useContext } from 'react'
-import { useNavigate } from 'react-router-dom'
 import { useSelector, useDispatch } from 'react-redux'
 import { addressActions } from '../../slices/address'
 import { networkActions } from '../../slices/network'
@@ -131,8 +130,6 @@ export default function Dashboard ({ walletExists, walletLoading, onSendTransact
 
     const dispatch = useDispatch()
 
-    const navigate = useNavigate()
-
     const { theme, changeTheme, dark } = useContext(ThemeContext)
 
     const [open, setOpen] = useState<boolean>(true)
@@ -156,7 +153,6 @@ export default function Dashboard ({ walletExists, walletLoading, onSendTransact
 
     const handleChangeNetwork = (option: Option<NETWORK, string>) => {
         dispatch(networkActions.setNetwork({ network: option.id }))
-        navigate('/')
     }
 
     return (

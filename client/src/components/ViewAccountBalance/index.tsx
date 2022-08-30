@@ -14,6 +14,7 @@ export default function ViewAccountBalance (props: AccountBalanceProps) {
                 balance={props.balance}
                 chartData={props.chartData}
                 chartDataLoading={props.chartDataLoading}
+                disabled={props.chartDataLoading}
                 fiat={props.fiat}
                 periodType={props.periodType}
                 height={props.height}

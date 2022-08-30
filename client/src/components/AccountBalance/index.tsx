@@ -1,5 +1,5 @@
 import React from 'react'
-import { Paper, Grid } from '@mui/material'
+import { Grid } from '@mui/material'
 import Balance from './Balance'
 import TogglePeriod from './TogglePeriod'
 import AccountBalanceChart from '../AccountBalanceChart'
@@ -8,6 +8,7 @@ export interface AccountBalanceProps {
     balance: number
     chartData: Array<{ x: string, y: string }>
     chartDataLoading: boolean
+    disabled: boolean
     fiat: boolean
     periodType: 'weekly' | 'monthly' | 'yearly'
     height: number
@@ -16,7 +17,7 @@ export interface AccountBalanceProps {
     sxContainer?: any
 }
 
-export default function AccountBalance ({ balance, chartData, chartDataLoading, periodType, fiat, onChangeBalanceView, onChangePeriod, height, sxContainer = {} }: AccountBalanceProps) {
+export default function AccountBalance ({ balance, chartData, chartDataLoading, disabled, periodType, fiat, onChangeBalanceView, onChangePeriod, height, sxContainer = {} }: AccountBalanceProps) {
 
     return (
         <Grid container sx={sxContainer}>
@@ -24,7 +25,7 @@ export default function AccountBalance ({ balance, chartData, chartDataLoading, 
                 <Balance balance={balance} fiat={fiat} onChangeBalanceView={onChangeBalanceView} loading={chartDataLoading}/>
             </Grid>
             <Grid item xs={12} sx={{ marginBottom: '10px' }} container direction='row-reverse'>
-                <TogglePeriod period={periodType} onChangePeriod={onChangePeriod} disabled={chartDataLoading}/>
+                <TogglePeriod period={periodType} onChangePeriod={onChangePeriod} disabled={chartDataLoading || disabled}/>
             </Grid>
             <Grid item xs={12}>
                 <AccountBalanceChart data={chartData} type={periodType} loading={chartDataLoading} fiat={fiat} height={height} />
