@@ -47,6 +47,7 @@ const accountActions = {
     setIsFiat: createAction<{ isFiat: boolean }>('account/setIsFiat'),
     fetchTransactions: createAction<{ address: string }>('account/fetchTransactions'),
     fetchTransactionsFulfilled: createAction<{ address: string, data: Transaction[] }>('account/fetchTransactionsFulfilled'),
+    clearAll: createAction('account/clearAll')
 }
 
 const accountSlice = createSlice({
@@ -83,6 +84,9 @@ const accountSlice = createSlice({
                     fetched: true,
                 }
             })
+            .addCase(accountActions.clearAll, () => ({
+                ...initialState
+            }))
 })
 
 export { accountActions }

@@ -43,6 +43,7 @@ const addressActions = {
     rejected: createAction<{ statusCode: number, errorMessage: string }>('address/rejected'),
     syncEthPrice: createAction('address/syncEthPrice'),
     syncFulfilled: createAction<{ addresses: Array<AddressType>, successMessage: string, statusCode: number }>('address/syncFulfilled'),
+    clearAll: createAction('address/clearAll'),
 }
 
 const addressSlice = createSlice({
@@ -128,6 +129,9 @@ const addressSlice = createSlice({
                 addresses: action.payload.addresses,
                 successMessage: action.payload.successMessage,
                 statusCode: action.payload.statusCode
+            }))
+            .addCase(addressActions.clearAll, () => ({
+                ...initialState
             }))
 })
 

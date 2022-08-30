@@ -94,6 +94,7 @@ const portfolioActions = {
     fetchLatestTransactions: createAction<{ addresses: string[] }>('portfolio/fetchLatestTransactions'),
     fetchLatestTransactionsFulfilled: createAction<{ transactions: Transaction[] }>('portfolio/fetchLatestTransactionsFulfilled'),
     fetchLatestTransactionsRejected: createAction('portfolio/fetchLatestTransactionsRejected'),
+    clearAll: createAction('portfolio/clearAll'),
 }
 
 const portfolioSlice = createSlice({
@@ -283,6 +284,9 @@ const portfolioSlice = createSlice({
                     fetched: false,
                 }
             })
+            .addCase(portfolioActions.clearAll, () => ({
+                ...initialState,
+            }))
 })
 
 export { portfolioActions }
