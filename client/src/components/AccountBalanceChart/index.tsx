@@ -183,11 +183,12 @@ export default function AccountBalanceChart ({ data, type, loading, fiat, height
 
     const [chartData, setChartData] = useState<ChartData<'line', LinePoint>>({ datasets: [] })
     const [chartOptions, setChartOptions] = useState({})
+    const showNoData = data.length >= 1 ? data.every((point: any) => point.y === '0') : true
 
     useEffect(() => {
         setChartData({
             // @ts-ignore
-            datasets: [{ data }]
+            datasets: [{ data: showNoData ? [] : data }]
         })
     }, [data])
 
@@ -205,7 +206,7 @@ export default function AccountBalanceChart ({ data, type, loading, fiat, height
                     ticks: {
                         ...options.scales.x.ticks,
                         color: theme.main.paper.text.secondary,
-                        display: data.length >= 1,
+                        display: !showNoData,
                     }
                 },
                 y: {
@@ -214,7 +215,7 @@ export default function AccountBalanceChart ({ data, type, loading, fiat, height
                     ticks: {
                         ...options.scales.x.ticks,
                         color: theme.main.paper.text.secondary,
-                        display: data.length >= 1,
+                        display: !showNoData,
                     }
                 }
             },
@@ -282,7 +283,7 @@ export default function AccountBalanceChart ({ data, type, loading, fiat, height
         } else if (type === 'yearly') {
             setChartOptions(setOptions('month', 2, getMax(), 'MMMM D, YYYY'))
         }
-    }, [data, type])
+    }, [data, type, showNoData])
 
     return (
         <div style={{ height: `${height}px` }}>
