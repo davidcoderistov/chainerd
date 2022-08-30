@@ -4,21 +4,21 @@ import { Button, Menu, MenuItem, ButtonProps } from '@mui/material'
 import { KeyboardArrowDown, KeyboardArrowUp } from '@mui/icons-material'
 
 
-export interface Option {
-    id: string
-    name: string
+export interface Option<T, U extends React.ReactNode> {
+    id: T
+    name: U
 }
 
-interface MenuButtonProps {
+interface MenuButtonProps<T,U extends React.ReactNode> {
     children: any
-    options: Option[]
+    options: Option<T, U>[]
     disabled: boolean
     size?: ButtonProps['size']
     sxProps?: any
-    onChange: (option: Option, index: number) => void
+    onChange: (option: Option<T, U>, index: number) => void
 }
 
-export default function MenuButton ({ children, options, disabled, sxProps, size, onChange }: MenuButtonProps) {
+export default function MenuButton<T,U extends React.ReactNode> ({ children, options, disabled, sxProps, size, onChange }: MenuButtonProps<T, U>) {
 
     const { theme } = useContext(ThemeContext)
 
@@ -34,7 +34,7 @@ export default function MenuButton ({ children, options, disabled, sxProps, size
     }
 
     const handleChange = useCallback(
-        (option: Option, index: number) => {
+        (option: Option<T,U>, index: number) => {
             onChange(option, index)
             handleClose()
         },
