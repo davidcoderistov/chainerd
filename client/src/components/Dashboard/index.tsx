@@ -1,14 +1,45 @@
 import React, { useState, useContext } from 'react'
 import { useSelector, useDispatch } from 'react-redux'
 import { addressActions } from '../../slices/address'
+import { networkActions } from '../../slices/network'
 import { getSyncing, getAddressesLoading } from '../../selectors/address'
-import { ThemeContext } from '../../config'
+import { getNetwork } from '../../selectors/network'
+import { ThemeContext, NETWORK } from '../../config'
 import { Container, Grid, Box, List, Drawer as MuiDrawer, Toolbar, Divider, Tooltip, CssBaseline, Typography, Switch, IconButton } from '@mui/material'
 import { LoadingButton } from '@mui/lab'
 import { styled, createTheme, ThemeProvider } from '@mui/material/styles'
 import { ChevronLeft as ChevronLeftIcon, ChevronRight as ChevronRightIcon, Sync } from '@mui/icons-material'
 import NavLink from './NavLink'
 import NavButton from './NavButton'
+import MenuButton, { Option } from '../MenuButton'
+
+
+const networkOptions: Array<{ id: NETWORK, name: string }> = [
+    {
+        id: 'mainnet',
+        name: 'Ethereum Mainnet'
+    },
+    {
+        id: 'goerli',
+        name: 'Goerli Testnet'
+    },
+    {
+        id: 'kovan',
+        name: 'Kovan Testnet'
+    },
+    {
+        id: 'rinkeby',
+        name: 'Rinkeby Testnet'
+    },
+    {
+        id: 'ropsten',
+        name: 'Ropsten Testnet'
+    },
+    {
+        id: 'sepolia',
+        name: 'Sepolia Testnet'
+    },
+]
 
 const drawerWidth: number = 270
 
@@ -99,12 +130,14 @@ export default function Dashboard ({ walletExists, walletLoading, onSendTransact
 
     const dispatch = useDispatch()
 
-    const { theme, changeTheme } = useContext(ThemeContext)
+    const { theme, changeTheme, dark } = useContext(ThemeContext)
 
     const [open, setOpen] = useState<boolean>(true)
 
     const isSyncing = useSelector(getSyncing)
     const addressesLoading = useSelector(getAddressesLoading)
+    const network = useSelector(getNetwork)
+    const selectedNetwork = networkOptions.find(n => n.id === network)
 
     const toggleDrawer = () => {
         setOpen(!open)
@@ -116,6 +149,10 @@ export default function Dashboard ({ walletExists, walletLoading, onSendTransact
 
     const handleSyncEthPrice = () => {
         dispatch(addressActions.syncEthPrice())
+    }
+
+    const handleChangeNetwork = (option: Option<NETWORK, string>) => {
+        dispatch(networkActions.setNetwork({ network: option.id }))
     }
 
     return (
@@ -132,7 +169,7 @@ export default function Dashboard ({ walletExists, walletLoading, onSendTransact
                         }}
                     >
                         { open && (
-                            <Typography noWrap variant='h6' color='primary.main'>
+                            <Typography noWrap variant='h6' color={theme.main.button}>
                                 Chainerd
                             </Typography>
                         )}
@@ -169,14 +206,22 @@ export default function Dashboard ({ walletExists, walletLoading, onSendTransact
                         backgroundColor: theme.main.background
                     }}
                 >
-                    <Container maxWidth='lg' sx={{ mt: 4, mb: 4, ...!walletExists && !walletLoading && { width: '60%' } }}>
+                    <Container maxWidth='lg' sx={{ mt: 4, mb: 4 }}>
                         <Grid container>
                             <Grid container item xs={12} sx={{ mb: 3 }} justifyContent='end' alignItems='center'>
+                                <MenuButton
+                                    options={networkOptions}
+                                    disabled={false}
+                                    size='large'
+                                    sxProps={dark ? { backgroundColor: theme.menu.background, borderRadius: '30px', mr: 3 } : { mr: 3 }}
+                                    onChange={handleChangeNetwork}>
+                                    { selectedNetwork ? selectedNetwork.name : 'N/A' }
+                                </MenuButton>
                                 { walletExists && (
-                                    <Tooltip title='Sync eth price' placement='left' arrow>
+                                    <Tooltip title='Sync eth price' placement='bottom' arrow>
                                         <span>
                                             <LoadingButton
-                                                sx={{ color: theme.main.sync }}
+                                                sx={{ color: theme.main.sync , ...dark && { '&:hover': { backgroundColor: theme.menu.background }} }}
                                                 onClick={handleSyncEthPrice}
                                                 loading={isSyncing}
                                                 disabled={walletLoading || addressesLoading}>
@@ -187,9 +232,17 @@ export default function Dashboard ({ walletExists, walletLoading, onSendTransact
                                 )}
                                 <SwitchMode onChange={handleSwitchMode} defaultChecked />
                             </Grid>
-                            <Grid item xs={12}>
-                                { children }
-                            </Grid>
+                            { !walletExists && !walletLoading ? (
+                                <Grid container item xs={12} justifyContent='center'>
+                                    <Box width='60%'>
+                                        { children }
+                                    </Box>
+                                </Grid>
+                            ): (
+                                <Grid item xs={12}>
+                                    { children }
+                                </Grid>
+                            )}
                         </Grid>
                     </Container>
                 </Box>
