@@ -177,6 +177,7 @@ export default function SendTransactionModal ({ open, onClose } : SendTransactio
                             color: (theme) => theme.palette.grey[500],
                         }}
                         onClick={handleCloseSendTransactionModal}
+                        disabled={loading}
                     >
                         <Close />
                     </IconButton>
