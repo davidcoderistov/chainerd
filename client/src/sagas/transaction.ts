@@ -168,13 +168,16 @@ export function *sendTransaction ({ payload }: ReturnType<typeof transactionActi
                 }
                 const addresses: AddressType[] = yield select(getAddresses)
                 const totalAmount = Number(transaction.amount) + Number(transaction.fee)
-                const newAddresses = addresses.map((address, index) => {
-                    const ethAmount = Number(toRoundedEth(address.ethAmount - totalAmount))
-                    return {
-                        ...address,
-                        ethAmount,
-                        fiatAmount: Number(toRoundedFiat(Number(ethAmount) * ethPrice)),
+                const newAddresses = addresses.map((address) => {
+                    if (payload.fromAddress === address.address) {
+                        const ethAmount = Number(toRoundedEth(address.ethAmount - totalAmount))
+                        return {
+                            ...address,
+                            ethAmount,
+                            fiatAmount: Number(toRoundedFiat(Number(ethAmount) * ethPrice)),
+                        }
                     }
+                    return address
                 })
                 const percentages = distributePercentages(newAddresses.map(address => address.ethAmount))
                 yield put(addressActions.loadAllFulfilled({
