@@ -14,7 +14,7 @@ import {
 } from '../../selectors/portfolio'
 import {
     getAddresses,
-    getLoading,
+    getAddressesLoading,
 } from '../../selectors/address'
 import ViewAccountBalances from '../../components/ViewAccountBalances'
 import ViewAssetAllocation from '../../components/ViewAssetAllocation'
@@ -87,7 +87,7 @@ export default function PortfolioPage () {
 
     // START OF ALLOCATION DATA //
 
-    const addressesLoading = useSelector(getLoading)
+    const addressesLoading = useSelector(getAddressesLoading)
     const allocations = addresses.map(address => ({
         account: address.alias ? address.alias : 'N/A',
         address: address.address,
@@ -116,12 +116,12 @@ export default function PortfolioPage () {
     }
 
     useEffect(() => {
-        if (!latestTransactionsFetched) {
+        if (!latestTransactionsFetched && !addressesLoading && addresses.length > 0) {
             dispatch(portfolioActions.fetchLatestTransactions({
                 addresses: addresses.map(address => address.address),
             }))
         }
-    }, [addresses, latestTransactionsFetched])
+    }, [addresses, addressesLoading, latestTransactionsFetched])
 
     // END OF TRANSACTIONS DATA //
 
