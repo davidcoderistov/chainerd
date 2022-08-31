@@ -49,10 +49,13 @@ export interface Transaction {
 
 export type TransactionDetailsModalProps = {
     open: boolean
+    network: string | null
     onClose: () => void
 } & Transaction
 
 export default function TransactionDetailsModal (props: TransactionDetailsModalProps) {
+
+    const baseUrl = props.network ? `https://${props.network}.etherscan.io` : 'https://etherscan.io'
 
     return (
         <Dialog open={props.open} fullWidth={true} maxWidth='xs' scroll='paper'>
@@ -150,7 +153,7 @@ export default function TransactionDetailsModal (props: TransactionDetailsModalP
             <DialogActions>
                 <Button
                     variant='contained'
-                    href={`https://kovan.etherscan.io/tx/${props.transactionHash}`}
+                    href={`${baseUrl}/tx/${props.transactionHash}`}
                     sx={{ mr: 2, textTransform: 'none' }}>
                     View in explorer
                 </Button>

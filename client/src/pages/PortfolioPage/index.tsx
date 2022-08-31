@@ -16,6 +16,7 @@ import {
     getAddresses,
     getAddressesLoading,
 } from '../../selectors/address'
+import { getNetwork } from '../../selectors/network'
 import ViewAccountBalances from '../../components/ViewAccountBalances'
 import ViewAssetAllocation from '../../components/ViewAssetAllocation'
 import Transactions from '../../components/Transactions'
@@ -125,6 +126,9 @@ export default function PortfolioPage () {
 
     // END OF TRANSACTIONS DATA //
 
+    const selectedNetwork = useSelector(getNetwork)
+    const network = selectedNetwork === 'mainnet' ? null : selectedNetwork
+
     return (
         <React.Fragment>
             <ViewAccountBalances
@@ -155,6 +159,7 @@ export default function PortfolioPage () {
             { selectedTransaction && (
                 <TransactionDetailsModal
                     open={true}
+                    network={network}
                     onClose={handleCloseTransactionDetailsModal}
                     withdrawal={selectedTransaction.withdrawal}
                     ethAmount={selectedTransaction.ethAmount}

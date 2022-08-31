@@ -18,6 +18,7 @@ import {
     getTransactionsLoading,
     getTransactionsFetched,
 } from '../../selectors/account'
+import { getNetwork } from '../../selectors/network'
 import ViewAccountBalance from '../../components/ViewAccountBalance'
 import Transactions from '../../components/Transactions'
 import TransactionDetailsModal, { Transaction } from '../../components/TransactionDetailsModal'
@@ -103,6 +104,9 @@ export default function AccountPage () {
         }
     }, [selectedAddress, transactionsFetched])
 
+    const selectedNetwork = useSelector(getNetwork)
+    const network = selectedNetwork === 'mainnet' ? null : selectedNetwork
+
     return (
         <React.Fragment>
             <Breadcrumbs sx={{ fontSize: 22, color: theme.main.link }}>
@@ -142,6 +146,7 @@ export default function AccountPage () {
             { selectedTransaction && (
                 <TransactionDetailsModal
                     open={true}
+                    network={network}
                     onClose={handleCloseTransactionDetailsModal}
                     withdrawal={selectedTransaction.withdrawal}
                     ethAmount={selectedTransaction.ethAmount}
