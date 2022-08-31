@@ -36,31 +36,36 @@ const InfoContent = styled('div')({
     alignItems: 'end',
 })
 
-const Info = ({ title, subtitle, caption } : { title: string, subtitle: string, caption?: string }) => (
-    <InfoContainer item xs={12}>
-        <Label value={title} />
-        <InfoContent>
-            { caption ? (
-                <React.Fragment>
-                    <Typography variant='subtitle2'>
-                        { subtitle }
-                    </Typography>
-                    <Label value={caption} />
-                </React.Fragment>
-            ) : (
-                <Tooltip title={subtitle} placement='top' arrow>
-                    <Typography variant='subtitle2'>
-                        <Link
-                            href={`https://kovan.etherscan.io/tx/${subtitle}`}
-                            underline='none'>
-                            { `${subtitle.slice(0, 40)}...` }
-                        </Link>
-                    </Typography>
-                </Tooltip>
-            )}
-        </InfoContent>
-    </InfoContainer>
-)
+const Info = ({ title, subtitle, caption, network } : { title: string, subtitle: string, caption?: string, network?: string | null }) => {
+
+    const baseUrl = network ? `https://${network}.etherscan.io` : 'https://etherscan.io'
+
+    return (
+        <InfoContainer item xs={12}>
+            <Label value={title} />
+            <InfoContent>
+                { caption ? (
+                    <React.Fragment>
+                        <Typography variant='subtitle2'>
+                            { subtitle }
+                        </Typography>
+                        <Label value={caption} />
+                    </React.Fragment>
+                ) : (
+                    <Tooltip title={subtitle} placement='top' arrow>
+                        <Typography variant='subtitle2'>
+                            <Link
+                                href={`${baseUrl}/tx/${subtitle}`}
+                                underline='none'>
+                                { `${subtitle.slice(0, 40)}...` }
+                            </Link>
+                        </Typography>
+                    </Tooltip>
+                )}
+            </InfoContent>
+        </InfoContainer>
+    )
+}
 
 export interface SummaryStepProps {
     fromAddress: string,
@@ -72,6 +77,7 @@ export interface SummaryStepProps {
     cryptoTotalAmount: string,
     fiatTotalAmount: string,
     transactionHash?: string | null,
+    network: string | null
 }
 
 const toEth = (eth: string) => `${eth} ETH`
@@ -89,6 +95,7 @@ export default function SummaryStep (props: SummaryStepProps) {
         cryptoTotalAmount,
         fiatTotalAmount,
         transactionHash,
+        network,
     } = props
 
     return (
@@ -121,7 +128,8 @@ export default function SummaryStep (props: SummaryStepProps) {
                 <React.Fragment>
                     <Info
                         title='Transaction Hash'
-                        subtitle={transactionHash} />
+                        subtitle={transactionHash}
+                        network={network} />
                     <Box sx={{ my: 1 }} />
                 </React.Fragment>
             )}

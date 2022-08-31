@@ -20,6 +20,7 @@ import {
     isSendTransactionError,
     getHash,
 } from '../../selectors/transaction'
+import { getNetwork } from '../../selectors/network'
 import { Dialog, DialogTitle, DialogContent, DialogActions } from '@mui/material'
 import { Stepper, Step, StepLabel } from '@mui/material'
 import { Grid, IconButton, CircularProgress, styled } from '@mui/material'
@@ -114,6 +115,9 @@ export default function SendTransactionModal ({ open, onClose } : SendTransactio
     const ethTotal = useSelector(getEthTotalAmount)
     const fiatTotal = useSelector(getFiatTotalAmount)
     const addressEthTotal = useSelector(getAddressEthAmount)
+
+    const selectedNetwork = useSelector(getNetwork)
+    const network = selectedNetwork === 'mainnet' ? null : selectedNetwork
 
     const [, errorEthAmount, handleBlurEthAmount] = useFormInputValidator(ethAmountRules, [ethTotal.toString(), addressEthTotal.toString()], [ethTotal])
 
@@ -210,7 +214,8 @@ export default function SendTransactionModal ({ open, onClose } : SendTransactio
                                         fiatFees={toRoundedFiat(fiatFee)}
                                         cryptoTotalAmount={toRoundedEth(ethTotal)}
                                         fiatTotalAmount={toRoundedFiat(fiatTotal)}
-                                        transactionHash={transactionHash} />
+                                        transactionHash={transactionHash}
+                                        network={network} />
                                 ): (
                                     <React.Fragment>
                                         { activeStep === 0 && (
@@ -243,7 +248,8 @@ export default function SendTransactionModal ({ open, onClose } : SendTransactio
                                                 cryptoFees={toRoundedEth(ethFee)}
                                                 fiatFees={toRoundedFiat(fiatFee)}
                                                 cryptoTotalAmount={toRoundedEth(ethTotal)}
-                                                fiatTotalAmount={toRoundedFiat(fiatTotal)}  />
+                                                fiatTotalAmount={toRoundedFiat(fiatTotal)}
+                                                network={network} />
                                         )}
                                     </React.Fragment>
                                 )}
