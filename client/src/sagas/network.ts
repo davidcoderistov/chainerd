@@ -1,5 +1,4 @@
 import { put, takeLatest } from 'redux-saga/effects'
-import { keystoreActions } from '../slices/keystore'
 import { addressActions } from '../slices/address'
 import { accountActions } from '../slices/account'
 import { transactionActions } from '../slices/transaction'
@@ -17,7 +16,7 @@ export function *setNetwork () {
     yield put(transactionActions.clearAll())
     const ks = getCurrentSerializedKeystore()
     if (ks) {
-        yield put(keystoreActions.load({ keystore: ks }))
+        yield put(addressActions.loadAll({ keystore: ks }))
     }
 }
 
