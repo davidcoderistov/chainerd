@@ -4,7 +4,7 @@ import { keystoreActions } from '../../../slices/keystore'
 import { addressActions } from '../../../slices/address'
 
 
-describe('Test *destroyKeystore fulfilled case', () => {
+describe('Test *destroyKeystore saga', () => {
     const it = destroyKeystore()
 
     test('*destroyKeystore should dispatch pending action', () => {
