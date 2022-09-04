@@ -109,6 +109,27 @@ describe('Test *deleteAddress saga', () => {
         })
     })
 
+    test('*deleteAddress should dispatch rejected action -> address does not exist in local storage', () => {
+        const clone = it.clone()
+
+        const ksHash = 'random hash'
+        store.set('hash', ksHash)
+        store.set('all', {
+            [ksHash]: {
+                keystore: 'random serialized',
+                addresses: [],
+            }
+        })
+
+        expect(clone.next('random serialized')).toEqual({
+            value: put(addressActions.rejected({
+                statusCode: STATUS_CODES.DELETE_ADDRESS,
+                errorMessage: 'Can\'t delete address, it does not exist'
+            })),
+            done: false,
+        })
+    })
+
     test('*deleteAddress should dispatch delete fulfilled action', () => {
         const ksHash = 'random hash'
         store.set('hash', ksHash)
