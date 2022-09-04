@@ -102,7 +102,7 @@ describe('Test *deleteAddress saga', () => {
         })
     })
 
-    test('*deleteAddress should selected serialized ks', () => {
+    test('*deleteAddress should select serialized ks', () => {
         expect(it.next()).toEqual({
             value: select(getSerializedKeystore),
             done: false,
