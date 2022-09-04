@@ -10,7 +10,7 @@ import store from 'store'
 describe('Test *editAddress saga', () => {
     const payload = { address: 'random address', alias: 'edited' }
     // @ts-ignore
-    const it = cloneableGenerator(editAddress)(addressActions.delete(payload))
+    const it = cloneableGenerator(editAddress)(addressActions.edit(payload))
 
     test('*editAddress should dispatch pending action', () => {
         expect(it.next()).toEqual({
