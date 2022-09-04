@@ -118,6 +118,7 @@ describe('Test *deleteAddress saga', () => {
                 addresses: [payload.address],
             }
         })
+
         expect(it.next('random serialized')).toEqual({
             value: put(addressActions.deleteFulfilled({
                 address: payload.address,
@@ -126,6 +127,8 @@ describe('Test *deleteAddress saga', () => {
             })),
             done: false,
         })
+
+        expect(store.get('all')[ksHash].addresses).toEqual([])
     })
 
     test('*deleteAddress should select addresses', () => {
