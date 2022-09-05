@@ -34,7 +34,7 @@ describe('Test *watchPortfolio saga', () => {
 
     test('*watchPortfolio should watch for *fetchLatestTransactions saga', () => {
         expect(it.next()).toEqual({
-            value: takeLatest(portfolioActions.fetchLatestTransactions, fetchLatestTransactions),
+            value: takeLatest(portfolioActions.fetchLatestTransactions.type, fetchLatestTransactions),
             done: false,
         })
     })
