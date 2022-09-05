@@ -229,6 +229,7 @@ export function *generateYearlyData ({ payload }: ReturnType<typeof portfolioAct
 export function *fetchLatestTransactions ({ payload }: ReturnType<typeof portfolioActions.fetchLatestTransactions>) {
     if (payload.addresses.length <= 0) {
         yield put(portfolioActions.fetchLatestTransactionsFulfilled({ transactions: [] }))
+        return
     }
     try {
         const network: NETWORK = yield select(getNetwork)
@@ -285,5 +286,5 @@ export default function *watchPortfolio () {
     yield takeLatest(portfolioActions.fetchWeekly.type, generateWeeklyData)
     yield takeLatest(portfolioActions.fetchMonthly.type, generateMonthlyData)
     yield takeLatest(portfolioActions.fetchYearly.type, generateYearlyData)
-    yield takeLatest(portfolioActions.fetchLatestTransactions, fetchLatestTransactions)
+    yield takeLatest(portfolioActions.fetchLatestTransactions.type, fetchLatestTransactions)
 }
